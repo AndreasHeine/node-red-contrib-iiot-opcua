@@ -20,7 +20,8 @@ de.biancoroyal.opcua.iiot.core.connector.core = de.biancoroyal.opcua.iiot.core.c
 de.biancoroyal.opcua.iiot.core.connector.internalDebugLog = de.biancoroyal.opcua.iiot.core.connector.internalDebugLog || require('debug')('opcuaIIoT:connector') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.connector.detailDebugLog = de.biancoroyal.opcua.iiot.core.connector.detailDebugLog || require('debug')('opcuaIIoT:connector:details') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.connector.libDebugLog = de.biancoroyal.opcua.iiot.core.connector.libDebugLog || require('debug')('opcuaIIoT:connector:nodeopcua') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.connector.Stately = de.biancoroyal.opcua.iiot.core.connector.Stately || require('stately.js') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.connector.xstate = de.biancoroyal.opcua.iiot.core.connector.xstate || require('xstate') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.connector.current = de.biancoroyal.opcua.iiot.core.connector.current || '' // eslint-disable-line no-use-before-define
 
 de.biancoroyal.opcua.iiot.core.connector.initConnectorNode = function (node) {
   this.core.initClientNode(node)
@@ -38,83 +39,92 @@ de.biancoroyal.opcua.iiot.core.connector.initConnectorNode = function (node) {
 }
 
 de.biancoroyal.opcua.iiot.core.connector.createStatelyMachine = function () {
-  return de.biancoroyal.opcua.iiot.core.connector.Stately.machine({
-    'IDLE': {
-      'initopcua': 'INITOPCUA',
-      'lock': 'LOCKED',
-      'end': 'END'
-    },
-    'INITOPCUA': {
-      'open': 'OPEN',
-      'close': 'CLOSED',
-      'lock': 'LOCKED',
-      'end': 'END'
-    },
-    'OPEN': {
-      'sessionrequest': 'SESSIONREQUESTED',
-      'close': 'CLOSED',
-      'lock': 'LOCKED',
-      'end': 'END'
-    },
-    'SESSIONREQUESTED': {
-      'open': 'OPEN',
-      'sessionactive': 'SESSIONACTIVE',
-      'lock': 'LOCKED',
-      'end': 'END'
-    },
-    'SESSIONACTIVE': {
-      'open': 'OPEN',
-      'sessionclose': 'SESSIONCLOSED',
-      'lock': 'LOCKED',
-      'end': 'END'
-    },
-    'SESSIONRESTART': {
-      'idle': 'IDLE',
-      'open': 'OPEN',
-      'sessionclose': 'SESSIONCLOSED',
-      'close': 'CLOSED',
-      'lock': 'LOCKED',
-      'end': 'END'
-    },
-    'SESSIONCLOSED': {
-      'idle': 'IDLE',
-      'open': 'OPEN',
-      'close': 'CLOSED',
-      'sessionrestart': 'SESSIONRESTART',
-      'lock': 'LOCKED',
-      'unlock': 'UNLOCKED',
-      'end': 'END'
-    },
-    'CLOSED': {
-      'open': 'OPEN',
-      'lock': 'LOCKED',
-      'unlock': 'UNLOCKED',
-      'end': 'END',
-      'idle': 'IDLE'
-    },
-    'LOCKED': {
-      'sessionclose': 'SESSIONCLOSED',
-      'open': 'OPEN',
-      'close': 'CLOSED',
-      'unlock': 'UNLOCKED',
-      'lock': 'LOCKED',
-      'sessionrestart': 'SESSIONRESTART',
-      'reconfigure': 'RECONFIGURED',
-      'stopopcua': 'STOPPED',
-      'renew': 'RENEW',
-      'end': 'END'
-    },
-    'UNLOCKED': {
-      'idle': 'IDLE',
-      'lock': 'LOCKED',
-      'open': 'OPEN',
-      'end': 'END'
-    },
-    'RECONFIGURED': {},
-    'RENEW': {},
-    'STOPPED': {},
-    'END': {}
-  }, 'IDLE')
+  const connectorMachine = de.biancoroyal.opcua.iiot.core.connector.xstate.Machine({
+    id: 'connector',
+    initial: 'idle',
+    states: {
+      idle: { on: {
+        INITOPCUA: 'initopcua',
+        LOCKED: 'lock',
+        END: 'end'
+      } },
+      initopcua: { on: {
+        OPEN: 'open',
+        IDLE: 'idle',
+        END: 'end'
+      } },
+      open: { on: {
+        SESSIONREQUESTED: 'sessionrequest',
+        CLOSED: 'close',
+        LOCKED: 'lock',
+        END: 'end'
+      } },
+      sessionrequest: { on: {
+        SESSIONACTIVE: 'sessionactive',
+        CLOSED: 'close',
+        LOCKED: 'lock',
+        END: 'end'
+      } },
+      sessionactive: { on: {
+        SESSIONCLOSED: 'sessionclose',
+        CLOSED: 'close',
+        LOCKED: 'lock',
+        END: 'end'
+      } },
+      sessionclose: { on: {
+        OPEN: 'open',
+        CLOSED: 'close',
+        SESSIONRESTART: 'sessionrestart',
+        LOCKED: 'lock',
+        UNLOCKED: 'unlock',
+        END: 'end'
+      } },
+      sessionrestart: { on: {
+        SESSIONREQUESTED: 'sessionrequest',
+        CLOSED: 'close',
+        LOCKED: 'lock',
+        END: 'end'
+      } },
+      close: { on: {
+        IDLE: 'idle',
+        OPEN: 'open',
+        LOCKED: 'lock',
+        UNLOCKED: 'unlock',
+        END: 'end'
+      } },
+      lock: { on: {
+        IDLE: 'idle',
+        OPEN: 'open',
+        SESSIONREQUESTED: 'sessionrequest',
+        SESSIONACTIVE: 'sessionactive',
+        SESSIONCLOSED: 'sessionclose',
+        SESSIONRESTART: 'sessionrestart',
+        LOCKED: 'lock',
+        UNLOCKED: 'unlock',
+        CLOSED: 'close',
+        END: 'end',
+        RECONFIGURED: 'reconfigure',
+        STOPPED: 'stopopcua',
+        RENEW: 'renew'
+      } },
+      reconfigure: { on: {
+        END: 'end'
+      } },
+      stopopcua: { on: {
+        END: 'end'
+      } },
+      end: { on: {
+        type: 'final'
+      } }
+    }
+  })
+
+  return de.biancoroyal.opcua.iiot.core.connector.xstate.interpret(connectorMachine)
+    .onTransition(state => {
+      de.biancoroyal.opcua.iiot.core.connector.current = state
+      console.log(state.value)
+    })
+    .start()
 }
 
 de.biancoroyal.opcua.iiot.core.connector.setListenerToClient = function (node) {

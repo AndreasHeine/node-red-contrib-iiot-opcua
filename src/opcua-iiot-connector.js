@@ -60,8 +60,6 @@ module.exports = function (RED) {
     coreConnector.internalDebugLog('Open Connector Node')
 
     node.bianco.iiot.stateMachine = coreConnector.createStatelyMachine()
-    coreConnector.internalDebugLog('Start FSM: ' + node.bianco.iiot.stateMachine.getMachineState())
-    coreConnector.detailDebugLog('FSM events:' + node.bianco.iiot.stateMachine.getMachineEvents())
 
     let sessionStartTimeout = null
     let clientStartTimeout = null
@@ -149,15 +147,16 @@ module.exports = function (RED) {
         return
       }
 
-      node.bianco.iiot.stateMachine.unlock()
+      node.bianco.iiot.stateMachine.send('unlock')
       node.bianco.iiot.opcuaClient.connect(node.endpoint, function (err) {
         if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
           if (err) {
-            node.bianco.iiot.stateMachine.lock().stopopcua()
+            node.bianco.iiot.stateMachine.send('lock')
+            node.bianco.iiot.stateMachine.send('stopopcua')
             node.bianco.iiot.handleError(err)
           } else {
             coreConnector.internalDebugLog('Client Is Connected To ' + node.endpoint)
-            node.bianco.iiot.stateMachine.open()
+            node.bianco.iiot.stateMachine.send('open')
           }
         } else {
           coreConnector.internalDebugLog('bianco.iiot not valid on connect resolve')
@@ -169,7 +168,8 @@ module.exports = function (RED) {
       if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
         node.bianco.iiot.opcuaDirectDisconnect(() => {
           node.bianco.iiot.renewFiniteStateMachine()
-          node.bianco.iiot.stateMachine.idle().initopcua()
+          node.bianco.iiot.stateMachine.send('idle')
+          node.bianco.iiot.stateMachine.send('initopcua')
           done()
         })
       } else {
@@ -243,15 +243,15 @@ module.exports = function (RED) {
       coreConnector.internalDebugLog('Request For New Session From ' + callerInfo)
 
       if (node.bianco.iiot.isInactiveOnOPCUA()) {
-        coreConnector.internalDebugLog('State Is Not Active While Start Session-> ' + node.bianco.iiot.stateMachine.getMachineState())
+        coreConnector.internalDebugLog('State Is Not Active While Start Session-> ' + coreConnector.current)
         if (node.showErrors) {
           node.error(new Error('OPC UA Connector Is Not Active'), { payload: 'Create Session Error' })
         }
         return
       }
 
-      if (node.bianco.iiot.stateMachine.getMachineState() !== 'OPEN') {
-        coreConnector.internalDebugLog('Session Request Not Allowed On State ' + node.bianco.iiot.stateMachine.getMachineState())
+      if (coreConnector.current.value !== 'open') {
+        coreConnector.internalDebugLog('Session Request Not Allowed On State ' + coreConnector.current)
         if (node.showErrors) {
           node.error(new Error('OPC UA Connector Is Not Open'), { payload: 'Create Session Error' })
         }
@@ -259,20 +259,20 @@ module.exports = function (RED) {
       }
 
       if (!node.bianco.iiot.opcuaClient) {
-        coreConnector.internalDebugLog('OPC UA Client Connection Is Not Valid On State ' + node.bianco.iiot.stateMachine.getMachineState())
+        coreConnector.internalDebugLog('OPC UA Client Connection Is Not Valid On State ' + coreConnector.current)
         if (node.showErrors) {
           node.error(new Error('OPC UA Client Connection Is Not Valid'), { payload: 'Create Session Error' })
         }
         return
       }
 
-      node.bianco.iiot.stateMachine.sessionrequest()
+      node.bianco.iiot.stateMachine.send('sessionrequest')
 
       node.bianco.iiot.opcuaClient.createSession(node.bianco.iiot.userIdentity || {})
         .then(function (session) {
           session.requestedMaxReferencesPerNode = 100000
           node.bianco.iiot.opcuaSession = session
-          node.bianco.iiot.stateMachine.sessionactive()
+          node.bianco.iiot.stateMachine.send('sessionactive')
 
           coreConnector.detailDebugLog('Session Created On ' + node.endpoint + ' For ' + callerInfo)
           coreConnector.logSessionInformation(node)
@@ -282,7 +282,8 @@ module.exports = function (RED) {
           })
         }).catch(function (err) {
           if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
-            node.bianco.iiot.stateMachine.lock().stopopcua()
+            node.bianco.iiot.stateMachine.send('lock')
+            node.bianco.iiot.stateMachine.send('stopopcua')
             node.bianco.iiot.handleError(err)
           } else {
             coreConnector.internalDebugLog(err.message)
@@ -303,14 +304,14 @@ module.exports = function (RED) {
       }
 
       if (node.bianco.iiot.sessionNodeRequests > node.maxBadSessionRequests) {
-        coreConnector.internalDebugLog('Reset Bad Session Request On State ' + node.bianco.iiot.stateMachine.getMachineState())
+        coreConnector.internalDebugLog('Reset Bad Session Request On State ' + coreConnector.current)
         node.bianco.iiot.resetOPCUAConnection('ToManyBadSessionRequests')
       }
     }
 
     node.bianco.iiot.isInactiveOnOPCUA = function () {
-      let state = node.bianco.iiot.stateMachine.getMachineState()
-      return (state === 'STOPPED' || state === 'END' || state === 'RENEW' || state === 'RECONFIGURED')
+      let state = coreConnector.current.value
+      return (state === 'stopopcua' || state === 'end' || state === 'renew' || state === 'reconfigure')
     }
 
     node.bianco.iiot.resetOPCUAConnection = function (callerInfo) {
@@ -319,7 +320,8 @@ module.exports = function (RED) {
         return
       }
 
-      node.bianco.iiot.stateMachine.lock().renew()
+      node.bianco.iiot.stateMachine.send('lock')
+      node.bianco.iiot.stateMachine.send('renew')
       node.emit('reset_opcua_connection')
       node.bianco.iiot.closeSession(() => {
         node.bianco.iiot.renewConnection(() => {
@@ -330,7 +332,7 @@ module.exports = function (RED) {
 
     node.bianco.iiot.closeSession = function (done) {
       if (node.bianco.iiot.opcuaClient && node.bianco.iiot.opcuaSession) {
-        coreConnector.detailDebugLog('Close Session And Remove Subscriptions From Session On State ' + node.bianco.iiot.stateMachine.getMachineState())
+        coreConnector.detailDebugLog('Close Session And Remove Subscriptions From Session On State ' + coreConnector.current)
 
         try {
           node.bianco.iiot.opcuaSession.removeAllListeners()
@@ -347,7 +349,7 @@ module.exports = function (RED) {
           node.bianco.iiot.opcuaSession = null
         }
       } else {
-        coreConnector.internalDebugLog('Close Session Without Session On State ' + node.bianco.iiot.stateMachine.getMachineState())
+        coreConnector.internalDebugLog('Close Session Without Session On State ' + coreConnector.current)
         done()
       }
     }
@@ -368,13 +370,13 @@ module.exports = function (RED) {
       }
 
       coreConnector.logSessionInformation(node)
-      if (node.bianco.iiot.stateMachine.getMachineState() !== 'SESSIONRESTART') {
+      if (coreConnector.current.value !== 'sessionrestart') {
         node.bianco.iiot.stateMachine.lock().sessionclose()
       }
     }
 
     node.bianco.iiot.disconnectNodeOPCUA = function (done) {
-      coreConnector.internalDebugLog('OPC UA Disconnect Connector On State ' + node.bianco.iiot.stateMachine.getMachineState())
+      coreConnector.internalDebugLog('OPC UA Disconnect Connector On State ' + coreConnector.current)
 
       if (node.bianco.iiot.opcuaClient) {
         coreConnector.internalDebugLog('Close Node Disconnect Connector From ' + node.endpoint)
@@ -407,14 +409,14 @@ module.exports = function (RED) {
           coreConnector.core.resetBiancoNode(node)
           done()
         } else {
-          coreConnector.detailDebugLog('OPC UA Client Is Active On Close Node With State ' + node.bianco.iiot.stateMachine.getMachineState())
-          if (node.bianco.iiot.stateMachine.getMachineState() === 'SESSIONACTIVE') {
+          coreConnector.detailDebugLog('OPC UA Client Is Active On Close Node With State ' + coreConnector.current)
+          if (coreConnector.current.value === 'sessionactive') {
             node.bianco.iiot.closeConnector(() => {
               coreConnector.core.resetBiancoNode(node)
               done()
             })
           } else {
-            coreConnector.internalDebugLog(node.bianco.iiot.stateMachine.getMachineState() + ' -> !!!  CHECK CONNECTOR STATE ON CLOSE  !!!'.bgWhite.red)
+            coreConnector.internalDebugLog(coreConnector.current + ' -> !!!  CHECK CONNECTOR STATE ON CLOSE  !!!'.bgWhite.red)
             coreConnector.core.resetBiancoNode(node)
             done()
           }
@@ -440,10 +442,10 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.opcuaDirectDisconnect = function (done) {
-      coreConnector.detailDebugLog('OPC UA Disconnect From Connector ' + node.bianco.iiot.stateMachine.getMachineState())
+      coreConnector.detailDebugLog('OPC UA Disconnect From Connector ' + coreConnector.current)
       node.bianco.iiot.disconnectNodeOPCUA(() => {
         node.bianco.iiot.stateMachine.lock().close()
-        let fsmState = node.bianco.iiot.stateMachine.getMachineState()
+        let fsmState = coreConnector.current.value
         coreConnector.detailDebugLog('Disconnected On State ' + fsmState)
         if (!node.bianco.iiot.isInactiveOnOPCUA() && fsmState !== 'CLOSED') {
           console.log(fsmState)
@@ -455,7 +457,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.closeConnector = (done) => {
-      coreConnector.detailDebugLog('Close Connector ' + node.bianco.iiot.stateMachine.getMachineState())
+      coreConnector.detailDebugLog('Close Connector ' + coreConnector.current)
 
       if (node.bianco.iiot.isInactiveOnOPCUA()) {
         coreConnector.detailDebugLog('OPC UA Client Is Not Active On Close Connector')
@@ -472,8 +474,9 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.restartWithNewSettings = function (parameters, done) {
-      coreConnector.internalDebugLog('Renew With Flex Connector Request On State ' + node.bianco.iiot.stateMachine.getMachineState())
-      node.bianco.iiot.stateMachine.lock().reconfigure()
+      coreConnector.internalDebugLog('Renew With Flex Connector Request On State ' + coreConnector.current)
+      node.bianco.iiot.stateMachine.send('lock')
+      node.bianco.iiot.stateMachine.send('reconfigure')
       node.bianco.iiot.setNewParameters(parameters)
       node.bianco.iiot.initCertificatesAndKeys()
       node.bianco.iiot.renewConnection(done)
@@ -548,7 +551,8 @@ module.exports = function (RED) {
             } catch (err) {
               node.bianco.iiot.handleError(err)
               node.bianco.iiot.resetOPCUAObjects()
-              node.bianco.iiot.stateMachine.lock().stopopcua()
+              node.bianco.iiot.stateMachine.send('lock')
+              node.bianco.iiot.stateMachine.send('stopopcua')
             }
           }
         }, node.connectionStartDelay)
@@ -663,7 +667,7 @@ module.exports = function (RED) {
     node.bianco.iiot.renewFiniteStateMachine = function () {
       node.bianco.iiot.stateMachine = null
       node.bianco.iiot.stateMachine = coreConnector.createStatelyMachine()
-      assert(node.bianco.iiot.stateMachine.getMachineState() === 'IDLE')
+      assert(coreConnector.current.value === 'idle')
       node.bianco.iiot.subscribeFSMEvents(node.bianco.iiot.stateMachine)
     }
 
@@ -683,7 +687,7 @@ module.exports = function (RED) {
       node.bianco.iiot.registeredNodeList[opcuaNode.id] = opcuaNode
 
       opcuaNode.on('opcua_client_not_ready', () => {
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node) && node.bianco.iiot.stateMachine.getMachineState() !== 'END') {
+        if (coreConnector.core.isInitializedBiancoIIoTNode(node) && coreConnector.current.value !== 'end') {
           node.bianco.iiot.resetBadSession()
         }
       })
@@ -691,7 +695,8 @@ module.exports = function (RED) {
       if (Object.keys(node.bianco.iiot.registeredNodeList).length === 1) {
         coreConnector.internalDebugLog('Start Connector OPC UA Connection')
         node.bianco.iiot.renewFiniteStateMachine()
-        node.bianco.iiot.stateMachine.idle().initopcua()
+        node.bianco.iiot.stateMachine.send('idle')
+        node.bianco.iiot.stateMachine.send('initopcua')
       }
     }
 
@@ -712,13 +717,14 @@ module.exports = function (RED) {
       coreConnector.internalDebugLog('Deregister In Connector NodeId: ' + opcuaNode.id)
       delete node.bianco.iiot.registeredNodeList[opcuaNode.id]
 
-      if (node.bianco.iiot.stateMachine.getMachineState() === 'STOPPED' || node.bianco.iiot.stateMachine.getMachineState() === 'END') {
+      if (coreConnector.current.value === 'stopopcua' || coreConnector.current.value === 'end') {
         done()
         return
       }
 
       if (Object.keys(node.bianco.iiot.registeredNodeList).length === 0) {
-        node.bianco.iiot.stateMachine.lock().stopopcua()
+        node.bianco.iiot.stateMachine.send('lock')
+        node.bianco.iiot.stateMachine.send('stopopcua')
         if (node.bianco.iiot.opcuaClient) {
           coreConnector.detailDebugLog('OPC UA Direct Disconnect On Unregister Of All Nodes')
           try {
