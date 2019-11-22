@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -17,7 +17,7 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.server
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { server: {} } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.server.core = de.biancoroyal.opcua.iiot.core.server.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.server.internalDebugLog = de.biancoroyal.opcua.iiot.core.server.internalDebugLog || require('debug')('opcuaIIoT:server') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.server.detailDebugLog = de.biancoroyal.opcua.iiot.core.server.detailDebugLog || require('debug')('opcuaIIoT:server:details') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.server.isa95DebugLog = de.biancoroyal.opcua.iiot.core.server.isa95DebugLog || require('debug')('opcuaIIoT:server:ISA95') // eslint-disable-line no-use-before-define
@@ -33,9 +33,8 @@ de.biancoroyal.opcua.iiot.core.server.intervalList = de.biancoroyal.opcua.iiot.c
 de.biancoroyal.opcua.iiot.core.server.path = de.biancoroyal.opcua.iiot.core.server.path || require('path') // eslint-disable-line no-use-before-define
 
 de.biancoroyal.opcua.iiot.core.server.simulateVariation = function (data) {
-  let server = de.biancoroyal.opcua.iiot.core.server
-
-  let value = (1.0 + Math.sin(server.timeInterval / 360 * 3)) / 2.0
+  const server = de.biancoroyal.opcua.iiot.core.server
+  const value = (1.0 + Math.sin(server.timeInterval / 360 * 3)) / 2.0
 
   server.timeInterval++
   if (server.timeInterval > server.maxTimeInterval) {
@@ -68,7 +67,9 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpaceFromScript = function
 }
 
 de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, asoDemo) {
-  const LocalizedText = this.core.nodeOPCUA.LocalizedText
+  const coreBasics = de.biancoroyal.opcua.iiot.core.basics
+  const nodeOPCUA = coreBasics.nodeOPCUA
+  const LocalizedText = nodeOPCUA.LocalizedText
 
   return new Promise(
     function (resolve, reject) {
@@ -77,8 +78,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
         return
       }
 
-      let coreServer = de.biancoroyal.opcua.iiot.core.server
-      let addressSpace = server.engine.addressSpace
+      const addressSpace = server.engine.addressSpace
       const namespace = addressSpace.getOwnNamespace()
 
       if (!addressSpace) {
@@ -86,7 +86,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
         return
       }
 
-      let view = namespace.addView({
+      const view = namespace.addView({
         organizedBy: addressSpace.rootFolder.views,
         browseName: 'BiancoRoyalView',
         displayName: [
@@ -98,8 +98,8 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
       if (!asoDemo) {
         resolve()
       } else {
-        let constructAlarmAddressSpaceDemo = require('../helpers/alarms-and-conditions-demo').constructAlarmAddressSpaceDemo
-        let data = {}
+        const constructAlarmAddressSpaceDemo = require('../helpers/alarms-and-conditions-demo').constructAlarmAddressSpaceDemo
+        const data = {}
         constructAlarmAddressSpaceDemo(data, addressSpace)
 
         de.biancoroyal.opcua.iiot.core.server.timeInterval = 1
@@ -108,7 +108,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
         }, 500)
 
         de.biancoroyal.opcua.iiot.core.server.intervalList.push(de.biancoroyal.opcua.iiot.core.server.simulatorInterval)
-        let vendorName = namespace.addObject({
+        const vendorName = namespace.addObject({
           organizedBy: addressSpace.rootFolder.objects,
           typeDefinition: 'FolderType',
           nodeId: 'i=1234',
@@ -136,7 +136,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           dataType: 'Double',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
                 value: variable1
               })
@@ -153,14 +153,14 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           dataType: 'Double',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
                 value: variable2
               })
             },
             set: function (variant) {
               variable2 = parseFloat(variant.value)
-              return coreServer.core.nodeOPCUA.StatusCodes.Good
+              return nodeOPCUA.StatusCodes.Good
             }
           }
         })
@@ -175,19 +175,19 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           dataType: 'Double',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
                 value: variable3
               })
             },
             set: function (variant) {
               variable3 = parseFloat(variant.value)
-              return coreServer.core.nodeOPCUA.StatusCodes.Good
+              return nodeOPCUA.StatusCodes.Good
             }
           }
         })
 
-        let memoryVariable = namespace.addVariable({
+        const memoryVariable = namespace.addVariable({
           componentOf: vendorName,
           nodeId: 's=free_memory',
           browseName: 'FreeMemory',
@@ -199,9 +199,9 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
 
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
-                value: coreServer.core.availableMemory()
+                value: coreBasics.availableMemory()
               })
             }
           }
@@ -217,7 +217,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           }
         }, 1000))
 
-        let counterVariable = namespace.addVariable({
+        const counterVariable = namespace.addVariable({
           componentOf: vendorName,
           nodeId: 's=Counter',
           browseName: 'Counter',
@@ -225,7 +225,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
 
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'UInt16',
                 value: counterValue
               })
@@ -243,7 +243,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           }
         }, 500))
 
-        let fullcounterVariable = namespace.addVariable({
+        const fullcounterVariable = namespace.addVariable({
           componentOf: vendorName,
           nodeId: 's=FullCounter',
           browseName: 'FullCounter',
@@ -251,7 +251,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
 
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Int32',
                 value: fullcounterValue
               })
@@ -260,8 +260,8 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
         })
         addressSpace.installHistoricalDataNode(fullcounterVariable)
 
-        let externalValueWithSourceTimestamp = new coreServer.core.nodeOPCUA.DataValue({
-          value: new coreServer.core.nodeOPCUA.Variant({ dataType: 'Double', value: 10.0 }),
+        const externalValueWithSourceTimestamp = new nodeOPCUA.DataValue({
+          value: new nodeOPCUA.Variant({ dataType: 'Double', value: 10.0 }),
           sourceTimestamp: null,
           sourcePicoseconds: 0
         })
@@ -292,9 +292,9 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           arrayDimensions: [3, 3],
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
-                arrayType: coreServer.core.nodeOPCUA.VariantArrayType.Matrix,
+                arrayType: nodeOPCUA.VariantArrayType.Matrix,
                 dimensions: [3, 3],
                 value: [1, 2, 3, 4, 5, 6, 7, 8, 9]
               })
@@ -311,9 +311,9 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           arrayDimensions: null,
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
-                arrayType: coreServer.core.nodeOPCUA.VariantArrayType.Array,
+                arrayType: nodeOPCUA.VariantArrayType.Array,
                 value: [1, 2, 3, 4]
               })
             }
@@ -331,7 +331,7 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           dataType: 'Double',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
                 value: 200 + 100 * Math.sin(Date.now() / 10000)
               })
@@ -350,8 +350,8 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           dataType: 'DateTime',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
-                dataType: coreServer.core.nodeOPCUA.DataType.DateTime,
+              return new nodeOPCUA.Variant({
+                dataType: nodeOPCUA.DataType.DateTime,
                 value: new Date(Date.UTC(2016, 9, 13, 8, 40, 0))
               })
             }
@@ -369,8 +369,8 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           dataType: 'LocalizedText',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
-                dataType: coreServer.core.nodeOPCUA.DataType.LocalizedText,
+              return new nodeOPCUA.Variant({
+                dataType: nodeOPCUA.DataType.LocalizedText,
                 value: [{ text: 'multilingual text', locale: 'en' },
                   { text: 'mehrsprachiger Text', locale: 'de' },
                   { text: 'texte multilingue', locale: 'fr' }]
@@ -379,22 +379,22 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           }
         })
 
-        let fanSpeed = namespace.addVariable({
+        const fanSpeed = namespace.addVariable({
           organizedBy: vendorName,
           nodeId: 's=FanSpeed',
           browseName: 'FanSpeed',
           dataType: 'Double',
-          value: new coreServer.core.nodeOPCUA.Variant({ dataType: 'Double', value: 1000.0 })
+          value: new nodeOPCUA.Variant({ dataType: 'Double', value: 1000.0 })
         })
 
         de.biancoroyal.opcua.iiot.core.server.intervalList.push(setInterval(function () {
-          fanSpeed.setValueFromSource(new coreServer.core.nodeOPCUA.Variant({
+          fanSpeed.setValueFromSource(new nodeOPCUA.Variant({
             dataType: 'Double',
             value: 1000.0 + (Math.random() * 100 - 50)
           }))
         }, 10))
 
-        let method = namespace.addMethod(
+        const method = namespace.addMethod(
           vendorName, {
             nodeId: 'i=12345',
             browseName: 'Bark',
@@ -403,12 +403,12 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
               {
                 name: 'barks',
                 dataType: 'UInt32',
-                arrayType: coreServer.core.nodeOPCUA.VariantArrayType.Scalar,
+                arrayType: nodeOPCUA.VariantArrayType.Scalar,
                 description: { text: 'specifies the number of time I should bark' }
               }, {
                 name: 'volume',
                 dataType: 'UInt32',
-                arrayType: coreServer.core.nodeOPCUA.VariantArrayType.Scalar,
+                arrayType: nodeOPCUA.VariantArrayType.Scalar,
                 description: { text: 'specifies the sound volume [0 = quiet ,100 = loud]' }
               }
             ],
@@ -416,34 +416,34 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
             outputArguments: [{
               name: 'Barks',
               dataType: 'String',
-              arrayType: coreServer.core.nodeOPCUA.VariantArrayType.Array,
+              arrayType: nodeOPCUA.VariantArrayType.Array,
               description: { text: 'the generated barks' },
               valueRank: 1
             }]
           })
 
         method.bindMethod(function (inputArguments, context, callback) {
-          let nbBarks = inputArguments[0].value
-          let volume = inputArguments[1].value
-          let soundVolume = new Array(volume).join('!')
-          let barks = []
+          const nbBarks = inputArguments[0].value
+          const volume = inputArguments[1].value
+          const soundVolume = new Array(volume).join('!')
+          const barks = []
 
           for (let i = 0; i < nbBarks; i++) {
             barks.push('Whaff' + soundVolume)
           }
 
-          let callMethodResult = {
-            statusCode: coreServer.core.nodeOPCUA.StatusCodes.Good,
+          const callMethodResult = {
+            statusCode: nodeOPCUA.StatusCodes.Good,
             outputArguments: [{
-              dataType: coreServer.core.nodeOPCUA.DataType.String,
-              arrayType: coreServer.core.nodeOPCUA.VariantArrayType.Array,
+              dataType: nodeOPCUA.DataType.String,
+              arrayType: nodeOPCUA.VariantArrayType.Array,
               value: barks
             }]
           }
           callback(null, callMethodResult)
         })
 
-        let analogItemNode = namespace.addAnalogDataItem({
+        const analogItemNode = namespace.addAnalogDataItem({
           organizedBy: vendorName,
           nodeId: 's=TemperatureAnalogItem',
           browseName: 'TemperatureAnalogItem',
@@ -451,11 +451,11 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
           valuePrecision: 0.5,
           engineeringUnitsRange: { low: 100, high: 200 },
           instrumentRange: { low: -100, high: +200 },
-          engineeringUnits: coreServer.core.nodeOPCUA.standardUnits.degree_celsius,
+          engineeringUnits: nodeOPCUA.standardUnits.degree_celsius,
           dataType: 'Double',
           value: {
             get: function () {
-              return new coreServer.core.nodeOPCUA.Variant({
+              return new nodeOPCUA.Variant({
                 dataType: 'Double',
                 value: Math.random() + 19.0
               })
@@ -474,16 +474,16 @@ de.biancoroyal.opcua.iiot.core.server.constructAddressSpace = function (server, 
 }
 
 de.biancoroyal.opcua.iiot.core.server.destructAddressSpace = function (done) {
-  de.biancoroyal.opcua.iiot.core.server.intervalList.forEach(function (value, index, list) {
+  this.intervalList.forEach(function (value, index, list) {
     clearInterval(value)
     list[index] = null
   })
-  de.biancoroyal.opcua.iiot.core.server.intervalList = []
+  this.intervalList = []
   done()
 }
 
 de.biancoroyal.opcua.iiot.core.server.start = function (server, node) {
-  let coreServer = this
+  const coreServer = this
   return new Promise(
     function (resolve, reject) {
       if (!server) {
@@ -512,7 +512,7 @@ de.biancoroyal.opcua.iiot.core.server.start = function (server, node) {
               })
             })
 
-            let endpointUrl = server.endpoints[0].endpointDescriptions()[0].endpointUrl
+            const endpointUrl = server.endpoints[0].endpointDescriptions()[0].endpointUrl
             coreServer.internalDebugLog('Primary Server Endpoint URL ' + endpointUrl)
           }
 
@@ -603,16 +603,16 @@ de.biancoroyal.opcua.iiot.core.server.readConfigOfServerNode = function (node, c
 }
 
 de.biancoroyal.opcua.iiot.core.server.initServerNode = function (node) {
-  let serverNode = this.core.initCoreServerNode(node)
+  const serverNode = de.biancoroyal.opcua.iiot.core.basics.initCoreServerNode(node)
   serverNode.bianco.iiot.assert = require('better-assert')
   serverNode.setMaxListeners(this.UNLIMITED_LISTENERS)
   return serverNode
 }
 
 de.biancoroyal.opcua.iiot.core.server.loadNodeSets = function (node, dirname) {
-  let coreServer = this
-  let standardNodeSetFile = this.core.nodeOPCUA.standard_nodeset_file
-  let xmlFiles = [standardNodeSetFile]
+  const coreServer = this
+  const standardNodeSetFile = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA.standard_nodeset_file
+  const xmlFiles = [standardNodeSetFile]
 
   if (node.xmlsets) {
     node.xmlsets.forEach((xmlsetFileName) => {
@@ -634,7 +634,7 @@ de.biancoroyal.opcua.iiot.core.server.loadNodeSets = function (node, dirname) {
 }
 
 de.biancoroyal.opcua.iiot.core.server.loadCertificates = function (node) {
-  const nodeOPCUAServerPath = this.core.getNodeOPCUAServerPath()
+  const nodeOPCUAServerPath = de.biancoroyal.opcua.iiot.core.basics.getNodeOPCUAServerPath()
 
   this.detailDebugLog('config: ' + node.publicCertificateFile)
   if (!node.individualCerts || node.publicCertificateFile === null || node.publicCertificateFile === '') {
@@ -671,27 +671,30 @@ de.biancoroyal.opcua.iiot.core.server.checkUser = function (node, userName, pass
 }
 
 de.biancoroyal.opcua.iiot.core.server.initRegisterServerMethod = function (node) {
+  const nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA
   node.bianco.iiot.initialized = false
   node.bianco.iiot.opcuaServer = null
 
   if (!node.registerServerMethod) {
-    node.registerServerMethod = this.core.nodeOPCUA.RegisterServerMethod.HIDDEN
+    node.registerServerMethod = nodeOPCUA.RegisterServerMethod.HIDDEN
   } else {
     switch (parseInt(node.registerServerMethod)) {
       case 2:
-        node.registerServerMethod = this.core.nodeOPCUA.RegisterServerMethod.MDNS
+        node.registerServerMethod = nodeOPCUA.RegisterServerMethod.MDNS
         break
       case 3:
-        node.registerServerMethod = this.core.nodeOPCUA.RegisterServerMethod.LDS
+        node.registerServerMethod = nodeOPCUA.RegisterServerMethod.LDS
         break
       default:
-        node.registerServerMethod = this.core.nodeOPCUA.RegisterServerMethod.HIDDEN
+        node.registerServerMethod = nodeOPCUA.RegisterServerMethod.HIDDEN
     }
   }
   return node
 }
 
 de.biancoroyal.opcua.iiot.core.server.setDiscoveryOptions = function (node, serverOptions) {
+  const nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA
+
   if (!node.disableDiscovery) {
     serverOptions.registerServerMethod = node.registerServerMethod
 
@@ -703,7 +706,7 @@ de.biancoroyal.opcua.iiot.core.server.setDiscoveryOptions = function (node, serv
       serverOptions.capabilitiesForMDNS = node.capabilitiesForMDNS
     }
   } else {
-    node.registerServerMethod = this.core.nodeOPCUA.RegisterServerMethod.HIDDEN
+    node.registerServerMethod = nodeOPCUA.RegisterServerMethod.HIDDEN
   }
   return serverOptions
 }
@@ -718,16 +721,18 @@ de.biancoroyal.opcua.iiot.core.server.getAddressSpace = function (node, msg) {
 }
 
 de.biancoroyal.opcua.iiot.core.server.addVariableToAddressSpace = function (node, msg, humanReadableType, isProperty) {
-  let coreServer = this
-  let addressSpace = this.getAddressSpace(node)
+  const coreServer = this
+  const coreBasics = de.biancoroyal.opcua.iiot.core.basics
+  const nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA
+  const addressSpace = this.getAddressSpace(node)
 
   if (!addressSpace) {
     return
   }
 
-  let rootFolder = addressSpace.findNode(msg.payload.referenceNodeId)
-  let variableData = this.core.getVariantValue(msg.payload.datatype, msg.payload.value)
-  const LocalizedText = this.core.nodeOPCUA.LocalizedText
+  const rootFolder = addressSpace.findNode(msg.payload.referenceNodeId)
+  let variableData = coreBasics.getVariantValue(msg.payload.datatype, msg.payload.value)
+  const LocalizedText = nodeOPCUA.LocalizedText
 
   let newNodeOPCUAVariable = {}
 
@@ -748,14 +753,14 @@ de.biancoroyal.opcua.iiot.core.server.addVariableToAddressSpace = function (node
   newNodeOPCUAVariable.dataType = msg.payload.datatype
   newNodeOPCUAVariable.value = {
     get () {
-      return new coreServer.core.nodeOPCUA.Variant({
-        dataType: coreServer.core.nodeOPCUA.DataType[msg.payload.datatype],
+      return new nodeOPCUA.Variant({
+        dataType: nodeOPCUA.DataType[msg.payload.datatype],
         value: variableData
       })
     },
     set (variant) {
       variableData = variant.value
-      return coreServer.core.nodeOPCUA.StatusCodes.Good
+      return nodeOPCUA.StatusCodes.Good
     }
   }
 
@@ -764,18 +769,19 @@ de.biancoroyal.opcua.iiot.core.server.addVariableToAddressSpace = function (node
 }
 
 de.biancoroyal.opcua.iiot.core.server.addObjectToAddressSpace = function (node, msg, humanReadableType) {
-  let coreServer = this
-  let addressSpace = this.getAddressSpace(node)
+  const coreServer = this
+  const nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA
+  const addressSpace = this.getAddressSpace(node)
 
   if (!addressSpace) {
     return
   }
 
-  let rootFolder = addressSpace.findNode(msg.payload.referenceNodeId)
-  const LocalizedText = this.core.nodeOPCUA.LocalizedText
+  const rootFolder = addressSpace.findNode(msg.payload.referenceNodeId)
+  const LocalizedText = nodeOPCUA.LocalizedText
 
   if (rootFolder) {
-    let newNodeOPCUObject = {
+    const newNodeOPCUObject = {
       organizedBy: rootFolder,
       typeDefinition: msg.payload.objecttype,
       nodeId: msg.payload.nodeId,
@@ -791,14 +797,14 @@ de.biancoroyal.opcua.iiot.core.server.addObjectToAddressSpace = function (node, 
 }
 
 de.biancoroyal.opcua.iiot.core.server.deleteNOdeFromAddressSpace = function (node, msg) {
-  let addressSpace = this.getAddressSpace(node)
+  const addressSpace = this.getAddressSpace(node)
 
   if (!addressSpace) {
     return
   }
 
   if (msg.payload.nodeId) {
-    let searchedNode = addressSpace.findNode(msg.payload.nodeId)
+    const searchedNode = addressSpace.findNode(msg.payload.nodeId)
     if (searchedNode) {
       this.internalDebugLog('Delete NodeId ' + msg.payload.nodeId)
       addressSpace.deleteNode(searchedNode)
@@ -811,6 +817,8 @@ de.biancoroyal.opcua.iiot.core.server.deleteNOdeFromAddressSpace = function (nod
 }
 
 de.biancoroyal.opcua.iiot.core.server.restartServer = function (node) {
+  const basics = de.biancoroyal.opcua.iiot.core.basics
+
   if (node.bianco.iiot.opcuaServer) {
     node.bianco.iiot.opcuaServer.shutdown(function () {
       node.emit('shutdown')
@@ -821,7 +829,7 @@ de.biancoroyal.opcua.iiot.core.server.restartServer = function (node) {
   }
 
   node.send({ payload: 'server shutdown' })
-  this.core.setNodeStatusTo(node, 'shutdown')
+  basics.setNodeStatusTo(node, 'shutdown')
 }
 
 de.biancoroyal.opcua.iiot.core.server.handleServerError = function (node, err, msg) {
@@ -832,22 +840,23 @@ de.biancoroyal.opcua.iiot.core.server.handleServerError = function (node, err, m
 }
 
 de.biancoroyal.opcua.iiot.core.server.createServerNameWithPrefix = function (serverPort, prefix) {
-  let serverPrefix = (prefix !== '') ? prefix + '-' : prefix
+  const serverPrefix = (prefix !== '') ? prefix + '-' : prefix
   return 'NodeRED-IIoT-' + serverPrefix + 'Server-' + serverPort
 }
 
 de.biancoroyal.opcua.iiot.core.server.buildServerOptions = function (node, prefix) {
-  let coreServer = this
-  let geFullyQualifiedDomainName = coreServer.core.nodeOPCUA.get_fully_qualified_domain_name
-  let makeApplicationUrn = coreServer.core.nodeOPCUA.makeApplicationUrn
-  let today = new Date()
+  const coreServer = this
+  const nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA
+  const getFullyQualifiedDomainName = nodeOPCUA.get_fully_qualified_domain_name
+  const makeApplicationUrn = nodeOPCUA.makeApplicationUrn
+  const today = new Date()
 
   // const SecurityPolicy = require("node-opcua").SecurityPolicy;
 
   return {
     port: node.port,
     nodeset_filename: node.bianco.iiot.xmlFiles,
-    resourcePath: node.endpoint || 'UA/NodeRED' + prefix + 'IIoTServer',
+    resourcePath: node.endpoint || '/UA/NodeRED' + prefix + 'IIoTServer',
     buildInfo: {
       productName: node.name || 'NodeOPCUA IIoT Server',
       buildNumber: today.timestamp,
@@ -861,7 +870,9 @@ de.biancoroyal.opcua.iiot.core.server.buildServerOptions = function (node, prefi
     },
     serverInfo: {
       // applicationType: ApplicationType.CLIENTANDSERVER,
-      applicationUri: makeApplicationUrn(geFullyQualifiedDomainName(), coreServer.createServerNameWithPrefix(node.port, prefix)),
+      applicationUri: makeApplicationUrn(
+        getFullyQualifiedDomainName(),
+        coreServer.createServerNameWithPrefix(node.port, prefix)),
       productUri: coreServer.createServerNameWithPrefix(node.port, prefix),
       applicationName: { text: 'Node-RED', locale: 'en' },
       gatewayServerUri: null,
@@ -887,12 +898,13 @@ de.biancoroyal.opcua.iiot.core.server.buildServerOptions = function (node, prefi
 }
 
 de.biancoroyal.opcua.iiot.core.server.createServerObject = function (node, serverOptions) {
-  this.core.nodeOPCUA.OPCUAServer.MAX_SUBSCRIPTION = node.maxAllowedSubscriptionNumber
-  return new this.core.nodeOPCUA.OPCUAServer(serverOptions)
+  const nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA
+  nodeOPCUA.OPCUAServer.MAX_SUBSCRIPTION = node.maxAllowedSubscriptionNumber
+  return new nodeOPCUA.OPCUAServer(serverOptions)
 }
 
 de.biancoroyal.opcua.iiot.core.server.setOPCUAServerListener = function (node) {
-  let coreServer = this
+  const coreServer = this
 
   node.bianco.iiot.opcuaServer.on('newChannel', function (channel) {
     coreServer.internalDebugLog('Client connected new channel with address = '.bgYellow, channel.remoteAddress, ' port = ', channel.remotePort)

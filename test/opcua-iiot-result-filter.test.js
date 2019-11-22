@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -12,8 +12,8 @@
 
 jest.setTimeout(10000)
 
-var injectNode = require('node-red/nodes/core/core/20-inject')
-var functionNode = require('node-red/nodes/core/core/80-function')
+var injectNode = require('@node-red/nodes/core/common/20-inject')
+var functionNode = require('@node-red/nodes/core/function/10-function')
 var inputNode = require('../src/opcua-iiot-result-filter')
 
 var helper = require('node-red-node-test-helper')
@@ -33,7 +33,7 @@ var readTestFlowPayload = [
     onceDelay: 0.1,
     wires: [['n2rff1', 'n3rff1']]
   },
-  {id: 'n2rff1', type: 'helper'},
+  { id: 'n2rff1', type: 'helper' },
   {
     id: 'n3rff1',
     type: 'function',
@@ -43,121 +43,124 @@ var readTestFlowPayload = [
     noerr: 0,
     wires: [['n4rff1', 'n5rff1']]
   },
-  {id: 'n4rff1', type: 'helper'},
-  {id: 'n5rff1',
-    'type': 'OPCUA-IIoT-Result-Filter',
-    'nodeId': 'ns=1;s=TemperatureAnalogItem',
-    'datatype': 'Double',
-    'fixedValue': true,
-    'fixPoint': 2,
-    'withPrecision': false,
-    'precision': 2,
-    'entry': 1,
-    'justValue': true,
-    'withValueCheck': false,
-    'minvalue': '',
-    'maxvalue': '',
-    'defaultvalue': '',
-    'topic': '',
-    'name': 'AnalogItem',
-    'showErrors': true,
-    'wires': [['n6rff1']]
+  { id: 'n4rff1', type: 'helper' },
+  {
+    id: 'n5rff1',
+    type: 'OPCUA-IIoT-Result-Filter',
+    nodeId: 'ns=1;s=TemperatureAnalogItem',
+    datatype: 'Double',
+    fixedValue: true,
+    fixPoint: 2,
+    withPrecision: false,
+    precision: 2,
+    entry: 1,
+    justValue: true,
+    withValueCheck: false,
+    minvalue: '',
+    maxvalue: '',
+    defaultvalue: '',
+    topic: '',
+    name: 'AnalogItem',
+    showErrors: true,
+    wires: [['n6rff1']]
   },
-  {id: 'n6rff1', type: 'helper'}
+  { id: 'n6rff1', type: 'helper' }
 ]
 
 var listenTestFlowPayload = [
   {
-    'id': 'n1rff2',
-    'type': 'inject',
-    'name': '',
-    'topic': 'TestTopic',
-    'payload': '{"value":{"dataType":"Double","arrayType":"Scalar","value":16.041979},"statusCode":{"value":0,"description":"No Error","name":"Good"},"sourceTimestamp":"2018-03-13T21:43:10.470Z","sourcePicoseconds":0,"serverTimestamp":"2018-03-13T21:43:11.051Z","serverPicoseconds":3}',
-    'payloadType': 'json',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'onceDelay': 0.1,
-    'wires': [['n2rff2', 'n3rff2']]
+    id: 'n1rff2',
+    type: 'inject',
+    name: '',
+    topic: 'TestTopic',
+    payload: '{"value":{"dataType":"Double","arrayType":"Scalar","value":16.041979},"statusCode":{"value":0,"description":"No Error","name":"Good"},"sourceTimestamp":"2018-03-13T21:43:10.470Z","sourcePicoseconds":0,"serverTimestamp":"2018-03-13T21:43:11.051Z","serverPicoseconds":3}',
+    payloadType: 'json',
+    repeat: '',
+    crontab: '',
+    once: true,
+    onceDelay: 0.1,
+    wires: [['n2rff2', 'n3rff2']]
   },
-  {id: 'n2rff2', type: 'helper'},
+  { id: 'n2rff2', type: 'helper' },
   {
-    'id': 'n3rff2',
-    'type': 'function',
-    'name': '',
-    'func': "msg.nodetype = 'listen'\nmsg.injectType = 'subscribe'\nmsg.addressSpaceItems = [{\"name\":\"\",\"nodeId\":\"ns=1;s=Pressure\",\"datatypeName\":\"\"}]\nreturn msg;",
-    'outputs': 1,
-    'noerr': 0,
-    'wires': [['n4rff2', 'n5rff2']]
+    id: 'n3rff2',
+    type: 'function',
+    name: '',
+    func: "msg.nodetype = 'listen'\nmsg.injectType = 'subscribe'\nmsg.addressSpaceItems = [{\"name\":\"\",\"nodeId\":\"ns=1;s=Pressure\",\"datatypeName\":\"\"}]\nreturn msg;",
+    outputs: 1,
+    noerr: 0,
+    wires: [['n4rff2', 'n5rff2']]
   },
-  {id: 'n4rff2', type: 'helper'},
-  {id: 'n5rff2',
-    'type': 'OPCUA-IIoT-Result-Filter',
-    'nodeId': 'ns=1;s=Pressure',
-    'datatype': 'Double',
-    'fixedValue': true,
-    'fixPoint': 2,
-    'withPrecision': false,
-    'precision': 2,
-    'entry': 1,
-    'justValue': true,
-    'withValueCheck': false,
-    'minvalue': '',
-    'maxvalue': '',
-    'defaultvalue': '',
-    'topic': '',
-    'name': 'AnalogItem',
-    'showErrors': true,
-    'wires': [['n6rff2']]
+  { id: 'n4rff2', type: 'helper' },
+  {
+    id: 'n5rff2',
+    type: 'OPCUA-IIoT-Result-Filter',
+    nodeId: 'ns=1;s=Pressure',
+    datatype: 'Double',
+    fixedValue: true,
+    fixPoint: 2,
+    withPrecision: false,
+    precision: 2,
+    entry: 1,
+    justValue: true,
+    withValueCheck: false,
+    minvalue: '',
+    maxvalue: '',
+    defaultvalue: '',
+    topic: '',
+    name: 'AnalogItem',
+    showErrors: true,
+    wires: [['n6rff2']]
   },
-  {id: 'n6rff2', type: 'helper'}
+  { id: 'n6rff2', type: 'helper' }
 ]
 
 var listenTestFlowWithPrecisionPayload = [
   {
-    'id': 'n1rff3',
-    'type': 'inject',
-    'name': '',
-    'topic': 'TestTopic',
-    'payload': '{"value":{"dataType":"Double","arrayType":"Scalar","value":16.041979},"statusCode":{"value":0,"description":"No Error","name":"Good"},"sourceTimestamp":"2018-03-13T21:43:10.470Z","sourcePicoseconds":0,"serverTimestamp":"2018-03-13T21:43:11.051Z","serverPicoseconds":3}',
-    'payloadType': 'json',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'onceDelay': 0.1,
-    'wires': [['n2rff3', 'n3rff3']]
+    id: 'n1rff3',
+    type: 'inject',
+    name: '',
+    topic: 'TestTopic',
+    payload: '{"value":{"dataType":"Double","arrayType":"Scalar","value":16.041979},"statusCode":{"value":0,"description":"No Error","name":"Good"},"sourceTimestamp":"2018-03-13T21:43:10.470Z","sourcePicoseconds":0,"serverTimestamp":"2018-03-13T21:43:11.051Z","serverPicoseconds":3}',
+    payloadType: 'json',
+    repeat: '',
+    crontab: '',
+    once: true,
+    onceDelay: 0.1,
+    wires: [['n2rff3', 'n3rff3']]
   },
-  {id: 'n2rff3', type: 'helper'},
+  { id: 'n2rff3', type: 'helper' },
   {
-    'id': 'n3rff3',
-    'type': 'function',
-    'name': '',
-    'func': "msg.nodetype = 'listen'\nmsg.injectType = 'subscribe'\nmsg.addressSpaceItems = [{\"name\":\"\",\"nodeId\":\"ns=1;s=Pressure\",\"datatypeName\":\"\"}]\nreturn msg;",
-    'outputs': 1,
-    'noerr': 0,
-    'wires': [['n4rff3', 'n5rff3']]
+    id: 'n3rff3',
+    type: 'function',
+    name: '',
+    func: "msg.nodetype = 'listen'\nmsg.injectType = 'subscribe'\nmsg.addressSpaceItems = [{\"name\":\"\",\"nodeId\":\"ns=1;s=Pressure\",\"datatypeName\":\"\"}]\nreturn msg;",
+    outputs: 1,
+    noerr: 0,
+    wires: [['n4rff3', 'n5rff3']]
   },
-  {id: 'n4rff3', type: 'helper'},
-  {id: 'n5rff3',
-    'type': 'OPCUA-IIoT-Result-Filter',
-    'nodeId': 'ns=1;s=Pressure',
-    'datatype': 'Double',
-    'fixedValue': false,
-    'fixPoint': 2,
-    'withPrecision': true,
-    'precision': 2,
-    'entry': 1,
-    'justValue': true,
-    'withValueCheck': false,
-    'minvalue': '',
-    'maxvalue': '',
-    'defaultvalue': '',
-    'topic': '',
-    'name': 'AnalogItem',
-    'showErrors': true,
-    'wires': [['n6rff3']]
+  { id: 'n4rff3', type: 'helper' },
+  {
+    id: 'n5rff3',
+    type: 'OPCUA-IIoT-Result-Filter',
+    nodeId: 'ns=1;s=Pressure',
+    datatype: 'Double',
+    fixedValue: false,
+    fixPoint: 2,
+    withPrecision: true,
+    precision: 2,
+    entry: 1,
+    justValue: true,
+    withValueCheck: false,
+    minvalue: '',
+    maxvalue: '',
+    defaultvalue: '',
+    topic: '',
+    name: 'AnalogItem',
+    showErrors: true,
+    wires: [['n6rff3']]
   },
-  {id: 'n6rff3', type: 'helper'}
+  { id: 'n6rff3', type: 'helper' }
 ]
 
 var writeTestFlowPayload = [
@@ -174,7 +177,7 @@ var writeTestFlowPayload = [
     onceDelay: 0.1,
     wires: [['n2rff4', 'n3rff4']]
   },
-  {id: 'n2rff4', type: 'helper'},
+  { id: 'n2rff4', type: 'helper' },
   {
     id: 'n3rff4',
     type: 'function',
@@ -184,27 +187,28 @@ var writeTestFlowPayload = [
     noerr: 0,
     wires: [['n4rff4', 'n5rff4']]
   },
-  {id: 'n4rff4', type: 'helper'},
-  {id: 'n5rff4',
-    'type': 'OPCUA-IIoT-Result-Filter',
-    'nodeId': 'ns=1;s=TestReadWrite',
-    'datatype': 'Double',
-    'fixedValue': false,
-    'fixPoint': 2,
-    'withPrecision': false,
-    'precision': 2,
-    'entry': 1,
-    'justValue': false,
-    'withValueCheck': false,
-    'minvalue': '',
-    'maxvalue': '',
-    'defaultvalue': '',
-    'topic': '',
-    'name': 'AnalogItem',
-    'showErrors': false,
-    'wires': [['n6rff4']]
+  { id: 'n4rff4', type: 'helper' },
+  {
+    id: 'n5rff4',
+    type: 'OPCUA-IIoT-Result-Filter',
+    nodeId: 'ns=1;s=TestReadWrite',
+    datatype: 'Double',
+    fixedValue: false,
+    fixPoint: 2,
+    withPrecision: false,
+    precision: 2,
+    entry: 1,
+    justValue: false,
+    withValueCheck: false,
+    minvalue: '',
+    maxvalue: '',
+    defaultvalue: '',
+    topic: '',
+    name: 'AnalogItem',
+    showErrors: false,
+    wires: [['n6rff4']]
   },
-  {id: 'n6rff4', type: 'helper'}
+  { id: 'n6rff4', type: 'helper' }
 ]
 
 var writeTestValueCheckFlowPayload = [
@@ -221,7 +225,7 @@ var writeTestValueCheckFlowPayload = [
     onceDelay: 0.2,
     wires: [['n2rff5', 'n3rff5']]
   },
-  {id: 'n2rff5', type: 'helper'},
+  { id: 'n2rff5', type: 'helper' },
   {
     id: 'n3rff5',
     type: 'function',
@@ -231,28 +235,28 @@ var writeTestValueCheckFlowPayload = [
     noerr: 0,
     wires: [['n4rff5', 'n5rff5']]
   },
-  {id: 'n4rff5', type: 'helper'},
+  { id: 'n4rff5', type: 'helper' },
   {
     id: 'n5rff5',
-    'type': 'OPCUA-IIoT-Result-Filter',
-    'nodeId': 'ns=1;s=Pressure',
-    'datatype': 'Double',
-    'fixedValue': false,
-    'fixPoint': 2,
-    'withPrecision': false,
-    'precision': 2,
-    'entry': 1,
-    'justValue': false,
-    'withValueCheck': true,
-    'minvalue': 0.30,
-    'maxvalue': 0.60,
-    'defaultvalue': 0.30,
-    'topic': '',
-    'name': 'AnalogItem',
-    'showErrors': false,
-    'wires': [['n6rff5']]
+    type: 'OPCUA-IIoT-Result-Filter',
+    nodeId: 'ns=1;s=Pressure',
+    datatype: 'Double',
+    fixedValue: false,
+    fixPoint: 2,
+    withPrecision: false,
+    precision: 2,
+    entry: 1,
+    justValue: false,
+    withValueCheck: true,
+    minvalue: 0.30,
+    maxvalue: 0.60,
+    defaultvalue: 0.30,
+    topic: '',
+    name: 'AnalogItem',
+    showErrors: false,
+    wires: [['n6rff5']]
   },
-  {id: 'n6rff5', type: 'helper'}
+  { id: 'n6rff5', type: 'helper' }
 ]
 
 describe('OPC UA Result Filter node Testing', function () {
@@ -282,28 +286,28 @@ describe('OPC UA Result Filter node Testing', function () {
         [inputNode],
         [
           {
-            'id': '21c01ed7.c1c372',
-            'type': 'OPCUA-IIoT-Result-Filter',
-            'nodeId': 'ns=1;s=TemperatureAnalogItem',
-            'datatype': 'Double',
-            'fixedValue': true,
-            'fixPoint': 2,
-            'withPrecision': false,
-            'precision': 2,
-            'entry': 1,
-            'justValue': true,
-            'withValueCheck': false,
-            'minvalue': '',
-            'maxvalue': '',
-            'defaultvalue': '',
-            'topic': 'TestTopic',
-            'name': 'AnalogItem',
-            'showErrors': false,
-            'wires': [[]]
+            id: '21c01ed7.c1c372',
+            type: 'OPCUA-IIoT-Result-Filter',
+            nodeId: 'ns=1;s=TemperatureAnalogItem',
+            datatype: 'Double',
+            fixedValue: true,
+            fixPoint: 2,
+            withPrecision: false,
+            precision: 2,
+            entry: 1,
+            justValue: true,
+            withValueCheck: false,
+            minvalue: '',
+            maxvalue: '',
+            defaultvalue: '',
+            topic: 'TestTopic',
+            name: 'AnalogItem',
+            showErrors: false,
+            wires: [[]]
           }
         ],
         function () {
-          let nodeUnderTest = helper.getNode('21c01ed7.c1c372')
+          const nodeUnderTest = helper.getNode('21c01ed7.c1c372')
           expect(nodeUnderTest.name).toBe('AnalogItem')
           expect(nodeUnderTest.nodeId).toBe('ns=1;s=TemperatureAnalogItem')
           expect(nodeUnderTest.datatype).toBe('Double')
@@ -321,9 +325,9 @@ describe('OPC UA Result Filter node Testing', function () {
   describe('Result Filter node after read', function () {
     it('should get a message with payload', function (done) {
       helper.load([injectNode, functionNode, inputNode], readTestFlowPayload, function () {
-        let n2 = helper.getNode('n2rff1')
+        const n2 = helper.getNode('n2rff1')
         n2.on('input', function (msg) {
-          expect(msg.payload).toMatchObject([{'node': 'ns=1;s=TemperatureAnalogItem', 'nodeId': 'ns=1;s=TemperatureAnalogItem', 'nodeClass': 2, 'browseName': {'namespaceIndex': 0, 'name': 'TemperatureAnalogItem'}, 'displayName': {'text': 'TemperatureAnalogItem'}, 'description': {}, 'writeMask': 0, 'userWriteMask': 0, 'value': 16.041979, 'dataType': 'Double', 'valueRank': -1, 'arrayDimensions': {}, 'accessLevel': 3, 'userAccessLevel': 3, 'minimumSamplingInterval': 0, 'historizing': false, 'statusCode': {'value': 0, 'description': 'No Error', 'name': 'Good'}}])
+          expect(msg.payload).toMatchObject([{ node: 'ns=1;s=TemperatureAnalogItem', nodeId: 'ns=1;s=TemperatureAnalogItem', nodeClass: 2, browseName: { namespaceIndex: 0, name: 'TemperatureAnalogItem' }, displayName: { text: 'TemperatureAnalogItem' }, description: {}, writeMask: 0, userWriteMask: 0, value: 16.041979, dataType: 'Double', valueRank: -1, arrayDimensions: {}, accessLevel: 3, userAccessLevel: 3, minimumSamplingInterval: 0, historizing: false, statusCode: { value: 0, description: 'No Error', name: 'Good' } }])
           done()
         })
       })
@@ -331,7 +335,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should get a message with payload TemperatureAnalogItem', function (done) {
       helper.load([injectNode, functionNode, inputNode], readTestFlowPayload, function () {
-        let n2 = helper.getNode('n2rff1')
+        const n2 = helper.getNode('n2rff1')
         n2.on('input', function (msg) {
           expect(msg.payload[0].nodeId).toMatch(/TemperatureAnalogItem/)
           done()
@@ -341,7 +345,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should contain TemperatureAnalogItem in message', function (done) {
       helper.load([injectNode, functionNode, inputNode], readTestFlowPayload, function () {
-        let n4 = helper.getNode('n4rff1')
+        const n4 = helper.getNode('n4rff1')
         n4.on('input', function (msg) {
           expect(msg.addressSpaceItems[0].nodeId).toMatch(/TemperatureAnalogItem/)
           done()
@@ -351,7 +355,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should have nodeId, payload and topic as result', function (done) {
       helper.load([injectNode, functionNode, inputNode], readTestFlowPayload, function () {
-        let n6 = helper.getNode('n6rff1')
+        const n6 = helper.getNode('n6rff1')
         n6.on('input', function (msg) {
           expect(msg.nodeId).toBe('ns=1;s=TemperatureAnalogItem')
           expect(msg.payload).toBe(16.04)
@@ -365,9 +369,9 @@ describe('OPC UA Result Filter node Testing', function () {
   describe('Result Filter node after listener', function () {
     it('should get a message with payload', function (done) {
       helper.load([injectNode, functionNode, inputNode], listenTestFlowPayload, function () {
-        let n2 = helper.getNode('n2rff2')
+        const n2 = helper.getNode('n2rff2')
         n2.on('input', function (msg) {
-          expect(msg.payload).toMatchObject({'value': {'dataType': 'Double', 'arrayType': 'Scalar', 'value': 16.041979}, 'statusCode': {'value': 0, 'description': 'No Error', 'name': 'Good'}, 'sourceTimestamp': '2018-03-13T21:43:10.470Z', 'sourcePicoseconds': 0, 'serverTimestamp': '2018-03-13T21:43:11.051Z', 'serverPicoseconds': 3})
+          expect(msg.payload).toMatchObject({ value: { dataType: 'Double', arrayType: 'Scalar', value: 16.041979 }, statusCode: { value: 0, description: 'No Error', name: 'Good' }, sourceTimestamp: '2018-03-13T21:43:10.470Z', sourcePicoseconds: 0, serverTimestamp: '2018-03-13T21:43:11.051Z', serverPicoseconds: 3 })
           done()
         })
       })
@@ -375,7 +379,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should get a message with payload Pressure', function (done) {
       helper.load([injectNode, functionNode, inputNode], listenTestFlowPayload, function () {
-        let n2 = helper.getNode('n2rff2')
+        const n2 = helper.getNode('n2rff2')
         n2.on('input', function (msg) {
           expect(msg.payload.value.value).toBe(16.041979)
           done()
@@ -385,7 +389,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should contain Pressure in message', function (done) {
       helper.load([injectNode, functionNode, inputNode], listenTestFlowPayload, function () {
-        let n4 = helper.getNode('n4rff2')
+        const n4 = helper.getNode('n4rff2')
         n4.on('input', function (msg) {
           expect(msg.addressSpaceItems[0].nodeId).toMatch(/Pressure/)
           done()
@@ -395,7 +399,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should have nodeId, payload and topic as result with fixed of two', function (done) {
       helper.load([injectNode, functionNode, inputNode], listenTestFlowPayload, function () {
-        let n6 = helper.getNode('n6rff2')
+        const n6 = helper.getNode('n6rff2')
         n6.on('input', function (msg) {
           expect(msg.nodeId).toBe('ns=1;s=Pressure')
           expect(msg.payload).toBe(16.04)
@@ -407,7 +411,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should have nodeId, payload and topic with precision of two as result', function (done) {
       helper.load([injectNode, functionNode, inputNode], listenTestFlowWithPrecisionPayload, function () {
-        let n6 = helper.getNode('n6rff3')
+        const n6 = helper.getNode('n6rff3')
         n6.on('input', function (msg) {
           expect(msg.nodeId).toBe('ns=1;s=Pressure')
           let expectedResult = Number.parseFloat('16.041979').toPrecision(2)
@@ -423,44 +427,44 @@ describe('OPC UA Result Filter node Testing', function () {
   describe('Result Filter node after write', function () {
     it('should get a message with payload', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestFlowPayload, function () {
-        let n2 = helper.getNode('n2rff4')
+        const n2 = helper.getNode('n2rff4')
         n2.on('input', function (msg) {
           expect(msg.payload).toMatchObject({
-            'statusCodes': [
+            statusCodes: [
               {
-                'value': 0,
-                'description': 'No Error',
-                'name': 'Good'
+                value: 0,
+                description: 'No Error',
+                name: 'Good'
               }
             ],
-            'nodesToWrite': [
+            nodesToWrite: [
               {
-                'nodeId': 'ns=1;s=TestReadWrite',
-                'attributeId': 13,
-                'indexRange': null,
-                'value': {
-                  'value': {
-                    'dataType': 'Double',
-                    'value': 22980.7896,
-                    'arrayType': 'Scalar'
+                nodeId: 'ns=1;s=TestReadWrite',
+                attributeId: 13,
+                indexRange: null,
+                value: {
+                  value: {
+                    dataType: 'Double',
+                    value: 22980.7896,
+                    arrayType: 'Scalar'
                   }
                 }
               }
             ],
-            'msg': {
-              '_msgid': '11cc64dd.bde67b',
-              'topic': '',
-              'nodetype': 'inject',
-              'injectType': 'write',
-              'addressSpaceItems': [
+            msg: {
+              _msgid: '11cc64dd.bde67b',
+              topic: '',
+              nodetype: 'inject',
+              injectType: 'write',
+              addressSpaceItems: [
                 {
-                  'name': 'TestReadWrite',
-                  'nodeId': 'ns=1;s=TestReadWrite',
-                  'datatypeName': 'Double'
+                  name: 'TestReadWrite',
+                  nodeId: 'ns=1;s=TestReadWrite',
+                  datatypeName: 'Double'
                 }
               ],
-              'payload': 1539981968143,
-              'valuesToWrite': [
+              payload: 1539981968143,
+              valuesToWrite: [
                 22980.7896
               ]
             }
@@ -472,7 +476,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should get a message with payload TestReadWrite', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestFlowPayload, function () {
-        let n2 = helper.getNode('n2rff4')
+        const n2 = helper.getNode('n2rff4')
         n2.on('input', function (msg) {
           expect(msg.payload.nodesToWrite[0].nodeId).toMatch(/TestReadWrite/)
           done()
@@ -482,7 +486,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should contain TestReadWrite in message', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestFlowPayload, function () {
-        let n4 = helper.getNode('n4rff4')
+        const n4 = helper.getNode('n4rff4')
         n4.on('input', function (msg) {
           expect(msg.payload.msg.addressSpaceItems[0].nodeId).toMatch(/TestReadWrite/)
           done()
@@ -492,7 +496,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should have nodeId, payload and topic as result', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestFlowPayload, function () {
-        let n6 = helper.getNode('n6rff4')
+        const n6 = helper.getNode('n6rff4')
         n6.on('input', function (msg) {
           expect(msg.nodeId).toBe('ns=1;s=TestReadWrite')
           expect(msg.payload.nodesToWrite[0].value.value.value).toBe(22980.7896)
@@ -504,7 +508,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should have nodeId, payload and topic as result with value check', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n6 = helper.getNode('n6rff5')
+        const n6 = helper.getNode('n6rff5')
         n6.on('input', function (msg) {
           expect(msg.nodesToRead[0]).toBe('ns=1;s=Pressure')
           expect(msg.payload).toBe(0.37883857546881394)
@@ -520,7 +524,7 @@ describe('OPC UA Result Filter node Testing', function () {
     it('should have nodeId, payload and topic as result with value check on just value', function (done) {
       writeTestValueCheckFlowPayload[4].justValue = true
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n6 = helper.getNode('n6rff5')
+        const n6 = helper.getNode('n6rff5')
         n6.on('input', function (msg) {
           expect(msg.nodesToRead[0]).toBe('ns=1;s=Pressure')
           expect(msg.payload).toBe(0.37883857546881394)
@@ -539,7 +543,7 @@ describe('OPC UA Result Filter node Testing', function () {
       writeTestValueCheckFlowPayload[4].justValue = true
       writeTestValueCheckFlowPayload[4].withPrecision = true
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n6 = helper.getNode('n6rff5')
+        const n6 = helper.getNode('n6rff5')
         n6.on('input', function (msg) {
           expect(msg.nodesToRead[0]).toBe('ns=1;s=Pressure')
           expect(msg.payload).toBe(0.38)
@@ -557,7 +561,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should return null on null input to convertResultValue', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n5 = helper.getNode('n5rff5')
+        const n5 = helper.getNode('n5rff5')
         expect(n5.bianco.iiot.convertResultValue({ payload: null })).toBe(null)
         done()
       })
@@ -565,15 +569,15 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should return given object on missing datatype input to convertResultValue', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n5 = helper.getNode('n5rff5')
-        expect(n5.bianco.iiot.convertResultValue({ payload: {test: 'Test'} })).toMatchObject({test: 'Test'})
+        const n5 = helper.getNode('n5rff5')
+        expect(n5.bianco.iiot.convertResultValue({ payload: { test: 'Test' } })).toMatchObject({ test: 'Test' })
         done()
       })
     })
 
     it('should return null on null with datatype input to convertResultValue', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n5 = helper.getNode('n5rff5')
+        const n5 = helper.getNode('n5rff5')
         expect(n5.bianco.iiot.convertResultValue({ payload: { value: null, datatype: 'Double' } })).toBeFalsy()
         done()
       })
@@ -581,7 +585,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should return min value with datatype input to convertResultValue', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n5 = helper.getNode('n5rff5')
+        const n5 = helper.getNode('n5rff5')
         expect(n5.bianco.iiot.convertResultValue({ payload: { value: 0.6778, datatype: 'Double' } })).toBe(0.30)
         done()
       })
@@ -589,7 +593,7 @@ describe('OPC UA Result Filter node Testing', function () {
 
     it('should return value in range with datatype input to convertResultValue', function (done) {
       helper.load([injectNode, functionNode, inputNode], writeTestValueCheckFlowPayload, function () {
-        let n5 = helper.getNode('n5rff5')
+        const n5 = helper.getNode('n5rff5')
         expect(n5.bianco.iiot.convertResultValue({ payload: { value: 0.4778, datatype: 'Double' } })).toBe(0.4778)
         done()
       })

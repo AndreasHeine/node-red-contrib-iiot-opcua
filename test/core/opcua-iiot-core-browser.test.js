@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -10,33 +10,33 @@
 jest.setTimeout(5000)
 
 describe('OPC UA Core Browser', function () {
-  let coreBrowser = require('../../src/core/opcua-iiot-core-browser')
-  const events = require('events')
+  const coreBasics = require('../../src/core/opcua-iiot-core')
+  const coreBrowser = require('../../src/core/opcua-iiot-core-browser')
 
   describe('Core Browser unit test', function () {
     it('should return the objects root nodeId', function (done) {
-      expect(coreBrowser.browseToRoot()).toBe(coreBrowser.core.OBJECTS_ROOT)
+      expect(coreBrowser.browseToRoot()).toBe(coreBasics.OBJECTS_ROOT)
       done()
     })
 
     it('should return the default objects nodeId without root in payload request', function (done) {
-      expect(coreBrowser.extractNodeIdFromTopic({payload: { }}, {})).toBe(null)
+      expect(coreBrowser.extractNodeIdFromTopic({ payload: { } }, {})).toBe(null)
       done()
     })
 
     it('should return the default objects nodeId with empty root in payload request', function (done) {
-      expect(coreBrowser.extractNodeIdFromTopic({payload: { actiontype: 'browse', root: {} }}, {})).toBe(coreBrowser.core.OBJECTS_ROOT)
+      expect(coreBrowser.extractNodeIdFromTopic({ payload: { actiontype: 'browse', root: {} } }, {})).toBe(coreBasics.OBJECTS_ROOT)
       done()
     })
 
     it('should return the nodeId from root in payload request', function (done) {
-      expect(coreBrowser.extractNodeIdFromTopic({payload: { actiontype: 'browse', root: { nodeId: 'ns=1;s=MyDemo' } }}, {})).toBe('ns=1;s=MyDemo')
+      expect(coreBrowser.extractNodeIdFromTopic({ payload: { actiontype: 'browse', root: { nodeId: 'ns=1;s=MyDemo' } } }, {})).toBe('ns=1;s=MyDemo')
       done()
     })
 
     it('should handle browse error', function (done) {
       let statusText = 'idle'
-      let node = {
+      const node = {
         showErrors: true,
         showStatusActivities: true,
         statusText: statusText,

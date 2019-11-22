@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -10,7 +10,7 @@
 jest.setTimeout(5000)
 
 describe('OPC UA Core Method', function () {
-  let coreMethod = require('../../src/core/opcua-iiot-core-method')
+  const coreMethod = require('../../src/core/opcua-iiot-core-method')
 
   describe('getArgumentDefinition', function () {
     it('should return Error object, if none value is present', function (done) {
@@ -30,66 +30,66 @@ describe('OPC UA Core Method', function () {
 
   describe('callMethods', function () {
     it('should be truthy on wrong message missing all', function (done) {
-      expect(coreMethod.invalidMessage({bianco: {iiot: {handleMethodWarn: (text) => {}}}}, {})).toBeTruthy()
+      expect(coreMethod.invalidMessage({ bianco: { iiot: { handleMethodWarn: (text) => {} } } }, {})).toBeTruthy()
       done()
     })
 
     it('should be truthy on wrong message missing methodId, inputArguments, methodType', function (done) {
-      expect(coreMethod.invalidMessage({bianco: {iiot: {handleMethodWarn: (text) => {}}}}, {objectId: 1})).toBeTruthy()
+      expect(coreMethod.invalidMessage({ bianco: { iiot: { handleMethodWarn: (text) => {} } } }, { objectId: 1 })).toBeTruthy()
       done()
     })
 
     it('should be truthy on wrong message missing inputArguments, methodType', function (done) {
-      expect(coreMethod.invalidMessage({bianco: {iiot: {handleMethodWarn: (text) => {}}}}, {objectId: 1, methodId: 1})).toBeTruthy()
+      expect(coreMethod.invalidMessage({ bianco: { iiot: { handleMethodWarn: (text) => {} } } }, { objectId: 1, methodId: 1 })).toBeTruthy()
       done()
     })
 
     it('should be truthy on wrong message missing methodType', function (done) {
-      expect(coreMethod.invalidMessage({bianco: {iiot: {handleMethodWarn: (text) => {}}}}, {objectId: 1, methodId: 1, inputArguments: {}})).toBeTruthy()
+      expect(coreMethod.invalidMessage({ bianco: { iiot: { handleMethodWarn: (text) => {} } } }, { objectId: 1, methodId: 1, inputArguments: {} })).toBeTruthy()
       done()
     })
 
     it('should be false on filled message', function (done) {
-      expect(coreMethod.invalidMessage({bianco: {iiot: {handleMethodWarn: (text) => {}}}}, {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1})).toBeFalsy()
+      expect(coreMethod.invalidMessage({ bianco: { iiot: { handleMethodWarn: (text) => {} } } }, { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1 })).toBeFalsy()
       done()
     })
 
     it('should fill new message', function (done) {
-      const node = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {}}
-      const msg = { payload: {objectId: 2, methodId: 2, inputArguments: {}, methodType: 2} }
-      const msgResult = {objectId: 2, methodId: 2, inputArguments: {}, methodType: 2, nodetype: 'method', payload: {objectId: 2, methodId: 2, inputArguments: {}, methodType: 2}}
+      const node = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {} }
+      const msg = { payload: { objectId: 2, methodId: 2, inputArguments: {}, methodType: 2 } }
+      const msgResult = { objectId: 2, methodId: 2, inputArguments: {}, methodType: 2, nodetype: 'method', payload: { objectId: 2, methodId: 2, inputArguments: {}, methodType: 2 } }
       expect(coreMethod.buildCallMessage(node, msg)).toEqual(msgResult)
       done()
     })
 
     it('should fill new message without objectId', function (done) {
-      const node = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {}}
-      const msg = { payload: {methodId: 2, inputArguments: {}, methodType: 2} }
-      const msgResult = {objectId: 1, methodId: 2, inputArguments: {}, methodType: 2, nodetype: 'method', payload: {methodId: 2, inputArguments: {}, methodType: 2}}
+      const node = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {} }
+      const msg = { payload: { methodId: 2, inputArguments: {}, methodType: 2 } }
+      const msgResult = { objectId: 1, methodId: 2, inputArguments: {}, methodType: 2, nodetype: 'method', payload: { methodId: 2, inputArguments: {}, methodType: 2 } }
       expect(coreMethod.buildCallMessage(node, msg)).toEqual(msgResult)
       done()
     })
 
     it('should fill new message without objectId, methodId', function (done) {
-      const node = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {}}
-      const msg = { payload: {inputArguments: {}, methodType: 2} }
-      const msgResult = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 2, nodetype: 'method', payload: {inputArguments: {}, methodType: 2}}
+      const node = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {} }
+      const msg = { payload: { inputArguments: {}, methodType: 2 } }
+      const msgResult = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 2, nodetype: 'method', payload: { inputArguments: {}, methodType: 2 } }
       expect(coreMethod.buildCallMessage(node, msg)).toEqual(msgResult)
       done()
     })
 
     it('should fill new message without objectId, methodId, inputArguments', function (done) {
-      const node = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {}}
-      const msg = { payload: {methodType: 2} }
-      const msgResult = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 2, nodetype: 'method', payload: {methodType: 2}}
+      const node = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {} }
+      const msg = { payload: { methodType: 2 } }
+      const msgResult = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 2, nodetype: 'method', payload: { methodType: 2 } }
       expect(coreMethod.buildCallMessage(node, msg)).toEqual(msgResult)
       done()
     })
 
     it('should fill new message without parameters', function (done) {
-      const node = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {}}
+      const node = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, handleMethodWarn: (text) => {} }
       const msg = { payload: {} }
-      const msgResult = {objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, nodetype: 'method', payload: {}}
+      const msgResult = { objectId: 1, methodId: 1, inputArguments: {}, methodType: 1, nodetype: 'method', payload: {} }
       expect(coreMethod.buildCallMessage(node, msg)).toEqual(msgResult)
       done()
     })

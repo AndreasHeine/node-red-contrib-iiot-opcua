@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -16,12 +16,12 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.method
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { method: {} } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.method.core = de.biancoroyal.opcua.iiot.core.method.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.method.internalDebugLog = de.biancoroyal.opcua.iiot.core.method.internalDebugLog || require('debug')('opcuaIIoT:method') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.method.detailDebugLog = de.biancoroyal.opcua.iiot.core.method.detailDebugLog || require('debug')('opcuaIIoT:method:details') // eslint-disable-line no-use-before-define
 
 de.biancoroyal.opcua.iiot.core.method.getArgumentDefinition = function (session, msg) {
-  let coerceNodeId = this.core.nodeOPCUA.coerceNodeId
+  const coerceNodeId = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA.coerceNodeId
 
   return new Promise(
     function (resolve, reject) {
@@ -29,13 +29,13 @@ de.biancoroyal.opcua.iiot.core.method.getArgumentDefinition = function (session,
         reject(new Error('Method Argument Definition Session Not Valid'))
       } else {
         try {
-          let methodId = coerceNodeId(msg.methodId)
+          const methodId = coerceNodeId(msg.methodId)
 
           session.getArgumentDefinition(methodId, function (err, inputArguments, outputArguments) {
             if (err) {
               reject(err)
             } else {
-              let results = {}
+              const results = {}
               results.methodId = methodId
               results.methodDefinition = {}
               results.methodDefinition.inputArguments = inputArguments
@@ -51,8 +51,8 @@ de.biancoroyal.opcua.iiot.core.method.getArgumentDefinition = function (session,
 }
 
 de.biancoroyal.opcua.iiot.core.method.callMethods = function (session, msg) {
-  let core = this.core
-  let coerceNodeId = this.core.nodeOPCUA.coerceNodeId
+  const core = de.biancoroyal.opcua.iiot.core.basics
+  const coerceNodeId = core.nodeOPCUA.coerceNodeId
 
   return new Promise(
     function (resolve, reject) {
@@ -64,7 +64,7 @@ de.biancoroyal.opcua.iiot.core.method.callMethods = function (session, msg) {
             element.value = core.convertDataValueByDataType({ value: element.value }, element.dataType)
           })
 
-          let methodCalls = [{
+          const methodCalls = [{
             objectId: coerceNodeId(msg.objectId),
             methodId: coerceNodeId(msg.methodId),
             inputArguments: msg.inputArguments
@@ -90,7 +90,7 @@ de.biancoroyal.opcua.iiot.core.method.buildMessagesFromMethodCalls = function (m
       if (!methodCallsResults) {
         reject(new Error('Methods Call Results To Messages Session Not Valid'))
       } else {
-        let resultMessages = []
+        const resultMessages = []
         resolve({ methodCallsResults: methodCallsResults, messages: resultMessages })
       }
     })
@@ -123,7 +123,7 @@ de.biancoroyal.opcua.iiot.core.method.invalidMessage = function (node, message) 
 }
 
 de.biancoroyal.opcua.iiot.core.method.buildCallMessage = function (node, msg) {
-  let message = msg
+  const message = msg
   message.objectId = msg.payload.objectId || node.objectId
   message.methodId = msg.payload.methodId || node.methodId
   message.methodType = msg.payload.methodType || node.methodType

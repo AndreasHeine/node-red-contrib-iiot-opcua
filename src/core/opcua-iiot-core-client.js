@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -17,7 +17,7 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.client
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { client: {} } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.client.core = de.biancoroyal.opcua.iiot.core.client.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.client.internalDebugLog = de.biancoroyal.opcua.iiot.core.client.internalDebugLog || require('debug')('opcuaIIoT:client') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.client.detailDebugLog = de.biancoroyal.opcua.iiot.core.client.detailDebugLog || require('debug')('opcuaIIoT:client:details') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.client.readDebugLog = de.biancoroyal.opcua.iiot.core.client.readDebugLog || require('debug')('opcuaIIoT:client:read') // eslint-disable-line no-use-before-define
@@ -39,7 +39,7 @@ de.biancoroyal.opcua.iiot.core.client.write = function (session, nodesToWrite, o
   return new Promise(
     function (resolve, reject) {
       if (session) {
-        let msg = Object.assign({}, originMsg)
+        const msg = Object.assign({}, originMsg)
         session.write(nodesToWrite, function (err, statusCodes) {
           if (err) {
             reject(err)
@@ -62,7 +62,7 @@ de.biancoroyal.opcua.iiot.core.client.read = function (session, nodesToRead, max
   return new Promise(
     function (resolve, reject) {
       if (session) {
-        let msg = Object.assign({}, originMsg)
+        const msg = Object.assign({}, originMsg)
         session.read(nodesToRead, maxAge, function (err, dataValues) {
           if (err) {
             reject(err)
@@ -85,7 +85,7 @@ de.biancoroyal.opcua.iiot.core.client.readVariableValue = function (session, nod
   return new Promise(
     function (resolve, reject) {
       if (session) {
-        let msg = Object.assign({}, originMsg)
+        const msg = Object.assign({}, originMsg)
         session.readVariableValue(nodesToRead, function (err, dataValues) {
           if (err) {
             reject(err)
@@ -108,7 +108,7 @@ de.biancoroyal.opcua.iiot.core.client.readHistoryValue = function (session, node
   return new Promise(
     function (resolve, reject) {
       if (session) {
-        let msg = Object.assign({}, originMsg)
+        const msg = Object.assign({}, originMsg)
         session.readHistoryValue(nodesToRead, startDate, endDate, function (err, dataValues) {
           if (err) {
             reject(err)
@@ -133,7 +133,7 @@ de.biancoroyal.opcua.iiot.core.client.readAllAttributes = function (session, nod
   return new Promise(
     function (resolve, reject) {
       if (session) {
-        let msg = Object.assign({}, originMsg)
+        const msg = Object.assign({}, originMsg)
         session.readAllAttributes(nodesToRead, function (err, dataValues) {
           if (err) {
             reject(err)

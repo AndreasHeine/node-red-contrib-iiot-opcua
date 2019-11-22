@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -40,17 +40,17 @@ describe('OPC UA Flex Connector node Unit Testing', function () {
 
   describe('Flex Connector node', function () {
     it('should be loaded without connector', function (done) {
-      helper.load([inputNode], [ {
-        'id': '14d54403.f94f04',
-        'type': 'OPCUA-IIoT-Flex-Connector',
-        'name': 'TestFlexConnector',
-        'showStatusActivities': false,
-        'showErrors': false,
-        'connector': '',
-        'wires': [[]]
+      helper.load([inputNode], [{
+        id: '14d54403.f94f04',
+        type: 'OPCUA-IIoT-Flex-Connector',
+        name: 'TestFlexConnector',
+        showStatusActivities: false,
+        showErrors: false,
+        connector: '',
+        wires: [[]]
       }],
       function () {
-        let nodeUnderTest = helper.getNode('14d54403.f94f04')
+        const nodeUnderTest = helper.getNode('14d54403.f94f04')
         expect(nodeUnderTest.bianco).toBeDefined()
         expect(nodeUnderTest.bianco.iiot).toBeDefined()
         expect(nodeUnderTest.name).toBe('TestFlexConnector')
@@ -59,17 +59,17 @@ describe('OPC UA Flex Connector node Unit Testing', function () {
     })
 
     it('should be loaded without connector and showing activities', function (done) {
-      helper.load([inputNode], [ {
-        'id': '14d54403.f94f05',
-        'type': 'OPCUA-IIoT-Flex-Connector',
-        'name': 'TestFlexConnector2',
-        'showStatusActivities': true,
-        'showErrors': false,
-        'connector': '',
-        'wires': [[]]
+      helper.load([inputNode], [{
+        id: '14d54403.f94f05',
+        type: 'OPCUA-IIoT-Flex-Connector',
+        name: 'TestFlexConnector2',
+        showStatusActivities: true,
+        showErrors: false,
+        connector: '',
+        wires: [[]]
       }],
       function () {
-        let nodeUnderTest = helper.getNode('14d54403.f94f05')
+        const nodeUnderTest = helper.getNode('14d54403.f94f05')
         expect(nodeUnderTest).toBeDefined()
         expect(nodeUnderTest.name).toBe('TestFlexConnector2')
         done()

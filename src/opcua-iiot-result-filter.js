@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -14,7 +14,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreFilter = require('./core/opcua-iiot-core-filter')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreFilter = require('./core/opcua-iiot-core-filter')
   const _ = require('underscore')
 
   function OPCUAIIoTResultFilter (config) {
@@ -35,15 +36,15 @@ module.exports = function (RED) {
     this.name = config.name
     this.showErrors = config.showErrors
 
-    let node = this
-    node.bianco = coreFilter.core.createBiancoIIoT()
-    coreFilter.core.assert(node.bianco.iiot)
+    const node = this
+    node.bianco = coreBasics.createBiancoIIoT()
+    coreBasics.assert(node.bianco.iiot)
 
     node.status({ fill: 'blue', shape: 'ring', text: 'new' })
 
     node.bianco.iiot.nodeIdToFilter = function (msg) {
       let doFilter = true
-      let nodeList = coreFilter.core.buildNodeListFromClient(msg)
+      const nodeList = coreBasics.buildNodeListFromClient(msg)
       let elementNodeId = null
 
       if (nodeList && nodeList.length) {
@@ -58,7 +59,7 @@ module.exports = function (RED) {
 
     node.bianco.iiot.isNodeIdNotToFindInAddressSpaceItems = function (msg) {
       if (msg.addressSpaceItems) {
-        let filteredNodeIds = _.filter(msg.addressSpaceItems, function (entry) {
+        const filteredNodeIds = _.filter(msg.addressSpaceItems, function (entry) {
           return entry.nodeId === node.nodeId
         })
 
@@ -77,7 +78,7 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!msg.hasOwnProperty('payload') || msg.payload === null || msg.payload === void 0) { // values with false has to be true
+      if (!{}.hasOwnProperty.call(msg, 'payload') || msg.payload === null || msg.payload === undefined /* false/0 is a valid value */) { // values with false has to be true
         coreFilter.internalDebugLog('filtering message without payload')
         return
       }
@@ -100,7 +101,7 @@ module.exports = function (RED) {
         message.payload = node.bianco.iiot.filterResult(message)
       }
 
-      coreFilter.core.assert(message.payload)
+      coreBasics.assert(message.payload)
       node.send(message)
     })
 
@@ -169,7 +170,7 @@ module.exports = function (RED) {
     node.bianco.iiot.convertResultValue = function (msg) {
       let result = msg.payload
 
-      if (result === null || result === void 0) {
+      if (result === null || result === undefined /* false/0 is a valid value */) {
         coreFilter.internalDebugLog('result null or undefined')
         if (node.showErrors) {
           node.error(new Error('converted result null or undefined'), msg)
@@ -177,7 +178,7 @@ module.exports = function (RED) {
         return result
       }
 
-      if (result.hasOwnProperty('value')) {
+      if ({}.hasOwnProperty.call(result, 'value')) {
         result = result.value
       }
 
@@ -188,7 +189,7 @@ module.exports = function (RED) {
 
       result = node.bianco.iiot.convertDataType(result)
 
-      if (result === null || result === void 0) {
+      if (result === null || result === undefined /* false/0 is a valid value */) {
         coreFilter.internalDebugLog('data type result null or undefined')
         if (node.showErrors) {
           node.error(new Error('converted by data type result null or undefined'), msg)
@@ -209,14 +210,14 @@ module.exports = function (RED) {
 
     node.bianco.iiot.extractValueFromOPCUAArrayStructure = function (msg, entryIndex) {
       let result = null
-      let payload = msg.payload[entryIndex]
+      const payload = msg.payload[entryIndex]
 
       if (!payload) {
         return result
       }
 
-      if (payload.hasOwnProperty('value')) {
-        if (payload.value.hasOwnProperty('value')) {
+      if ({}.hasOwnProperty.call(payload, 'value')) {
+        if ({}.hasOwnProperty.call(payload.value, 'value')) {
           result = payload.value.value
         } else {
           result = payload.value
@@ -231,8 +232,8 @@ module.exports = function (RED) {
     node.bianco.iiot.extractValueFromOPCUAStructure = function (msg) {
       let result = null
 
-      if (msg.payload.hasOwnProperty('value')) {
-        if (msg.payload.value.hasOwnProperty('value')) {
+      if ({}.hasOwnProperty.call(msg.payload, 'value')) {
+        if ({}.hasOwnProperty.call(msg.payload.value, 'value')) {
           result = msg.payload.value.value
         } else {
           result = msg.payload.value
@@ -253,7 +254,7 @@ module.exports = function (RED) {
         result = node.bianco.iiot.extractValueFromOPCUAStructure(msg)
       }
 
-      if (result.hasOwnProperty('value')) {
+      if ({}.hasOwnProperty.call(result, 'value')) {
         result = result.value
       }
 
@@ -267,13 +268,13 @@ module.exports = function (RED) {
     node.bianco.iiot.filterByListenType = function (msg) {
       let result = null
 
-      if (msg.payload && msg.payload.hasOwnProperty('value')) {
+      if (msg.payload && {}.hasOwnProperty.call(msg.payload, 'value')) {
         result = msg.payload.value
       } else {
         result = msg.payload
       }
 
-      if (result && result.hasOwnProperty('value')) {
+      if (result && {}.hasOwnProperty.call(result, 'value')) {
         result = result.value
       }
 
@@ -281,24 +282,24 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.filterByBrowserType = function (msg) {
-      let result = coreFilter.core.filterListByNodeId(node.nodeId, msg.payload.browserResults)
+      const result = coreBasics.filterListByNodeId(node.nodeId, msg.payload.browserResults)
 
       if (msg.addressSpaceItems && msg.addressSpaceItems.length) {
-        msg.addressSpaceItems = coreFilter.core.filterListByNodeId(node.nodeId, msg.addressSpaceItems)
+        msg.addressSpaceItems = coreBasics.filterListByNodeId(node.nodeId, msg.addressSpaceItems)
       }
 
       if (msg.nodesToRead && msg.nodesToRead.length) {
-        msg.nodesToRead = coreFilter.core.filterListEntryByNodeId(node.nodeId, msg.nodesToRead)
+        msg.nodesToRead = coreBasics.filterListEntryByNodeId(node.nodeId, msg.nodesToRead)
         msg.nodesToReadCount = msg.nodesToRead.length
       }
 
       if (msg.addressItemsToRead && msg.addressItemsToRead.length) {
-        msg.addressItemsToRead = coreFilter.core.filterListByNodeId(node.nodeId, msg.addressItemsToRead)
+        msg.addressItemsToRead = coreBasics.filterListByNodeId(node.nodeId, msg.addressItemsToRead)
         msg.addressItemsToReadCount = msg.addressItemsToRead.length
       }
 
       if (msg.addressItemsToBrowse && msg.addressItemsToBrowse.length) {
-        msg.addressItemsToBrowse = coreFilter.core.filterListByNodeId(node.nodeId, msg.addressItemsToBrowse)
+        msg.addressItemsToBrowse = coreBasics.filterListByNodeId(node.nodeId, msg.addressItemsToBrowse)
         msg.addressItemsToBrowseCount = msg.addressItemsToBrowse.length
       }
 
@@ -306,10 +307,10 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.filterByCrawlerType = function (msg) {
-      let result = coreFilter.core.filterListByNodeId(node.nodeId, msg.payload.crawlerResults)
+      const result = coreBasics.filterListByNodeId(node.nodeId, msg.payload.crawlerResults)
 
       if (msg.addressSpaceItems && msg.addressSpaceItems.length) {
-        msg.addressItems = coreFilter.core.filterListByNodeId(node.nodeId, msg.addressSpaceItems)
+        msg.addressItems = coreBasics.filterListByNodeId(node.nodeId, msg.addressSpaceItems)
       }
 
       return result
@@ -317,7 +318,7 @@ module.exports = function (RED) {
 
     node.bianco.iiot.convertDataType = function (result) {
       coreFilter.internalDebugLog('data type convert for ' + node.nodeId)
-      return coreFilter.core.convertDataValueByDataType({ value: result }, node.datatype)
+      return coreBasics.convertDataValueByDataType({ value: result }, node.datatype)
     }
 
     if (node.withValueCheck) {

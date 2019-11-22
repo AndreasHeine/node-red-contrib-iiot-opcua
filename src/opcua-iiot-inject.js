@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2013, 2016 IBM Corp. (node-red)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -16,8 +16,9 @@
 
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreInject = require('./core/opcua-iiot-core-inject')
-  let cron = require('cron')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreInject = require('./core/opcua-iiot-core-inject')
+  const cron = require('cron')
 
   function OPCUAIIoTInject (config) {
     RED.nodes.createNode(this, config)
@@ -34,9 +35,9 @@ module.exports = function (RED) {
 
     this.addressSpaceItems = config.addressSpaceItems || []
 
-    let node = this
-    node.bianco = coreInject.core.createBiancoIIoT()
-    coreInject.core.assert(node.bianco.iiot)
+    const node = this
+    node.bianco = coreBasics.createBiancoIIoT()
+    coreBasics.assert(node.bianco.iiot)
 
     node.bianco.iiot.intervalId = null
     node.bianco.iiot.onceTimeout = null
@@ -140,7 +141,7 @@ module.exports = function (RED) {
       clearTimeout(node.bianco.iiot.onceTimeout)
       node.bianco.iiot.onceTimeout = null
     }
-    let timeout = parseInt(node.bianco.iiot.INPUT_TIMEOUT_MILLISECONDS * node.startDelay)
+    const timeout = parseInt(node.bianco.iiot.INPUT_TIMEOUT_MILLISECONDS * node.startDelay)
 
     if (node.once) {
       coreInject.detailDebugLog('injecting once at start delay timeout ' + timeout + ' msec.')
@@ -163,18 +164,18 @@ module.exports = function (RED) {
   RED.nodes.registerType('OPCUA-IIoT-Inject', OPCUAIIoTInject)
 
   OPCUAIIoTInject.prototype.close = function () {
-    let node = this
+    const node = this
 
     if (node.bianco.iiot.cronjob) {
       node.bianco.iiot.cronjob.stop()
-      delete node['cronjob']
+      delete node.cronjob
     }
 
-    coreInject.core.resetBiancoNode(node)
+    coreBasics.resetBiancoNode(node)
   }
 
   RED.httpAdmin.post('/opcuaIIoT/inject/:id', RED.auth.needsPermission('opcuaIIoT.inject.write'), function (req, res) {
-    let node = RED.nodes.getNode(req.params.id)
+    const node = RED.nodes.getNode(req.params.id)
 
     if (node) {
       try {

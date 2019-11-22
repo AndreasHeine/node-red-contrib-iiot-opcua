@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,8 +15,9 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreListener = require('./core/opcua-iiot-core-listener')
-  let Map = require('es6-map')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreListener = require('./core/opcua-iiot-core-listener')
+  const Map = require('es6-map')
   const _ = require('underscore')
 
   function OPCUAIIoTListener (config) {
@@ -31,24 +32,24 @@ module.exports = function (RED) {
     this.showErrors = config.showErrors
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = coreListener.initListenerNode(this)
-    coreListener.core.assert(node.bianco.iiot)
+    const node = coreListener.initListenerNode(this)
+    coreBasics.assert(node.bianco.iiot)
 
-    const StatusCodes = coreListener.core.nodeOPCUA.StatusCodes
-    const AttributeIds = coreListener.core.nodeOPCUA.AttributeIds
+    const StatusCodes = coreBasics.nodeOPCUA.StatusCodes
+    const AttributeIds = coreBasics.nodeOPCUA.AttributeIds
 
-    node.bianco.iiot.stateMachine = coreListener.createStatelyMachine()
-    coreListener.internalDebugLog('Start FSM: ' + node.bianco.iiot.stateMachine.getMachineState())
-    coreListener.detailDebugLog('FSM events:' + node.bianco.iiot.stateMachine.getMachineEvents())
+    node.bianco.iiot.stateMachine = coreListener.createStateMachineService()
+    node.bianco.iiot.actualServiceState = node.bianco.iiot.stateMachine.initialState
+    node.bianco.iiot.stateService = coreListener.startStateService(node.bianco.iiot.stateMachine)
 
     node.bianco.iiot.createSubscription = function (msg) {
-      if (node.bianco.iiot.stateMachine.getMachineState() !== 'IDLE') {
-        coreListener.internalDebugLog('New Subscription Request On State ' + node.bianco.iiot.stateMachine.getMachineState())
+      if (node.bianco.iiot.actualServiceState !== 'IDLE') {
+        coreListener.internalDebugLog('New Subscription Request On State ' + node.bianco.iiot.actualServiceState)
         return
       }
-      coreListener.internalDebugLog('Create Subscription On State ' + node.bianco.iiot.stateMachine.getMachineState())
+      coreListener.internalDebugLog('Create Subscription On State ' + node.bianco.iiot.actualServiceState)
       node.bianco.iiot.opcuaSubscription = null
-      node.bianco.iiot.stateMachine.requestinitsub()
+      node.bianco.iiot.stateMachine.send('requestinitsub')
 
       const timeMilliseconds = (typeof msg.payload === 'number') ? msg.payload : null
       const dynamicOptions = (msg.payload.listenerParameters) ? msg.payload.listenerParameters.options : msg.payload.options
@@ -67,15 +68,16 @@ module.exports = function (RED) {
     node.bianco.iiot.setSubscriptionEvents = function (subscription) {
       subscription.on('started', function () {
         coreListener.internalDebugLog('Subscription started')
-        coreListener.core.setNodeStatusTo(node, 'started')
+        coreBasics.setNodeStatusTo(node, 'started')
         node.bianco.iiot.monitoredItems.clear()
-        node.bianco.iiot.stateMachine.startsub()
+        node.bianco.iiot.stateMachine.send('startsub')
       })
 
       subscription.on('terminated', function () {
         coreListener.internalDebugLog('Subscription terminated')
-        coreListener.core.setNodeStatusTo(node, 'terminated')
-        node.bianco.iiot.stateMachine.terminatesub().idlesub()
+        coreBasics.setNodeStatusTo(node, 'terminated')
+        node.bianco.iiot.stateMachine.send('terminatesub')
+        node.bianco.iiot.stateMachine.send('idlesub')
         node.bianco.iiot.resetSubscription()
       })
 
@@ -84,8 +86,8 @@ module.exports = function (RED) {
         if (node.showErrors) {
           node.error(err, { payload: 'Internal Error' })
         }
-        coreListener.core.setNodeStatusTo(node, 'error')
-        node.bianco.iiot.stateMachine.errorsub()
+        coreBasics.setNodeStatusTo(node, 'error')
+        node.bianco.iiot.stateMachine.send('errorsub')
         node.bianco.iiot.resetSubscription()
       })
 
@@ -96,7 +98,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.makeSubscription = function (parameters) {
-      if (coreListener.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'ListenerSubscription')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'ListenerSubscription')) {
         return
       }
 
@@ -107,7 +109,7 @@ module.exports = function (RED) {
         coreListener.internalDebugLog('Subscription Parameters: ' + JSON.stringify(parameters))
       }
 
-      node.bianco.iiot.opcuaSubscription = new coreListener.core.nodeOPCUA.ClientSubscription(node.bianco.iiot.opcuaSession, parameters)
+      node.bianco.iiot.opcuaSubscription = new coreBasics.nodeOPCUA.ClientSubscription(node.bianco.iiot.opcuaSession, parameters)
       coreListener.internalDebugLog('New Subscription Created')
 
       if (node.connector) {
@@ -115,7 +117,7 @@ module.exports = function (RED) {
       }
 
       node.bianco.iiot.setSubscriptionEvents(node.bianco.iiot.opcuaSubscription)
-      node.bianco.iiot.stateMachine.initsub()
+      node.bianco.iiot.stateMachine.send('initsub')
     }
 
     node.bianco.iiot.resetSubscription = function () {
@@ -123,7 +125,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.sendAllMonitoredItems = function (payload) {
-      let addressSpaceItems = []
+      const addressSpaceItems = []
 
       node.bianco.iiot.monitoredASO.forEach(function (value, key) {
         addressSpaceItems.push({ name: '', nodeId: key, datatypeName: '' })
@@ -136,7 +138,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.subscribeActionInput = function (msg) {
-      if (node.bianco.iiot.stateMachine.getMachineState() !== coreListener.RUNNING_STATE) {
+      if (node.bianco.iiot.actualServiceState !== coreListener.RUNNING_STATE) {
         node.bianco.iiot.messageQueue.push(msg)
       } else {
         node.bianco.iiot.subscribeMonitoredItem(msg)
@@ -144,7 +146,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.subscribeEventsInput = function (msg) {
-      if (node.bianco.iiot.stateMachine.getMachineState() !== coreListener.RUNNING_STATE) {
+      if (node.bianco.iiot.actualServiceState !== coreListener.RUNNING_STATE) {
         node.bianco.iiot.messageQueue.push(msg)
       } else {
         node.bianco.iiot.subscribeMonitoredEvent(msg)
@@ -153,7 +155,7 @@ module.exports = function (RED) {
 
     node.bianco.iiot.updateSubscriptionStatus = function () {
       coreListener.internalDebugLog('listening' + ' (' + node.bianco.iiot.monitoredItems.size + ')')
-      coreListener.core.setNodeStatusTo(node, 'listening' + ' (' + node.bianco.iiot.monitoredItems.size + ')')
+      coreBasics.setNodeStatusTo(node, 'listening' + ' (' + node.bianco.iiot.monitoredItems.size + ')')
     }
 
     node.bianco.iiot.handleMonitoringOfGroupedItems = function (msg) {
@@ -224,7 +226,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.subscribeMonitoredItem = function (msg) {
-      if (coreListener.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'MonitorListener')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'MonitorListener')) {
         return
       }
 
@@ -242,7 +244,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.handleEventSubscriptions = function (msg) {
-      for (let addressSpaceItem of msg.addressSpaceItems) {
+      for (const addressSpaceItem of msg.addressSpaceItems) {
         if (!addressSpaceItem.nodeId) {
           coreListener.eventDebugLog('Address Space Item Not Valid to Monitor Event Of ' + addressSpaceItem)
           return
@@ -292,7 +294,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.subscribeMonitoredEvent = function (msg) {
-      if (coreListener.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'EventListener')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'EventListener')) {
         return
       }
 
@@ -325,7 +327,7 @@ module.exports = function (RED) {
           node.bianco.iiot.monitoredItems.delete(monitoredItem.monitoredItemId)
         }
 
-        if (coreListener.core.isNodeId(monitoredItem.itemToMonitor.nodeId)) {
+        if (coreBasics.isNodeId(monitoredItem.itemToMonitor.nodeId)) {
           coreListener.internalDebugLog('UMIL Terminate Monitored Item ' + monitoredItem.itemToMonitor.nodeId)
           if (node.bianco.iiot.monitoredASO.has(nodeId)) {
             node.bianco.iiot.monitoredASO.delete(nodeId)
@@ -347,12 +349,12 @@ module.exports = function (RED) {
 
     node.bianco.iiot.setMonitoring = function (monitoredItemToSet) {
       const monitoredItem = monitoredItemToSet
-      if (!monitoredItem || monitoredItem.monitoredItemId === void 0) {
+      if (!monitoredItem || monitoredItem.monitoredItemId === undefined /* false/0 is a valid value */) {
         coreListener.internalDebugLog('monitoredItem Id from server is not valid Id: ' + monitoredItem.monitoredItemId)
         return
       }
 
-      if (!coreListener.core.isNodeId(monitoredItem.itemToMonitor.nodeId)) {
+      if (!coreBasics.isNodeId(monitoredItem.itemToMonitor.nodeId)) {
         coreListener.internalDebugLog('monitoredItem NodeId is not valid Id:' + monitoredItem.monitoredItemId)
       }
 
@@ -380,7 +382,7 @@ module.exports = function (RED) {
 
         node.bianco.iiot.updateMonitoredItemLists(monitoredItem, monitoredItem.itemToMonitor.nodeId)
 
-        if (coreListener.core.isSessionBad(err)) {
+        if (coreBasics.isSessionBad(err)) {
           node.bianco.iiot.sendAllMonitoredItems('BAD SESSION')
           node.bianco.iiot.terminateSubscription(() => {
             node.emit('opcua_client_not_ready')
@@ -401,11 +403,11 @@ module.exports = function (RED) {
         return
       }
 
-      const nodeId = (coreListener.core.isNodeId(monitoredItem.itemToMonitor.nodeId)) ? monitoredItem.itemToMonitor.nodeId.toString() : 'invalid'
+      const nodeId = (coreBasics.isNodeId(monitoredItem.itemToMonitor.nodeId)) ? monitoredItem.itemToMonitor.nodeId.toString() : 'invalid'
       const item = node.bianco.iiot.monitoredASO.get(nodeId)
       const topic = (item) ? item.topic : node.topic
 
-      let msg = {
+      const msg = {
         payload: {},
         topic: topic,
         addressSpaceItems: [{ name: '', nodeId, datatypeName: '' }],
@@ -467,11 +469,11 @@ module.exports = function (RED) {
         return
       }
 
-      const nodeId = (coreListener.core.isNodeId(monitoredItem.itemToMonitor.nodeId)) ? monitoredItem.itemToMonitor.nodeId.toString() : 'invalid'
+      const nodeId = (coreBasics.isNodeId(monitoredItem.itemToMonitor.nodeId)) ? monitoredItem.itemToMonitor.nodeId.toString() : 'invalid'
       const item = node.bianco.iiot.monitoredASO.get(nodeId)
       const topic = (item) ? item.topic : node.topic
 
-      let msg = {
+      const msg = {
         payload: {},
         topic: topic || node.topic, // default if item.topic is empty
         addressSpaceItems: [{ name: '', nodeId: nodeId, datatypeName: '' }],
@@ -483,7 +485,7 @@ module.exports = function (RED) {
         .then(function (eventResults) {
           node.bianco.iiot.handleEventResults(msg, dataValue, eventResults, monitoredItem)
         }).catch(function (err) {
-          (coreListener.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.errorHandling(err) : coreListener.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.errorHandling(err) : coreListener.internalDebugLog(err.message)
         })
     }
 
@@ -495,7 +497,7 @@ module.exports = function (RED) {
       }
 
       if (err) {
-        if (coreListener.core.isSessionBad(err)) {
+        if (coreBasics.isSessionBad(err)) {
           node.bianco.iiot.sendAllMonitoredItems('BAD SESSION')
           node.bianco.iiot.terminateSubscription(() => {
             node.emit('opcua_client_not_ready')
@@ -511,7 +513,7 @@ module.exports = function (RED) {
       }], function (err, org, readValue) {
         if (!err) {
           if (readValue[0].statusCode === StatusCodes.Good) {
-            let browseName = readValue[0].value.value.name
+            const browseName = readValue[0].value.value.name
             return callback(null, browseName)
           }
         }
@@ -533,14 +535,14 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!coreListener.core.checkConnectorState(node, msg, 'Listener')) {
+      if (!coreBasics.checkConnectorState(node, msg, 'Listener')) {
         return
       }
 
       if (msg.nodetype === 'browse') { /* browse is just to address listening to many nodes */
         msg.nodetype = 'inject'
         msg.injectType = 'listen'
-        msg.addressSpaceItems = coreListener.core.buildNodesToListen(msg)
+        msg.addressSpaceItems = coreBasics.buildNodesToListen(msg)
       }
 
       if (!msg.addressSpaceItems || !msg.addressSpaceItems.length) {
@@ -551,7 +553,7 @@ module.exports = function (RED) {
         return
       }
 
-      if (node.bianco.iiot.stateMachine.getMachineState() === 'IDLE') {
+      if (node.bianco.iiot.actualServiceState === 'IDLE') {
         node.bianco.iiot.messageQueue.push(msg)
         node.bianco.iiot.createSubscription(msg)
       } else {
@@ -563,7 +565,7 @@ module.exports = function (RED) {
       }
     })
 
-    coreListener.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     if (node.connector) {
       node.connector.on('connector_init', () => {
@@ -571,7 +573,10 @@ module.exports = function (RED) {
         node.bianco.iiot.opcuaSubscription = null
         node.bianco.iiot.monitoredItems = new Map()
         node.bianco.iiot.monitoredASO = new Map()
-        node.bianco.iiot.stateMachine = coreListener.createStatelyMachine()
+        node.bianco.iiot.stateService.stop()
+        node.bianco.iiot.stateMachine = coreListener.createStateMachineService()
+        node.bianco.iiot.actualServiceState = node.bianco.iiot.stateMachine.initialState
+        node.bianco.iiot.stateService = coreListener.startStateService(node.bianco.iiot.stateMachine)
         node.bianco.iiot.monitoredItemGroup = null
       })
 
@@ -605,74 +610,81 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.terminateSubscription = function (done) {
-      if (node.bianco.iiot.opcuaSubscription && node.bianco.iiot.stateMachine.getMachineState() === coreListener.RUNNING_STATE) {
-        node.bianco.iiot.stateMachine.terminatesub()
+      if (node.bianco.iiot.opcuaSubscription && node.bianco.iiot.actualServiceState === coreListener.RUNNING_STATE) {
+        node.bianco.iiot.stateMachine.send('terminatesub')
         node.bianco.iiot.opcuaSubscription.terminate(() => {
           node.bianco.iiot.opcuaSubscription.removeAllListeners()
-          node.bianco.iiot.stateMachine.idlesub()
+          node.bianco.iiot.stateMachine.send('idlesub')
           done()
         })
       } else {
-        node.bianco.iiot.stateMachine.idlesub()
+        node.bianco.iiot.stateMachine.send('idlesub')
         done()
       }
     }
 
     node.on('close', function (done) {
+      if (node.bianco.iiot.stateService) {
+        node.bianco.iiot.stateService.stop()
+      }
+
       node.bianco.iiot.terminateSubscription(() => {
         node.bianco.iiot.opcuaSubscription = null
-        coreListener.core.deregisterToConnector(node, () => {
-          coreListener.core.resetBiancoNode(node)
+        coreBasics.deregisterToConnector(node, () => {
+          coreBasics.resetBiancoNode(node)
           done()
         })
         coreListener.internalDebugLog('Close Listener Node')
       })
     })
 
-    /* #########   FSM EVENTS  #########     */
+    node.bianco.iiot.stateService.subscribe(state => {
+      node.bianco.iiot.actualServiceState = state
+      /* #########   FSM EVENTS  #########     */
 
-    node.bianco.iiot.stateMachine.onIDLE = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener IDLE Event FSM')
-    }
-
-    node.bianco.iiot.stateMachine.onREQUESTED = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener REQUESTED Event FSM')
-    }
-
-    node.bianco.iiot.stateMachine.onINIT = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener INIT Event FSM')
-    }
-
-    node.bianco.iiot.stateMachine.onSTARTED = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener STARTED Event FSM')
-
-      switch (node.action) {
-        case 'subscribe':
-          while (node.bianco.iiot.messageQueue.length > 0) {
-            node.bianco.iiot.subscribeMonitoredItem(node.bianco.iiot.messageQueue.shift())
-          }
-          break
-        case 'events':
-          while (node.bianco.iiot.messageQueue.length > 0) {
-            node.bianco.iiot.subscribeMonitoredEvent(node.bianco.iiot.messageQueue.shift())
-          }
-          break
-        default:
-          coreListener.internalDebugLog('Unknown Action Type ' + node.action)
+      if (state.matches('idle')) {
+        coreListener.detailDebugLog('Listener IDLE Event FSM')
       }
-    }
 
-    node.bianco.iiot.stateMachine.onTERMINATED = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener TERMINATED Event FSM')
-    }
+      if (state.matches('requested')) {
+        coreListener.detailDebugLog('Listener REQUESTED Event FSM')
+      }
 
-    node.bianco.iiot.stateMachine.onERROR = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener ERROR Event FSM')
-    }
+      if (state.matches('init')) {
+        coreListener.detailDebugLog('Listener INIT Event FSM')
+      }
 
-    node.bianco.iiot.stateMachine.onEND = function (event, oldState, newState) {
-      coreListener.detailDebugLog('Listener END Event FSM')
-    }
+      if (state.matches('started')) {
+        coreListener.detailDebugLog('Listener STARTED Event FSM')
+
+        switch (node.action) {
+          case 'subscribe':
+            while (node.bianco.iiot.messageQueue.length > 0) {
+              node.bianco.iiot.subscribeMonitoredItem(node.bianco.iiot.messageQueue.shift())
+            }
+            break
+          case 'events':
+            while (node.bianco.iiot.messageQueue.length > 0) {
+              node.bianco.iiot.subscribeMonitoredEvent(node.bianco.iiot.messageQueue.shift())
+            }
+            break
+          default:
+            coreListener.internalDebugLog('Unknown Action Type ' + node.action)
+        }
+      }
+
+      if (state.matches('terminated')) {
+        coreListener.detailDebugLog('Listener TERMINATED Event FSM')
+      }
+
+      if (state.matches('error')) {
+        coreListener.detailDebugLog('Listener ERROR Event FSM')
+      }
+
+      if (state.matches('end')) {
+        coreListener.detailDebugLog('Listener END Event FSM')
+      }
+    })
   }
 
   RED.nodes.registerType('OPCUA-IIoT-Listener', OPCUAIIoTListener)

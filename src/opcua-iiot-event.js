@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,7 +15,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreListener = require('./core/opcua-iiot-core-listener')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreListener = require('./core/opcua-iiot-core-listener')
 
   function OPCUAIIoTEvent (config) {
     RED.nodes.createNode(this, config)
@@ -28,9 +29,9 @@ module.exports = function (RED) {
     this.showStatusActivities = config.showStatusActivities
     this.showErrors = config.showErrors
 
-    let node = this
-    node.bianco = coreListener.core.createBiancoIIoT()
-    coreListener.core.assert(node.bianco.iiot)
+    const node = this
+    node.bianco = coreBasics.createBiancoIIoT()
+    coreBasics.assert(node.bianco.iiot)
     node.bianco.iiot.subscribed = false
 
     node.status({ fill: 'blue', shape: 'ring', text: 'new' })
@@ -48,7 +49,7 @@ module.exports = function (RED) {
         node.status({ fill: 'blue', shape: 'dot', text: 'injected' })
       }
 
-      let uaEventFields = coreListener.getBasicEventFields()
+      const uaEventFields = coreListener.getBasicEventFields()
 
       switch (node.resultType) {
         case 'condition':
@@ -64,7 +65,7 @@ module.exports = function (RED) {
           break
       }
 
-      let uaEventFilter = coreListener.core.nodeOPCUA.constructEventFilter(uaEventFields)
+      const uaEventFilter = coreBasics.nodeOPCUA.constructEventFilter(uaEventFields)
       let interval = 1000
 
       if (typeof msg.payload === 'number') {
@@ -73,7 +74,7 @@ module.exports = function (RED) {
 
       msg.nodetype = 'events'
 
-      let eventSubscriptionPayload = {
+      const eventSubscriptionPayload = {
         eventType: msg.payload.eventType || node.eventType,
         eventFilter: msg.payload.uaEventFilter || uaEventFilter,
         eventFields: msg.payload.uaEventFields || uaEventFields,

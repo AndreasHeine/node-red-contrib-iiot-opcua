@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -16,28 +16,28 @@
  *
  * @Namesapce de.biancoroyal.opcua.iiot.core
  */
-var de = de || { biancoroyal: { opcua: { iiot: { core: {} } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.nodeOPCUA = de.biancoroyal.opcua.iiot.core.nodeOPCUA || require('node-opcua') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.nodeOPCUAId = de.biancoroyal.opcua.iiot.core.nodeOPCUAId || require('node-opcua-nodeid') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.internalDebugLog = de.biancoroyal.opcua.iiot.core.internalDebugLog || require('debug')('opcuaIIoT:core') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.detailDebugLog = de.biancoroyal.opcua.iiot.core.detailDebugLog || require('debug')('opcuaIIoT:core:details') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.specialDebugLog = de.biancoroyal.opcua.iiot.core.specialDebugLog || require('debug')('opcuaIIoT:core:special') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.OBJECTS_ROOT = de.biancoroyal.opcua.iiot.core.OBJECTS_ROOT || 'ns=0;i=84' // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.TEN_SECONDS_TIMEOUT = de.biancoroyal.opcua.iiot.core.TEN_SECONDS_TIMEOUT || 10 // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.RUNNING_STATE = de.biancoroyal.opcua.iiot.core.RUNNING_STATE || 'SESSIONACTIVE' // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.os = de.biancoroyal.opcua.iiot.core.os || require('os') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.assert = de.biancoroyal.opcua.iiot.core.assert || require('better-assert') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.underscore = de.biancoroyal.opcua.iiot.core.underscore || require('underscore') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.isWindows = de.biancoroyal.opcua.iiot.core.isWindows || /^win/.test(de.biancoroyal.opcua.iiot.core.os.platform()) // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.FAKTOR_SEC_TO_MSEC = de.biancoroyal.opcua.iiot.core.FAKTOR_SEC_TO_MSEC || 1000 // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.DEFAULT_TIMEOUT = de.biancoroyal.opcua.iiot.core.DEFAULT_TIMEOUT || 1000 // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.internalDebugLog(de.biancoroyal.opcua.iiot.core.os.endianness())
-de.biancoroyal.opcua.iiot.core.internalDebugLog(de.biancoroyal.opcua.iiot.core.os.hostname())
-de.biancoroyal.opcua.iiot.core.internalDebugLog(de.biancoroyal.opcua.iiot.core.os.platform())
-de.biancoroyal.opcua.iiot.core.internalDebugLog(de.biancoroyal.opcua.iiot.core.os.type())
-de.biancoroyal.opcua.iiot.core.internalDebugLog(de.biancoroyal.opcua.iiot.core.os.arch())
+var de = de || { biancoroyal: { opcua: { iiot: { core: { basics: {} } } } } } // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUA || require('node-opcua') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId = de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId || require('node-opcua-nodeid') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.internalDebugLog = de.biancoroyal.opcua.iiot.core.basics.internalDebugLog || require('debug')('opcuaIIoT:core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.detailDebugLog = de.biancoroyal.opcua.iiot.core.basics.detailDebugLog || require('debug')('opcuaIIoT:core:details') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.specialDebugLog = de.biancoroyal.opcua.iiot.core.basics.specialDebugLog || require('debug')('opcuaIIoT:core:special') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.OBJECTS_ROOT = de.biancoroyal.opcua.iiot.core.basics.OBJECTS_ROOT || 'ns=0;i=84' // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.TEN_SECONDS_TIMEOUT = de.biancoroyal.opcua.iiot.core.basics.TEN_SECONDS_TIMEOUT || 10 // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.RUNNING_STATE = de.biancoroyal.opcua.iiot.core.basics.RUNNING_STATE || 'SESSIONACTIVE' // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.os = de.biancoroyal.opcua.iiot.core.basics.os || require('os') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.assert = de.biancoroyal.opcua.iiot.core.basics.assert || require('better-assert') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.underscore = de.biancoroyal.opcua.iiot.core.basics.underscore || require('underscore') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.isWindows = de.biancoroyal.opcua.iiot.core.basics.isWindows || /^win/.test(de.biancoroyal.opcua.iiot.core.basics.os.platform()) // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.FAKTOR_SEC_TO_MSEC = de.biancoroyal.opcua.iiot.core.basics.FAKTOR_SEC_TO_MSEC || 1000 // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.DEFAULT_TIMEOUT = de.biancoroyal.opcua.iiot.core.basics.DEFAULT_TIMEOUT || 1000 // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics.internalDebugLog(de.biancoroyal.opcua.iiot.core.basics.os.endianness())
+de.biancoroyal.opcua.iiot.core.basics.internalDebugLog(de.biancoroyal.opcua.iiot.core.basics.os.hostname())
+de.biancoroyal.opcua.iiot.core.basics.internalDebugLog(de.biancoroyal.opcua.iiot.core.basics.os.platform())
+de.biancoroyal.opcua.iiot.core.basics.internalDebugLog(de.biancoroyal.opcua.iiot.core.basics.os.type())
+de.biancoroyal.opcua.iiot.core.basics.internalDebugLog(de.biancoroyal.opcua.iiot.core.basics.os.arch())
 
-de.biancoroyal.opcua.iiot.core.getPathFromRequireResolve = function (requireResolve) {
+de.biancoroyal.opcua.iiot.core.basics.getPathFromRequireResolve = function (requireResolve) {
   let pathToNodeOPCUA = ''
 
   if (this.isWindows) {
@@ -51,19 +51,19 @@ de.biancoroyal.opcua.iiot.core.getPathFromRequireResolve = function (requireReso
   return pathToNodeOPCUA
 }
 
-de.biancoroyal.opcua.iiot.core.getNodeOPCUAPath = function () {
+de.biancoroyal.opcua.iiot.core.basics.getNodeOPCUAPath = function () {
   return this.getPathFromRequireResolve(require.resolve('node-opcua'))
 }
 
-de.biancoroyal.opcua.iiot.core.getNodeOPCUAClientPath = function () {
+de.biancoroyal.opcua.iiot.core.basics.getNodeOPCUAClientPath = function () {
   return this.getPathFromRequireResolve(require.resolve('node-opcua-client'))
 }
 
-de.biancoroyal.opcua.iiot.core.getNodeOPCUAServerPath = function () {
+de.biancoroyal.opcua.iiot.core.basics.getNodeOPCUAServerPath = function () {
   return this.getPathFromRequireResolve(require.resolve('node-opcua-server'))
 }
 
-de.biancoroyal.opcua.iiot.core.getTimeUnitName = function (unit) {
+de.biancoroyal.opcua.iiot.core.basics.getTimeUnitName = function (unit) {
   let unitAbbreviation = ''
 
   switch (unit) {
@@ -86,7 +86,7 @@ de.biancoroyal.opcua.iiot.core.getTimeUnitName = function (unit) {
   return unitAbbreviation
 }
 
-de.biancoroyal.opcua.iiot.core.calcMillisecondsByTimeAndUnit = function (time, unit) {
+de.biancoroyal.opcua.iiot.core.basics.calcMillisecondsByTimeAndUnit = function (time, unit) {
   let convertedTime
 
   switch (unit) {
@@ -110,18 +110,18 @@ de.biancoroyal.opcua.iiot.core.calcMillisecondsByTimeAndUnit = function (time, u
   return convertedTime
 }
 
-de.biancoroyal.opcua.iiot.core.buildBrowseMessage = function (topic) {
+de.biancoroyal.opcua.iiot.core.basics.buildBrowseMessage = function (topic) {
   return {
-    'topic': topic,
-    'nodeId': '',
-    'browseName': '',
-    'nodeClassType': '',
-    'typeDefinition': '',
-    'payload': ''
+    topic: topic,
+    nodeId: '',
+    browseName: '',
+    nodeClassType: '',
+    typeDefinition: '',
+    payload: ''
   }
 }
 
-de.biancoroyal.opcua.iiot.core.toInt32 = function (x) {
+de.biancoroyal.opcua.iiot.core.basics.toInt32 = function (x) {
   let uintSixteen = x
 
   if (uintSixteen >= Math.pow(2, 15)) {
@@ -132,7 +132,7 @@ de.biancoroyal.opcua.iiot.core.toInt32 = function (x) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.getNodeStatus = function (statusValue, statusLog) {
+de.biancoroyal.opcua.iiot.core.basics.getNodeStatus = function (statusValue, statusLog) {
   let fillValue = 'yellow'
   let shapeValue = 'ring'
 
@@ -180,8 +180,8 @@ de.biancoroyal.opcua.iiot.core.getNodeStatus = function (statusValue, statusLog)
   return { fill: fillValue, shape: shapeValue, status: statusValue }
 }
 
-de.biancoroyal.opcua.iiot.core.buildNewVariant = function (datatype, value, arraytype, dimensions) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.buildNewVariant = function (datatype, value, arraytype, dimensions) {
+  const opcua = this.nodeOPCUA
   let variantValue = null
   arraytype = arraytype || opcua.VariantArrayType.Scalar
 
@@ -206,7 +206,7 @@ de.biancoroyal.opcua.iiot.core.buildNewVariant = function (datatype, value, arra
   return variantValue
 }
 
-de.biancoroyal.opcua.iiot.core.flattenMatrixValue = function (value, dimensions, depth, flattened) {
+de.biancoroyal.opcua.iiot.core.basics.flattenMatrixValue = function (value, dimensions, depth, flattened) {
   flattened = flattened || []
   depth = depth || 0
 
@@ -231,15 +231,15 @@ de.biancoroyal.opcua.iiot.core.flattenMatrixValue = function (value, dimensions,
   return flattened
 }
 
-de.biancoroyal.opcua.iiot.core.buildNewMatrixVariant = function (datatype, value, dimensions) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.buildNewMatrixVariant = function (datatype, value, dimensions) {
+  const opcua = this.nodeOPCUA
 
   if (!Array.isArray(value)) {
     throw new Error('Non array value provided to an matrix type node')
   }
 
-  let inferedDimensions = []
-  let flattenedValue = this.flattenMatrixValue(value, inferedDimensions)
+  const inferedDimensions = []
+  const flattenedValue = this.flattenMatrixValue(value, inferedDimensions)
 
   dimensions = dimensions || inferedDimensions
   if (!inferedDimensions.every((e, i) => e === dimensions[i])) {
@@ -249,7 +249,7 @@ de.biancoroyal.opcua.iiot.core.buildNewMatrixVariant = function (datatype, value
     }
   }
 
-  let variantValue = de.biancoroyal.opcua.iiot.core.buildNewArrayVariant(datatype, flattenedValue)
+  const variantValue = de.biancoroyal.opcua.iiot.core.basics.buildNewArrayVariant(datatype, flattenedValue)
 
   variantValue.arrayType = opcua.VariantArrayType.Matrix
   variantValue.dimensions = dimensions
@@ -257,8 +257,8 @@ de.biancoroyal.opcua.iiot.core.buildNewMatrixVariant = function (datatype, value
   return variantValue
 }
 
-de.biancoroyal.opcua.iiot.core.buildNewArrayVariant = function (datatype, value) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.buildNewArrayVariant = function (datatype, value) {
+  const opcua = this.nodeOPCUA
   let variantValue = null
 
   if (!Array.isArray(value)) {
@@ -290,20 +290,18 @@ de.biancoroyal.opcua.iiot.core.buildNewArrayVariant = function (datatype, value)
       break
     case 'UInt16':
     case opcua.DataType.UInt16:
-      let uint16 = new Uint16Array(value)
       variantValue = {
         dataType: opcua.DataType.UInt16,
         arrayType: opcua.VariantArrayType.Array,
-        value: uint16
+        value: new Uint16Array(value)
       }
       break
     case 'UInt32':
     case opcua.DataType.UInt32:
-      let uint32 = new Uint32Array(value)
       variantValue = {
         dataType: opcua.DataType.UInt32,
         arrayType: opcua.VariantArrayType.Array,
-        value: uint32
+        value: new Uint32Array(value)
       }
       break
     case 'Int32':
@@ -347,7 +345,7 @@ de.biancoroyal.opcua.iiot.core.buildNewArrayVariant = function (datatype, value)
         value: []
       }
       for (let i = 0; i < value.length; i++) {
-        if (value[i] && value[i] !== 'false') {
+        if (value[i] && value[i] !== 'false' && value[i] !== '0') {
           variantValue.value.push(true)
         } else {
           variantValue.value.push(false)
@@ -401,8 +399,8 @@ de.biancoroyal.opcua.iiot.core.buildNewArrayVariant = function (datatype, value)
   return variantValue
 }
 
-de.biancoroyal.opcua.iiot.core.buildNewScalarVariant = function (datatype, value) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.buildNewScalarVariant = function (datatype, value) {
+  const opcua = this.nodeOPCUA
   let variantValue = null
 
   switch (datatype) {
@@ -422,18 +420,16 @@ de.biancoroyal.opcua.iiot.core.buildNewScalarVariant = function (datatype, value
       break
     case 'UInt16':
     case opcua.DataType.UInt16:
-      let uint16 = new Uint16Array([value])
       variantValue = {
         dataType: opcua.DataType.UInt16,
-        value: uint16[0]
+        value: new Uint16Array([value])[0]
       }
       break
     case 'UInt32':
     case opcua.DataType.UInt32:
-      let uint32 = new Uint32Array([value])
       variantValue = {
         dataType: opcua.DataType.UInt32,
-        value: uint32[0]
+        value: new Uint32Array([value])[0]
       }
       break
     case 'Int32':
@@ -508,8 +504,8 @@ de.biancoroyal.opcua.iiot.core.buildNewScalarVariant = function (datatype, value
   return variantValue
 }
 
-de.biancoroyal.opcua.iiot.core.getVariantValue = function (datatype, value) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.getVariantValue = function (datatype, value) {
+  const opcua = this.nodeOPCUA
 
   switch (datatype) {
     case 'Float':
@@ -518,12 +514,10 @@ de.biancoroyal.opcua.iiot.core.getVariantValue = function (datatype, value) {
       return parseFloat(value)
     case 'UInt16':
     case opcua.DataType.UInt16:
-      let uint16 = new Uint16Array([value])
-      return uint16[0]
+      return new Uint16Array([value])[0]
     case 'UInt32':
     case opcua.DataType.UInt32:
-      let uint32 = new Uint32Array([value])
-      return uint32[0]
+      return new Uint32Array([value])[0]
     case 'Int16':
     case opcua.DataType.Int16:
     case 'Int32':
@@ -546,8 +540,8 @@ de.biancoroyal.opcua.iiot.core.getVariantValue = function (datatype, value) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.getBasicDataTypes = function () {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.getBasicDataTypes = function () {
+  const opcua = this.nodeOPCUA
 
   return [
     { name: 'Null', dataType: opcua.DataType.Null },
@@ -578,20 +572,20 @@ de.biancoroyal.opcua.iiot.core.getBasicDataTypes = function () {
   ]
 }
 
-de.biancoroyal.opcua.iiot.core.convertDataValue = function (value) {
-  return de.biancoroyal.opcua.iiot.core.convertDataValueByDataType(value, value.dataType)
+de.biancoroyal.opcua.iiot.core.basics.convertDataValue = function (value) {
+  return de.biancoroyal.opcua.iiot.core.basics.convertDataValueByDataType(value, value.dataType)
 }
 
-de.biancoroyal.opcua.iiot.core.convertDataValueByDataType = function (value, dataType) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.convertDataValueByDataType = function (value, dataType) {
+  const opcua = this.nodeOPCUA
   let convertedValue = null
 
-  if (!value.hasOwnProperty('value')) {
+  if (!{}.hasOwnProperty.call(value, 'value')) {
     this.specialDebugLog('value has no value and that is not allowed ' + JSON.stringify(value))
     return value
   }
 
-  let valueType = typeof value.value
+  const valueType = typeof value.value
 
   this.detailDebugLog('convertDataValue: ' + JSON.stringify(value) +
     ' value origin type ' + valueType + ' convert to' + ' ' + dataType)
@@ -647,13 +641,11 @@ de.biancoroyal.opcua.iiot.core.convertDataValueByDataType = function (value, dat
         break
       case 'UInt16':
       case opcua.DataType.UInt16:
-        let uint16 = new Uint16Array([value.value])
-        convertedValue = uint16[0]
+        convertedValue = new Uint16Array([value.value])[0]
         break
       case 'UInt32':
       case opcua.DataType.UInt32:
-        let uint32 = new Uint32Array([value.value])
-        convertedValue = uint32[0]
+        convertedValue = new Uint32Array([value.value])[0]
         break
       case 'Int16':
       case opcua.DataType.Int16:
@@ -689,7 +681,7 @@ de.biancoroyal.opcua.iiot.core.convertDataValueByDataType = function (value, dat
         break
       default:
         this.internalDebugLog('convertDataValue unused DataType: ' + dataType)
-        if (value.hasOwnProperty('value')) {
+        if ({}.hasOwnProperty.call(value, 'value')) {
           convertedValue = value.value
         } else {
           convertedValue = null
@@ -705,12 +697,12 @@ de.biancoroyal.opcua.iiot.core.convertDataValueByDataType = function (value, dat
   return convertedValue
 }
 
-de.biancoroyal.opcua.iiot.core.regex_ns_i = /ns=([0-9]+);i=([0-9]+)/
-de.biancoroyal.opcua.iiot.core.regex_ns_s = /ns=([0-9]+);s=(.*)/
-de.biancoroyal.opcua.iiot.core.regex_ns_b = /ns=([0-9]+);b=(.*)/
-de.biancoroyal.opcua.iiot.core.regex_ns_g = /ns=([0-9]+);g=(.*)/
+de.biancoroyal.opcua.iiot.core.basics.regex_ns_i = /ns=([0-9]+);i=([0-9]+)/
+de.biancoroyal.opcua.iiot.core.basics.regex_ns_s = /ns=([0-9]+);s=(.*)/
+de.biancoroyal.opcua.iiot.core.basics.regex_ns_b = /ns=([0-9]+);b=(.*)/
+de.biancoroyal.opcua.iiot.core.basics.regex_ns_g = /ns=([0-9]+);g=(.*)/
 
-de.biancoroyal.opcua.iiot.core.parseNamspaceFromMsgTopic = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.parseNamspaceFromMsgTopic = function (msg) {
   let nodeNamespace = null
 
   if (msg && msg.topic) {
@@ -722,9 +714,9 @@ de.biancoroyal.opcua.iiot.core.parseNamspaceFromMsgTopic = function (msg) {
   return nodeNamespace
 }
 
-de.biancoroyal.opcua.iiot.core.parseNamspaceFromItemNodeId = function (item) {
+de.biancoroyal.opcua.iiot.core.basics.parseNamspaceFromItemNodeId = function (item) {
   let nodeNamespace = null
-  let nodeItem = item.nodeId || item
+  const nodeItem = item.nodeId || item
 
   if (nodeItem) {
     // TODO: real parsing instead of string operations
@@ -735,7 +727,7 @@ de.biancoroyal.opcua.iiot.core.parseNamspaceFromItemNodeId = function (item) {
   return nodeNamespace
 }
 
-de.biancoroyal.opcua.iiot.core.parseForNodeIdentifier = function (nodeItem) {
+de.biancoroyal.opcua.iiot.core.basics.parseForNodeIdentifier = function (nodeItem) {
   let nodeIdentifier = null
 
   if (nodeItem) {
@@ -743,23 +735,23 @@ de.biancoroyal.opcua.iiot.core.parseForNodeIdentifier = function (nodeItem) {
     if (nodeItem.includes(';i=')) {
       nodeIdentifier = {
         identifier: parseInt(nodeItem.substring(nodeItem.indexOf(';i=') + 3)),
-        type: de.biancoroyal.opcua.iiot.core.nodeOPCUAId.NodeIdType.NUMERIC
+        type: de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId.NodeIdType.NUMERIC
       }
     } else if (nodeItem.includes(';g=')) {
       nodeIdentifier = {
         identifier: nodeItem.substring(nodeItem.indexOf(';g=') + 3),
-        type: de.biancoroyal.opcua.iiot.core.nodeOPCUAId.NodeIdType.GUID
+        type: de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId.NodeIdType.GUID
       }
     } else {
       if (nodeItem.includes(';b=')) {
         nodeIdentifier = {
           identifier: nodeItem.substring(nodeItem.indexOf(';b=') + 3),
-          type: de.biancoroyal.opcua.iiot.core.nodeOPCUAId.NodeIdType.BYTESTRING
+          type: de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId.NodeIdType.BYTESTRING
         }
       } else {
         nodeIdentifier = {
           identifier: nodeItem.substring(nodeItem.indexOf(';s=') + 3),
-          type: de.biancoroyal.opcua.iiot.core.nodeOPCUAId.NodeIdType.STRING
+          type: de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId.NodeIdType.STRING
         }
       }
     }
@@ -767,32 +759,32 @@ de.biancoroyal.opcua.iiot.core.parseForNodeIdentifier = function (nodeItem) {
   return nodeIdentifier
 }
 
-de.biancoroyal.opcua.iiot.core.parseIdentifierFromMsgTopic = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.parseIdentifierFromMsgTopic = function (msg) {
   return this.parseForNodeIdentifier(msg.topic)
 }
 
-de.biancoroyal.opcua.iiot.core.parseIdentifierFromItemNodeId = function (item) {
+de.biancoroyal.opcua.iiot.core.basics.parseIdentifierFromItemNodeId = function (item) {
   return this.parseForNodeIdentifier(item.nodeId || item)
 }
 
-de.biancoroyal.opcua.iiot.core.newOPCUANodeIdFromItemNodeId = function (item) {
-  let namespace = this.parseNamspaceFromItemNodeId(item)
-  let nodeIdentifier = this.parseIdentifierFromItemNodeId(item)
+de.biancoroyal.opcua.iiot.core.basics.newOPCUANodeIdFromItemNodeId = function (item) {
+  const namespace = this.parseNamspaceFromItemNodeId(item)
+  const nodeIdentifier = this.parseIdentifierFromItemNodeId(item)
 
   this.internalDebugLog('newOPCUANodeIdFromItemNodeId: ' + JSON.stringify(item) + ' -> ' + JSON.stringify(nodeIdentifier) + ' namespace:' + namespace)
-  return new de.biancoroyal.opcua.iiot.core.nodeOPCUAId.NodeId(nodeIdentifier.type, nodeIdentifier.identifier, namespace)
+  return new de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId.NodeId(nodeIdentifier.type, nodeIdentifier.identifier, namespace)
 }
 
-de.biancoroyal.opcua.iiot.core.newOPCUANodeIdFromMsgTopic = function (msg) {
-  let namespace = this.parseNamspaceFromMsgTopic(msg)
-  let nodeIdentifier = this.parseIdentifierFromMsgTopic(msg)
+de.biancoroyal.opcua.iiot.core.basics.newOPCUANodeIdFromMsgTopic = function (msg) {
+  const namespace = this.parseNamspaceFromMsgTopic(msg)
+  const nodeIdentifier = this.parseIdentifierFromMsgTopic(msg)
 
   this.internalDebugLog('newOPCUANodeIdFromMsgTopic: ' + JSON.stringify(nodeIdentifier))
-  return new de.biancoroyal.opcua.iiot.core.nodeOPCUAId.NodeId(nodeIdentifier.type, nodeIdentifier.identifier, namespace)
+  return new de.biancoroyal.opcua.iiot.core.basics.nodeOPCUAId.NodeId(nodeIdentifier.type, nodeIdentifier.identifier, namespace)
 }
 
-de.biancoroyal.opcua.iiot.core.pushItemToWriteList = function (msg, nodesToWrite, item, value) {
-  let opcua = this.nodeOPCUA
+de.biancoroyal.opcua.iiot.core.basics.pushItemToWriteList = function (msg, nodesToWrite, item, value) {
+  const opcua = this.nodeOPCUA
 
   nodesToWrite.push({
     nodeId: this.newOPCUANodeIdFromItemNodeId(item),
@@ -801,16 +793,16 @@ de.biancoroyal.opcua.iiot.core.pushItemToWriteList = function (msg, nodesToWrite
     value
   })
 }
-de.biancoroyal.opcua.iiot.core.buildNodesToWrite = function (msg) {
-  let core = this
-  let nodesToWrite = []
+de.biancoroyal.opcua.iiot.core.basics.buildNodesToWrite = function (msg) {
+  const core = this
+  const nodesToWrite = []
 
   this.detailDebugLog('buildNodesToWrite input: ' + JSON.stringify(msg))
   let item = null
 
   // compatible mode to nodesToWrite of node-opcua
   if (!msg.addressSpaceItems || !msg.addressSpaceItems.length) {
-    let itemList = msg.payload.nodesToWrite || msg.nodesToWrite
+    const itemList = msg.payload.nodesToWrite || msg.nodesToWrite
     if (itemList && itemList.length) {
       msg.addressSpaceItems = itemList
     }
@@ -838,13 +830,13 @@ de.biancoroyal.opcua.iiot.core.buildNodesToWrite = function (msg) {
   return nodesToWrite
 }
 
-de.biancoroyal.opcua.iiot.core.buildNodesToRead = function (msg) {
-  let nodesToRead = []
+de.biancoroyal.opcua.iiot.core.basics.buildNodesToRead = function (msg) {
+  const nodesToRead = []
   let item = null
 
   this.detailDebugLog('buildNodesToRead input: ' + JSON.stringify(msg))
 
-  let nodePayloadList = msg.payload.nodesToRead || msg.payload.nodesToWrite
+  const nodePayloadList = msg.payload.nodesToRead || msg.payload.nodesToWrite
   if (nodePayloadList && nodePayloadList.length) {
     // read to read
     for (item of nodePayloadList) {
@@ -852,7 +844,7 @@ de.biancoroyal.opcua.iiot.core.buildNodesToRead = function (msg) {
       nodesToRead.push(item.toString())
     }
   } else {
-    let nodeList = msg.nodesToRead || msg.nodesToWrite
+    const nodeList = msg.nodesToRead || msg.nodesToWrite
     if (nodeList && nodeList.length) {
       // legacy
       for (item of nodeList) {
@@ -880,19 +872,19 @@ de.biancoroyal.opcua.iiot.core.buildNodesToRead = function (msg) {
   return nodesToRead
 }
 
-de.biancoroyal.opcua.iiot.core.buildNodesToListen = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.buildNodesToListen = function (msg) {
   return msg.addressItemsToRead || msg.addressSpaceItems
 }
 
-de.biancoroyal.opcua.iiot.core.buildNodesFromBrowser = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.buildNodesFromBrowser = function (msg) {
   return msg.payload.browserResults || msg.addressSpaceItems
 }
 
-de.biancoroyal.opcua.iiot.core.buildNodesFromCrawler = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.buildNodesFromCrawler = function (msg) {
   return msg.payload.crawlerResults || msg.addressSpaceItems
 }
 
-de.biancoroyal.opcua.iiot.core.buildNodeListFromClient = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.buildNodeListFromClient = function (msg) {
   switch (msg.nodetype) {
     case 'read':
     case 'write':
@@ -909,11 +901,11 @@ de.biancoroyal.opcua.iiot.core.buildNodeListFromClient = function (msg) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.availableMemory = function () {
+de.biancoroyal.opcua.iiot.core.basics.availableMemory = function () {
   return this.os.freemem() / this.os.totalmem() * 100.0
 }
 
-de.biancoroyal.opcua.iiot.core.isSessionBad = function (err) {
+de.biancoroyal.opcua.iiot.core.basics.isSessionBad = function (err) {
   return (err.toString().includes('Session') ||
     err.toString().includes('Channel') ||
     err.toString().includes('Transaction') ||
@@ -921,7 +913,7 @@ de.biancoroyal.opcua.iiot.core.isSessionBad = function (err) {
     err.toString().includes('Connection'))
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeInitalState = function (nodeState, node) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeInitalState = function (nodeState, node) {
   switch (nodeState) {
     case 'INITOPCUA':
     case 'SESSIONREQUESTED':
@@ -953,7 +945,7 @@ de.biancoroyal.opcua.iiot.core.setNodeInitalState = function (nodeState, node) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.isNodeId = function (nodeId) {
+de.biancoroyal.opcua.iiot.core.basics.isNodeId = function (nodeId) {
   if (!nodeId || !nodeId.identifierType) {
     return false
   }
@@ -968,7 +960,7 @@ de.biancoroyal.opcua.iiot.core.isNodeId = function (nodeId) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.checkConnectorState = function (node, msg, callerType) {
+de.biancoroyal.opcua.iiot.core.basics.checkConnectorState = function (node, msg, callerType) {
   this.internalDebugLog('Check Connector State ' + node.connector.bianco.iiot.stateMachine.getMachineState() + ' By ' + callerType)
 
   if (node.connector && node.connector.bianco.iiot.stateMachine && node.connector.bianco.iiot.stateMachine.getMachineState() !== this.RUNNING_STATE) {
@@ -984,50 +976,50 @@ de.biancoroyal.opcua.iiot.core.checkConnectorState = function (node, msg, caller
   }
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUAConnected = function (node, opcuaClient) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUAConnected = function (node, opcuaClient) {
   if (this.isInitializedBiancoIIoTNode(node)) {
     node.bianco.iiot.opcuaClient = opcuaClient
   }
   this.setNodeStatusTo(node, 'connecting')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUAClosed = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUAClosed = function (node) {
   if (this.isInitializedBiancoIIoTNode(node)) {
     node.bianco.iiot.opcuaClient = null
   }
   this.setNodeStatusTo(node, 'disconnected')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUALost = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUALost = function (node) {
   this.setNodeStatusTo(node, 'lost')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUASessionStarted = function (node, opcuaSession) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUASessionStarted = function (node, opcuaSession) {
   if (this.isInitializedBiancoIIoTNode(node)) {
     node.bianco.iiot.opcuaSession = opcuaSession
   }
   this.setNodeStatusTo(node, 'active')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUASessionClosed = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUASessionClosed = function (node) {
   if (this.isInitializedBiancoIIoTNode(node)) {
     node.bianco.iiot.opcuaSession = null
   }
   this.setNodeStatusTo(node, 'connecting')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUASessionRestart = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUASessionRestart = function (node) {
   this.setNodeStatusTo(node, 'restart')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUASessionError = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUASessionError = function (node) {
   if (this.isInitializedBiancoIIoTNode(node)) {
     node.bianco.iiot.opcuaSession = null
   }
   this.setNodeStatusTo(node, 'connecting')
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeOPCUARestart = function (node, opcuaClient) {
+de.biancoroyal.opcua.iiot.core.basics.setNodeOPCUARestart = function (node, opcuaClient) {
   this.internalDebugLog('Connector Restart')
   if (opcuaClient && this.isInitializedBiancoIIoTNode(node)) {
     node.bianco.iiot.opcuaClient = opcuaClient
@@ -1035,8 +1027,8 @@ de.biancoroyal.opcua.iiot.core.setNodeOPCUARestart = function (node, opcuaClient
   this.setNodeStatusTo(node, 'connecting')
 }
 
-de.biancoroyal.opcua.iiot.core.registerToConnector = function (node) {
-  let core = this
+de.biancoroyal.opcua.iiot.core.basics.registerToConnector = function (node) {
+  const core = this
 
   if (!node) {
     core.internalDebugLog('Node Not Valid On Register To Connector')
@@ -1107,8 +1099,8 @@ de.biancoroyal.opcua.iiot.core.registerToConnector = function (node) {
   core.setNodeInitalState(node.connector.bianco.iiot.stateMachine.getMachineState(), node)
 }
 
-de.biancoroyal.opcua.iiot.core.deregisterToConnector = function (node, done) {
-  let core = this
+de.biancoroyal.opcua.iiot.core.basics.deregisterToConnector = function (node, done) {
+  const core = this
   if (!node) {
     core.internalDebugLog('Node Not Valid On Register To Connector')
     done()
@@ -1127,7 +1119,7 @@ de.biancoroyal.opcua.iiot.core.deregisterToConnector = function (node, done) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.checkSessionNotValid = function (session, callerType) {
+de.biancoroyal.opcua.iiot.core.basics.checkSessionNotValid = function (session, callerType) {
   if (!session) {
     this.internalDebugLog('Session Not Valid On Check For ' + callerType)
     return true
@@ -1141,8 +1133,8 @@ de.biancoroyal.opcua.iiot.core.checkSessionNotValid = function (session, callerT
   return false
 }
 
-de.biancoroyal.opcua.iiot.core.setNodeStatusTo = function (node, statusValue) {
-  let statusParameter = this.getNodeStatus(statusValue, node.showStatusActivities)
+de.biancoroyal.opcua.iiot.core.basics.setNodeStatusTo = function (node, statusValue) {
+  const statusParameter = this.getNodeStatus(statusValue, node.showStatusActivities)
   if (!this.underscore.isEqual(node.oldStatusParameter, statusParameter)) {
     this.detailDebugLog('Node ' + node.id + ' Status To ' + statusValue)
     node.oldStatusParameter = statusParameter
@@ -1150,11 +1142,11 @@ de.biancoroyal.opcua.iiot.core.setNodeStatusTo = function (node, statusValue) {
   }
 }
 
-de.biancoroyal.opcua.iiot.core.createBiancoIIoT = function () {
+de.biancoroyal.opcua.iiot.core.basics.createBiancoIIoT = function () {
   return { iiot: {} }
 }
 
-de.biancoroyal.opcua.iiot.core.initClientNode = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.initClientNode = function (node) {
   node.bianco = this.createBiancoIIoT()
   node.bianco.iiot.reconnectTimeout = this.DEFAULT_TIMEOUT
   node.bianco.iiot.sessionTimeout = null
@@ -1163,14 +1155,14 @@ de.biancoroyal.opcua.iiot.core.initClientNode = function (node) {
   return node
 }
 
-de.biancoroyal.opcua.iiot.core.initCoreServerNode = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.initCoreServerNode = function (node) {
   node.bianco = this.createBiancoIIoT()
   node.bianco.iiot.initialized = false
   node.bianco.iiot.opcuaServer = null
   return node
 }
 
-de.biancoroyal.opcua.iiot.core.getItemFilterValueWithElement = function (item, element) {
+de.biancoroyal.opcua.iiot.core.basics.getItemFilterValueWithElement = function (item, element) {
   let filterValue = null
 
   switch (element.name) {
@@ -1183,7 +1175,7 @@ de.biancoroyal.opcua.iiot.core.getItemFilterValueWithElement = function (item, e
       break
     case 'value':
     case 'dataType':
-      if (item.value && item.value.hasOwnProperty('value')) {
+      if (item.value && {}.hasOwnProperty.call(item.value, 'value')) {
         filterValue = item.value[element.name]
       } else {
         filterValue = item[element.name]
@@ -1196,14 +1188,14 @@ de.biancoroyal.opcua.iiot.core.getItemFilterValueWithElement = function (item, e
   return filterValue
 }
 
-de.biancoroyal.opcua.iiot.core.handleErrorInsideNode = function (node, err) {
+de.biancoroyal.opcua.iiot.core.basics.handleErrorInsideNode = function (node, err) {
   this.internalDebugLog(typeof node + ' ' + err.message)
   if (node.showErrors) {
     node.error(err, { payload: err.message })
   }
 }
 
-de.biancoroyal.opcua.iiot.core.checkCrawlerItemIsNotToFilter = function (node, item, element, result) {
+de.biancoroyal.opcua.iiot.core.basics.checkCrawlerItemIsNotToFilter = function (node, item, element, result) {
   try {
     let filterValue = this.getItemFilterValueWithElement(item, element)
 
@@ -1234,7 +1226,7 @@ de.biancoroyal.opcua.iiot.core.checkCrawlerItemIsNotToFilter = function (node, i
   return result
 }
 
-de.biancoroyal.opcua.iiot.core.checkResponseItemIsNotToFilter = function (node, item, element, result) {
+de.biancoroyal.opcua.iiot.core.basics.checkResponseItemIsNotToFilter = function (node, item, element, result) {
   try {
     let filterValue = this.getItemFilterValueWithElement(item, element)
 
@@ -1263,14 +1255,14 @@ de.biancoroyal.opcua.iiot.core.checkResponseItemIsNotToFilter = function (node, 
   return result
 }
 
-de.biancoroyal.opcua.iiot.core.checkItemForUnsetState = function (node, item) {
+de.biancoroyal.opcua.iiot.core.basics.checkItemForUnsetState = function (node, item) {
   let result = true
 
   if (node.activateUnsetFilter) {
     result &= item !== null
 
-    if (item && item.hasOwnProperty('value')) {
-      if (item.value && item.value.hasOwnProperty('value')) {
+    if (item && {}.hasOwnProperty.call(item, 'value')) {
+      if (item.value && {}.hasOwnProperty.call(item.value, 'value')) {
         result &= item.value.value !== null
       } else {
         result &= item.value !== null
@@ -1281,7 +1273,7 @@ de.biancoroyal.opcua.iiot.core.checkItemForUnsetState = function (node, item) {
   return result
 }
 
-de.biancoroyal.opcua.iiot.core.resetBiancoNode = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.resetBiancoNode = function (node) {
   if (this.isInitializedBiancoIIoTNode(node) && node.bianco.iiot.resetAllTimer) {
     node.bianco.iiot.resetAllTimer()
   }
@@ -1291,8 +1283,8 @@ de.biancoroyal.opcua.iiot.core.resetBiancoNode = function (node) {
   node.bianco = null
 }
 
-de.biancoroyal.opcua.iiot.core.filterListEntryByNodeId = function (nodeId, list) {
-  let result = []
+de.biancoroyal.opcua.iiot.core.basics.filterListEntryByNodeId = function (nodeId, list) {
+  const result = []
 
   if (list && list.length) {
     list.forEach((item) => {
@@ -1305,8 +1297,8 @@ de.biancoroyal.opcua.iiot.core.filterListEntryByNodeId = function (nodeId, list)
   return result
 }
 
-de.biancoroyal.opcua.iiot.core.filterListByNodeId = function (nodeId, list) {
-  let result = []
+de.biancoroyal.opcua.iiot.core.basics.filterListByNodeId = function (nodeId, list) {
+  const result = []
 
   if (list && list.length) {
     list.forEach((item) => {
@@ -1319,12 +1311,12 @@ de.biancoroyal.opcua.iiot.core.filterListByNodeId = function (nodeId, list) {
   return result
 }
 
-de.biancoroyal.opcua.iiot.core.isNodeTypeToFilterResponse = function (msg) {
+de.biancoroyal.opcua.iiot.core.basics.isNodeTypeToFilterResponse = function (msg) {
   return msg.nodetype === 'read' || msg.nodetype === 'browse' || msg.nodetype === 'crawl' || msg.nodetype === 'method'
 }
 
-de.biancoroyal.opcua.iiot.core.isInitializedBiancoIIoTNode = function (node) {
+de.biancoroyal.opcua.iiot.core.basics.isInitializedBiancoIIoTNode = function (node) {
   return node && node.bianco && node.bianco.iiot
 }
 
-module.exports = de.biancoroyal.opcua.iiot.core
+module.exports = de.biancoroyal.opcua.iiot.core.basics

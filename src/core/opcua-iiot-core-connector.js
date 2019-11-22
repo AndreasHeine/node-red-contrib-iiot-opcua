@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -16,15 +16,15 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.connector
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { connector: {} } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.connector.core = de.biancoroyal.opcua.iiot.core.connector.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.connector.internalDebugLog = de.biancoroyal.opcua.iiot.core.connector.internalDebugLog || require('debug')('opcuaIIoT:connector') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.connector.detailDebugLog = de.biancoroyal.opcua.iiot.core.connector.detailDebugLog || require('debug')('opcuaIIoT:connector:details') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.connector.libDebugLog = de.biancoroyal.opcua.iiot.core.connector.libDebugLog || require('debug')('opcuaIIoT:connector:nodeopcua') // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.connector.xstate = de.biancoroyal.opcua.iiot.core.connector.xstate || require('xstate') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.connector.XStateFSM = de.biancoroyal.opcua.iiot.core.connector.XStateFSM || require('@xstate/fsm') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.connector.current = de.biancoroyal.opcua.iiot.core.connector.current || '' // eslint-disable-line no-use-before-define
 
 de.biancoroyal.opcua.iiot.core.connector.initConnectorNode = function (node) {
-  this.core.initClientNode(node)
+  de.biancoroyal.opcua.iiot.core.basics.initClientNode(node)
   node.bianco.iiot.sessionNodeRequests = 0
   node.bianco.iiot.endpoints = []
   node.bianco.iiot.userIdentity = null
@@ -38,98 +38,139 @@ de.biancoroyal.opcua.iiot.core.connector.initConnectorNode = function (node) {
   return node
 }
 
-de.biancoroyal.opcua.iiot.core.connector.createStatelyMachine = function () {
-  const connectorMachine = de.biancoroyal.opcua.iiot.core.connector.xstate.Machine({
-    id: 'connector',
+de.biancoroyal.opcua.iiot.core.connector.createStateMachineService = function () {
+  return de.biancoroyal.opcua.iiot.core.connector.XStateFSM.createMachine({
+    id: 'opcuaConnector',
     initial: 'idle',
     states: {
-      idle: { on: {
-        INITOPCUA: 'initopcua',
-        LOCKED: 'lock',
-        END: 'end'
-      } },
-      initopcua: { on: {
-        OPEN: 'open',
-        IDLE: 'idle',
-        END: 'end'
-      } },
-      open: { on: {
-        SESSIONREQUESTED: 'sessionrequest',
-        CLOSED: 'close',
-        LOCKED: 'lock',
-        END: 'end'
-      } },
-      sessionrequest: { on: {
-        SESSIONACTIVE: 'sessionactive',
-        CLOSED: 'close',
-        LOCKED: 'lock',
-        END: 'end'
-      } },
-      sessionactive: { on: {
-        SESSIONCLOSED: 'sessionclose',
-        CLOSED: 'close',
-        LOCKED: 'lock',
-        END: 'end'
-      } },
-      sessionclose: { on: {
-        OPEN: 'open',
-        CLOSED: 'close',
-        SESSIONRESTART: 'sessionrestart',
-        LOCKED: 'lock',
-        UNLOCKED: 'unlock',
-        END: 'end'
-      } },
-      sessionrestart: { on: {
-        SESSIONREQUESTED: 'sessionrequest',
-        CLOSED: 'close',
-        LOCKED: 'lock',
-        END: 'end'
-      } },
-      close: { on: {
-        IDLE: 'idle',
-        OPEN: 'open',
-        LOCKED: 'lock',
-        UNLOCKED: 'unlock',
-        END: 'end'
-      } },
-      lock: { on: {
-        IDLE: 'idle',
-        OPEN: 'open',
-        SESSIONREQUESTED: 'sessionrequest',
-        SESSIONACTIVE: 'sessionactive',
-        SESSIONCLOSED: 'sessionclose',
-        SESSIONRESTART: 'sessionrestart',
-        LOCKED: 'lock',
-        UNLOCKED: 'unlock',
-        CLOSED: 'close',
-        END: 'end',
-        RECONFIGURED: 'reconfigure',
-        STOPPED: 'stopopcua',
-        RENEW: 'renew'
-      } },
-      reconfigure: { on: {
-        END: 'end'
-      } },
-      stopopcua: { on: {
-        END: 'end'
-      } },
-      end: { on: {
-        type: 'final'
-      } }
+      idle: {
+        on: {
+          INITOPCUA: 'initopcua',
+          LOCKED: 'lock',
+          END: 'end'
+        }
+      },
+      initopcua: {
+        on: {
+          OPEN: 'open',
+          IDLE: 'idle',
+          LOCKED: 'lock',
+          END: 'end'
+        }
+      },
+      open: {
+        on: {
+          SESSIONREQUESTED: 'sessionrequest',
+          CLOSED: 'close',
+          LOCKED: 'lock',
+          END: 'end'
+        }
+      },
+      sessionrequest: {
+        on: {
+          SESSIONACTIVE: 'sessionactive',
+          CLOSED: 'close',
+          LOCKED: 'lock',
+          END: 'end'
+        }
+      },
+      sessionactive: {
+        on: {
+          SESSIONCLOSED: 'sessionclose',
+          CLOSED: 'close',
+          LOCKED: 'lock',
+          END: 'end'
+        }
+      },
+      sessionclose: {
+        on: {
+          OPEN: 'open',
+          CLOSED: 'close',
+          SESSIONRESTART: 'sessionrestart',
+          LOCKED: 'lock',
+          UNLOCKED: 'unlock',
+          END: 'end'
+        }
+      },
+      sessionrestart: {
+        on: {
+          SESSIONREQUESTED: 'sessionrequest',
+          CLOSED: 'close',
+          LOCKED: 'lock',
+          END: 'end'
+        }
+      },
+      close: {
+        on: {
+          IDLE: 'idle',
+          OPEN: 'open',
+          LOCKED: 'lock',
+          UNLOCKED: 'unlock',
+          END: 'end'
+        }
+      },
+      lock: {
+        on: {
+          IDLE: 'idle',
+          OPEN: 'open',
+          SESSIONREQUESTED: 'sessionrequest',
+          SESSIONACTIVE: 'sessionactive',
+          SESSIONCLOSED: 'sessionclose',
+          SESSIONRESTART: 'sessionrestart',
+          LOCKED: 'lock',
+          UNLOCKED: 'unlock',
+          CLOSED: 'close',
+          END: 'end',
+          RECONFIGURED: 'reconfigure',
+          STOPPED: 'stopopcua',
+          RENEW: 'renew'
+        }
+      },
+      unlock: {
+        on: {
+          IDLE: 'idle',
+          INITOPCUA: 'initopcua',
+          OPEN: 'open',
+          LOCKED: 'lock',
+          CLOSED: 'close',
+          END: 'end'
+        }
+      },
+      renew: {
+        on: {
+          IDLE: 'idle',
+          INITOPCUA: 'initopcua',
+          LOCKED: 'lock',
+          CLOSED: 'close',
+          END: 'end'
+        }
+      },
+      reconfigure: {
+        on: {
+          END: 'end'
+        }
+      },
+      stopopcua: {
+        on: {
+          END: 'end'
+        }
+      },
+      end: {
+        on: {
+          type: 'final'
+        }
+      }
     }
   })
+}
 
-  return de.biancoroyal.opcua.iiot.core.connector.xstate.interpret(connectorMachine)
-    .onTransition(state => {
-      de.biancoroyal.opcua.iiot.core.connector.current = state
-      console.log(state.value)
-    })
-    .start()
+de.biancoroyal.opcua.iiot.core.connector.startStateService = function (toggleMachine) {
+  return this.XStateFSM.interpret(toggleMachine).start()
 }
 
 de.biancoroyal.opcua.iiot.core.connector.setListenerToClient = function (node) {
   const connectorLib = this
-  this.core.assert(node.bianco.iiot)
+  de.biancoroyal.opcua.iiot.core.basics.assert(node.bianco.iiot)
 
   if (!node.bianco.iiot.opcuaClient) {
     connectorLib.internalDebugLog('Client Not Valid On Setting Events To Client')
@@ -150,15 +191,15 @@ de.biancoroyal.opcua.iiot.core.connector.setListenerToClient = function (node) {
       node.bianco.iiot.resetOPCUAConnection('Connector To Server Close')
     }
 
-    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT CONNECTION CLOSED !!!!!!!!!!!!!!!!!!!'.bgWhite.red)
+    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT CONNECTION CLOSED !!!!!!!!!!!!!!!!!!!')
     connectorLib.internalDebugLog('CONNECTION CLOSED: ' + node.endpoint)
     node.emit('server_connection_close')
   })
 
   node.bianco.iiot.opcuaClient.on('backoff', function (number, delay) {
-    connectorLib.internalDebugLog('!!! CONNECTION FAILED (backoff) FOR #'.bgWhite.yellow, number, ' retrying ', delay / 1000.0, ' sec. !!!')
+    connectorLib.internalDebugLog('!!! CONNECTION FAILED (backoff) FOR #', number, ' retrying ', delay / 1000.0, ' sec. !!!')
     connectorLib.internalDebugLog('CONNECTION FAILED: ' + node.endpoint)
-    node.bianco.iiot.stateMachine.lock()
+    node.bianco.iiot.stateService.send('LOCKED')
   })
 
   node.bianco.iiot.opcuaClient.on('abort', function () {
@@ -175,39 +216,39 @@ de.biancoroyal.opcua.iiot.core.connector.setListenerToClient = function (node) {
   })
 
   node.bianco.iiot.opcuaClient.on('connection_lost', function () {
-    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT CONNECTION LOST !!!!!!!!!!!!!!!!!!!'.bgWhite.orange)
+    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT CONNECTION LOST !!!!!!!!!!!!!!!!!!!')
     connectorLib.internalDebugLog('CONNECTION LOST: ' + node.endpoint)
-    node.bianco.iiot.stateMachine.lock()
+    node.bianco.iiot.stateService.send('LOCKED')
     node.emit('server_connection_lost')
   })
 
   node.bianco.iiot.opcuaClient.on('connection_reestablished', function () {
-    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT CONNECTION RE-ESTABLISHED !!!!!!!!!!!!!!!!!!!'.bgWhite.orange)
+    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT CONNECTION RE-ESTABLISHED !!!!!!!!!!!!!!!!!!!')
     connectorLib.internalDebugLog('CONNECTION RE-ESTABLISHED: ' + node.endpoint)
-    node.bianco.iiot.stateMachine.unlock()
+    node.bianco.iiot.stateService.send('UNLOCKED')
   })
 
   node.bianco.iiot.opcuaClient.on('start_reconnection', function () {
-    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT STARTING RECONNECTION !!!!!!!!!!!!!!!!!!!'.bgWhite.yellow)
+    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!  CLIENT STARTING RECONNECTION !!!!!!!!!!!!!!!!!!!')
     connectorLib.internalDebugLog('CONNECTION STARTING RECONNECTION: ' + node.endpoint)
-    node.bianco.iiot.stateMachine.lock()
+    node.bianco.iiot.stateService.send('LOCKED')
   })
 
   node.bianco.iiot.opcuaClient.on('timed_out_request', function () {
-    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!! CLIENT TIMED OUT REQUEST !!!!!!!!!!!!!!!!!!!'.bgWhite.blue)
+    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!! CLIENT TIMED OUT REQUEST !!!!!!!!!!!!!!!!!!!')
     connectorLib.internalDebugLog('CONNECTION TIMED OUT REQUEST: ' + node.endpoint)
   })
 
   node.bianco.iiot.opcuaClient.on('security_token_renewed', function () {
-    connectorLib.detailDebugLog('!!!!!!!!!!!!!!!!!!!!!!!! CLIENT SECURITY TOKEN RENEWED !!!!!!!!!!!!!!!!!!!'.bgWhite.violet)
+    connectorLib.detailDebugLog('!!!!!!!!!!!!!!!!!!!!!!!! CLIENT SECURITY TOKEN RENEWED !!!!!!!!!!!!!!!!!!!')
     connectorLib.detailDebugLog('CONNECTION SECURITY TOKEN RENEWE: ' + node.endpoint)
   })
 
   node.bianco.iiot.opcuaClient.on('after_reconnection', function () {
-    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!      CLIENT RECONNECTED     !!!!!!!!!!!!!!!!!!!'.bgWhite.green)
+    connectorLib.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!!!!      CLIENT RECONNECTED     !!!!!!!!!!!!!!!!!!!')
     connectorLib.internalDebugLog('CONNECTION RECONNECTED: ' + node.endpoint)
     node.emit('after_reconnection', node.bianco.iiot.opcuaClient)
-    node.bianco.iiot.stateMachine.unlock()
+    node.bianco.iiot.stateService.send('UNLOCKED')
   })
 }
 
@@ -230,7 +271,7 @@ de.biancoroyal.opcua.iiot.core.connector.logSessionInformation = function (node)
   if (node.bianco.iiot.opcuaSession.serverCertificate) {
     this.detailDebugLog('serverCertificate :' + node.bianco.iiot.opcuaSession.serverCertificate ? node.bianco.iiot.opcuaSession.serverCertificate.toString('base64') : 'none')
   } else {
-    this.detailDebugLog('serverCertificate : None'.red)
+    this.detailDebugLog('serverCertificate : None')
   }
 
   this.detailDebugLog('serverSignature :' + node.bianco.iiot.opcuaSession.serverSignature ? node.bianco.iiot.opcuaSession.serverSignature : 'none')

@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -14,7 +14,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreMethod = require('./core/opcua-iiot-core-method')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreMethod = require('./core/opcua-iiot-core-method')
 
   function OPCUAIIoTMethodCaller (config) {
     RED.nodes.createNode(this, config)
@@ -29,8 +30,8 @@ module.exports = function (RED) {
     this.inputArguments = config.inputArguments
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = coreMethod.core.initClientNode(this)
-    coreMethod.core.assert(node.bianco.iiot)
+    const node = coreBasics.initClientNode(this)
+    coreBasics.assert(node.bianco.iiot)
 
     node.bianco.iiot.handleMethodError = function (err, msg) {
       coreMethod.internalDebugLog(err)
@@ -38,7 +39,7 @@ module.exports = function (RED) {
         node.error(err, msg)
       }
 
-      if (coreMethod.core.isSessionBad(err)) {
+      if (coreBasics.isSessionBad(err)) {
         node.emit('opcua_client_not_ready')
       }
     }
@@ -52,7 +53,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.callMethodOnSession = function (session, msg) {
-      if (coreMethod.core.checkSessionNotValid(session, 'MethodCaller')) {
+      if (coreBasics.checkSessionNotValid(session, 'MethodCaller')) {
         return
       }
 
@@ -61,7 +62,7 @@ module.exports = function (RED) {
           coreMethod.detailDebugLog('Call Argument Definition Results: ' + JSON.stringify(results))
           node.bianco.iiot.callMethod(msg, results)
         }).catch((err) => {
-          (coreMethod.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleMethodError(err, msg) : coreMethod.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleMethodError(err, msg) : coreMethod.internalDebugLog(err.message)
         })
       } else {
         coreMethod.internalDebugLog(new Error('No Method Id And/Or Parameters'))
@@ -73,8 +74,8 @@ module.exports = function (RED) {
         coreMethod.detailDebugLog('Methods Call Results: ' + JSON.stringify(data))
 
         let result = null
-        let outputArguments = []
-        let message = Object.assign({}, data.msg)
+        const outputArguments = []
+        const message = Object.assign({}, data.msg)
         message.nodetype = 'method'
         message.methodType = data.msg.methodType
 
@@ -85,7 +86,7 @@ module.exports = function (RED) {
         let dataValuesString = {}
         if (node.justValue) {
           if (message.inputArguments) {
-            delete message['inputArguments']
+            delete message.inputArguments
           }
           dataValuesString = JSON.stringify(outputArguments, null, 2)
         } else {
@@ -116,7 +117,7 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!coreMethod.core.checkConnectorState(node, msg, 'MethodCaller')) {
+      if (!coreBasics.checkConnectorState(node, msg, 'MethodCaller')) {
         return
       }
 
@@ -127,11 +128,11 @@ module.exports = function (RED) {
       node.bianco.iiot.callMethodOnSession(node.bianco.iiot.opcuaSession, message)
     })
 
-    coreMethod.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     node.on('close', (done) => {
-      coreMethod.core.deregisterToConnector(node, () => {
-        coreMethod.core.resetBiancoNode(node)
+      coreBasics.deregisterToConnector(node, () => {
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })

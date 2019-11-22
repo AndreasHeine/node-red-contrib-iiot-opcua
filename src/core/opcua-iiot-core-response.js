@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -17,7 +17,7 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.response
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { response: {} } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.response.core = de.biancoroyal.opcua.iiot.core.response.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.response.internalDebugLog = de.biancoroyal.opcua.iiot.core.response.internalDebugLog || require('debug')('opcuaIIoT:response') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.response.detailDebugLog = de.biancoroyal.opcua.iiot.core.response.detailDebugLog || require('debug')('opcuaIIoT:response:details') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.response.EMPTY_LIST = 0
@@ -35,7 +35,7 @@ de.biancoroyal.opcua.iiot.core.response.analyzeReadResults = function (node, msg
   this.handlePayloadStatusCode(node, msg)
   if (msg.readtype === 'HistoryValue' && msg.payload && msg.payload.length) {
     msg.payload.forEach((item) => {
-      delete item['statusCode']
+      delete item.statusCode
     })
   }
   this.reconsturctNodeIdOnRead(msg)
@@ -86,7 +86,7 @@ de.biancoroyal.opcua.iiot.core.response.setNodeStatus = function (node, entrySta
 }
 
 de.biancoroyal.opcua.iiot.core.response.analyzeWriteResults = function (node, msg) {
-  let entryStatus = this.handlePayloadArrayOfStatusCodes(msg)
+  const entryStatus = this.handlePayloadArrayOfStatusCodes(msg)
   this.setNodeStatusInfo(node, msg, entryStatus)
 }
 
@@ -117,7 +117,7 @@ de.biancoroyal.opcua.iiot.core.response.setNodeStatusInfo = function (node, msg,
 
 de.biancoroyal.opcua.iiot.core.response.handlePayloadArrayOfObjects = function (msg) {
   let entry = null
-  let entryStatus = [0, 0, 0]
+  const entryStatus = [0, 0, 0]
   let results = []
 
   if (msg.payload.results) {
@@ -195,7 +195,7 @@ de.biancoroyal.opcua.iiot.core.response.handlePayloadObject = function (msg) {
 
 de.biancoroyal.opcua.iiot.core.response.handlePayloadArrayOfStatusCodes = function (msg) {
   let entry = null
-  let entryStatus = [0, 0, 0]
+  const entryStatus = [0, 0, 0]
 
   if (msg.payload.statusCodes) {
     for (entry of msg.payload.statusCodes) {
@@ -228,12 +228,12 @@ de.biancoroyal.opcua.iiot.core.response.handlePayloadArrayOfStatusCodes = functi
 }
 
 de.biancoroyal.opcua.iiot.core.response.defaultCompress = function (msg) {
-  if (msg.payload.hasOwnProperty('value') && msg.payload.value.hasOwnProperty('value')) {
+  if ({}.hasOwnProperty.call(msg.payload, 'value') && {}.hasOwnProperty.call(msg.payload.value, 'value')) {
     msg.payload = msg.payload.value.value
   } else {
     if (msg.payload.length) {
       msg.payload.forEach((item) => {
-        if (item.hasOwnProperty('value') && item.value.hasOwnProperty('value')) {
+        if ({}.hasOwnProperty.call(item, 'value') && {}.hasOwnProperty.call(item.value, 'value')) {
           item = item.value.value
         }
       })
@@ -243,17 +243,17 @@ de.biancoroyal.opcua.iiot.core.response.defaultCompress = function (msg) {
 }
 
 de.biancoroyal.opcua.iiot.core.response.trimMessageExtensions = function (msg) {
-  delete msg['nodesToRead']
-  delete msg['nodesToReadCount']
-  delete msg['addressItemsToRead']
-  delete msg['addressItemsToReadCount']
-  delete msg['addressItemsToBrowse']
-  delete msg['addressItemsToBrowseCount']
-  delete msg['addressSpaceItems']
-  delete msg['injectType']
-  delete msg['nodetype']
-  delete msg['entryStatus']
-  delete msg['entryStatusText']
+  delete msg.nodesToRead
+  delete msg.nodesToReadCount
+  delete msg.addressItemsToRead
+  delete msg.addressItemsToReadCount
+  delete msg.addressItemsToBrowse
+  delete msg.addressItemsToBrowseCount
+  delete msg.addressSpaceItems
+  delete msg.injectType
+  delete msg.nodetype
+  delete msg.entryStatus
+  delete msg.entryStatusText
 
   if (msg.filter) {
     msg = this.compressFilteredMessage(msg)
@@ -261,12 +261,12 @@ de.biancoroyal.opcua.iiot.core.response.trimMessageExtensions = function (msg) {
 }
 
 de.biancoroyal.opcua.iiot.core.response.trimMessagePayloadExtensions = function (msg) {
-  delete msg.payload['listenerParameters']
+  delete msg.payload.listenerParameters
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressBrowseMessageStructure = function (msg) {
-  if (msg.payload.hasOwnProperty('browserResults') && msg.payload.browserResults.length) {
-    let itemList = []
+  if (msg.payload.hasOwnProperty.call('browserResults') && msg.payload.browserResults.length) {
+    const itemList = []
     msg.payload.browserResults.forEach((item) => {
       itemList.push({
         nodeId: item.nodeId.toString(),
@@ -283,8 +283,8 @@ de.biancoroyal.opcua.iiot.core.response.compressBrowseMessageStructure = functio
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressCrawlerMessageStructure = function (msg) {
-  if (msg.payload.hasOwnProperty('crawlerResults') && msg.payload.crawlerResults.length) {
-    let itemList = []
+  if (msg.payload.hasOwnProperty.call('crawlerResults') && msg.payload.crawlerResults.length) {
+    const itemList = []
     msg.payload.crawlerResults.forEach((item) => {
       itemList.push({
         nodeId: item.nodeId.toString(),
@@ -301,13 +301,13 @@ de.biancoroyal.opcua.iiot.core.response.compressCrawlerMessageStructure = functi
 }
 
 de.biancoroyal.opcua.iiot.core.response.reconsturctNodeIdOnRead = function (msg) {
-  let itemList = []
-  let results = msg.payload.results || msg.payload
-  let nodesToRead = msg.nodesToRead
+  const itemList = []
+  const results = msg.payload.results || msg.payload
+  const nodesToRead = msg.nodesToRead
 
   if (results && results.length) {
     results.forEach((item, index) => {
-      if (item.hasOwnProperty('value') && item.value.hasOwnProperty('value')) {
+      if ({}.hasOwnProperty.call(item, 'value') && {}.hasOwnProperty.call(item.value, 'value')) {
         let nodeId = null
         if (nodesToRead && index < nodesToRead.length) {
           nodeId = nodesToRead[index]
@@ -332,23 +332,23 @@ de.biancoroyal.opcua.iiot.core.response.reconsturctNodeIdOnRead = function (msg)
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressVariableValueMessage = function (msg) {
-  delete msg['nodesToRead']
-  delete msg['nodesToReadCount']
-  delete msg['addressSpaceItems']
+  delete msg.nodesToRead
+  delete msg.nodesToReadCount
+  delete msg.addressSpaceItems
 
   return msg
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressFilteredMessage = function (msg) {
-  delete msg['filter']
-  delete msg['filtertype']
+  delete msg.filter
+  delete msg.filtertype
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressReadMessageStructure = function (msg) {
   switch (msg.readtype) {
     case 'AllAttributes':
-      delete msg.payload['nodesToRead']
-      delete msg['resultsConverted']
+      delete msg.payload.nodesToRead
+      delete msg.resultsConverted
       break
     case 'VariableValue':
       msg = this.compressVariableValueMessage(msg)
@@ -357,11 +357,11 @@ de.biancoroyal.opcua.iiot.core.response.compressReadMessageStructure = function 
       break
   }
 
-  delete msg['readtype']
-  delete msg['attributeId']
+  delete msg.readtype
+  delete msg.attributeId
 
-  delete msg['addressItemsToRead']
-  delete msg['addressItemsToReadCount']
+  delete msg.addressItemsToRead
+  delete msg.addressItemsToReadCount
 
   this.trimMessageExtensions(msg)
 }
@@ -369,7 +369,7 @@ de.biancoroyal.opcua.iiot.core.response.compressReadMessageStructure = function 
 de.biancoroyal.opcua.iiot.core.response.compressWriteMessageStructure = function (msg) {
   this.defaultCompress(msg)
 
-  let itemList = []
+  const itemList = []
   msg.payload.statusCodes.forEach((item, index) => {
     itemList.push({
       nodeId: (msg.payload.nodesToWrite) ? msg.payload.nodesToWrite[index] : msg.addressSpaceItems[index],
@@ -379,11 +379,11 @@ de.biancoroyal.opcua.iiot.core.response.compressWriteMessageStructure = function
   })
   msg.payload = itemList
 
-  delete msg['valuesToWrite']
+  delete msg.valuesToWrite
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressListenMessageStructure = function (msg) {
-  if (msg.payload.hasOwnProperty('value') && msg.payload.value.hasOwnProperty('value')) {
+  if ({}.hasOwnProperty.call(msg.payload, 'value') && {}.hasOwnProperty.call(msg.payload.value, 'value')) {
     msg.payload = {
       value: msg.payload.value.value,
       dataType: msg.payload.value.dataType,
@@ -391,9 +391,9 @@ de.biancoroyal.opcua.iiot.core.response.compressListenMessageStructure = functio
     }
   } else {
     if (msg.payload.length) {
-      let itemList = []
+      const itemList = []
       msg.payload.forEach((item, index) => {
-        if (item.hasOwnProperty('value') && item.value.hasOwnProperty('value')) {
+        if ({}.hasOwnProperty.call(item, 'value') && {}.hasOwnProperty.call(item.value, 'value')) {
           itemList.push({
             value: item.value.value,
             dataType: item.value.dataType,
@@ -411,12 +411,12 @@ de.biancoroyal.opcua.iiot.core.response.compressMethodMessageStructure = functio
   this.defaultCompress(msg)
   this.trimMessageExtensions(msg)
 
-  delete msg['inputArguments']
-  delete msg['objectId']
-  delete msg['methodId']
-  delete msg['methodType']
+  delete msg.inputArguments
+  delete msg.objectId
+  delete msg.methodId
+  delete msg.methodType
 
-  delete msg.payload['definition']
+  delete msg.payload.definition
 }
 
 de.biancoroyal.opcua.iiot.core.response.compressDefaultMessageStructure = function (msg) {

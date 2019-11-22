@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -19,33 +19,33 @@ helper.init(require.resolve('node-red'))
 
 var testServerFlow = [
   {
-    'id': '6ec4ef50.86dc1',
-    'type': 'OPCUA-IIoT-Server',
-    'port': '55557',
-    'endpoint': '',
-    'acceptExternalCommands': true,
-    'maxAllowedSessionNumber': '',
-    'maxConnectionsPerEndpoint': '',
-    'maxAllowedSubscriptionNumber': '',
-    'alternateHostname': '',
-    'name': 'DEMOSERVER',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'asoDemo': true,
-    'allowAnonymous': true,
-    'isAuditing': false,
-    'serverDiscovery': false,
-    'users': [],
-    'xmlsets': [],
-    'publicCertificateFile': '',
-    'privateCertificateFile': '',
-    'registerServerMethod': 1,
-    'discoveryServerEndpointUrl': '',
-    'capabilitiesForMDNS': '',
-    'maxNodesPerRead': 1000,
-    'maxNodesPerBrowse': 2000,
-    'delayToClose': 200,
-    'wires': [
+    id: '6ec4ef50.86dc1',
+    type: 'OPCUA-IIoT-Server',
+    port: '5557',
+    endpoint: '',
+    acceptExternalCommands: true,
+    maxAllowedSessionNumber: '',
+    maxConnectionsPerEndpoint: '',
+    maxAllowedSubscriptionNumber: '',
+    alternateHostname: '',
+    name: 'DEMOSERVER',
+    showStatusActivities: false,
+    showErrors: false,
+    asoDemo: true,
+    allowAnonymous: true,
+    isAuditing: false,
+    serverDiscovery: false,
+    users: [],
+    xmlsets: [],
+    publicCertificateFile: '',
+    privateCertificateFile: '',
+    registerServerMethod: 1,
+    discoveryServerEndpointUrl: '',
+    capabilitiesForMDNS: '',
+    maxNodesPerRead: 1000,
+    maxNodesPerBrowse: 2000,
+    delayToClose: 200,
+    wires: [
       []
     ]
   }
@@ -53,33 +53,33 @@ var testServerFlow = [
 
 var testServerWithDiscoveryFlow = [
   {
-    'id': '6ec4ef50.86dc2',
-    'type': 'OPCUA-IIoT-Server',
-    'port': '57679',
-    'endpoint': '',
-    'acceptExternalCommands': true,
-    'maxAllowedSessionNumber': '',
-    'maxConnectionsPerEndpoint': '',
-    'maxAllowedSubscriptionNumber': '',
-    'alternateHostname': '',
-    'name': 'DEMOSERVER',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'asoDemo': false,
-    'allowAnonymous': true,
-    'isAuditing': false,
-    'serverDiscovery': true,
-    'users': [],
-    'xmlsets': [],
-    'publicCertificateFile': '',
-    'privateCertificateFile': '',
-    'registerServerMethod': 1,
-    'discoveryServerEndpointUrl': '',
-    'capabilitiesForMDNS': '',
-    'maxNodesPerRead': 1000,
-    'maxNodesPerBrowse': 2000,
+    id: '6ec4ef50.86dc2',
+    type: 'OPCUA-IIoT-Server',
+    port: '5679',
+    endpoint: '',
+    acceptExternalCommands: true,
+    maxAllowedSessionNumber: '',
+    maxConnectionsPerEndpoint: '',
+    maxAllowedSubscriptionNumber: '',
+    alternateHostname: '',
+    name: 'DEMOSERVER',
+    showStatusActivities: false,
+    showErrors: false,
+    asoDemo: false,
+    allowAnonymous: true,
+    isAuditing: false,
+    serverDiscovery: true,
+    users: [],
+    xmlsets: [],
+    publicCertificateFile: '',
+    privateCertificateFile: '',
+    registerServerMethod: 1,
+    discoveryServerEndpointUrl: '',
+    capabilitiesForMDNS: '',
+    maxNodesPerRead: 1000,
+    maxNodesPerBrowse: 2000,
 
-    'wires': [
+    wires: [
       []
     ]
   }
@@ -110,7 +110,7 @@ describe('OPC UA Server node Unit Testing', function () {
     it('should be loaded', function (done) {
       helper.load(serverNode, testServerFlow,
         function () {
-          let nodeUnderTest = helper.getNode('6ec4ef50.86dc1')
+          const nodeUnderTest = helper.getNode('6ec4ef50.86dc1')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.on('server_running', () => {
             expect(nodeUnderTest.name).toBe('DEMOSERVER')
@@ -125,7 +125,7 @@ describe('OPC UA Server node Unit Testing', function () {
     it('should be loaded with discovery', function (done) {
       helper.load(serverNode, testServerWithDiscoveryFlow,
         function () {
-          let nodeUnderTest = helper.getNode('6ec4ef50.86dc2')
+          const nodeUnderTest = helper.getNode('6ec4ef50.86dc2')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.on('server_running', () => {
             expect(nodeUnderTest.name).toBe('DEMOSERVER')

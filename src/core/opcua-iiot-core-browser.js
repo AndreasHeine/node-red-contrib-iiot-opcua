@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -17,17 +17,17 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.browser
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { browser: { crawler: {} } } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.browser.core = de.biancoroyal.opcua.iiot.core.browser.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.browser.internalDebugLog = de.biancoroyal.opcua.iiot.core.browser.internalDebugLog || require('debug')('opcuaIIoT:browser') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.browser.detailDebugLog = de.biancoroyal.opcua.iiot.core.browser.detailDebugLog || require('debug')('opcuaIIoT:browser:details') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.browser.crawler.internalDebugLog = de.biancoroyal.opcua.iiot.core.browser.crawler.internalDebugLog || require('debug')('opcuaIIoT:browser:crawler') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.browser.crawler.detailDebugLog = de.biancoroyal.opcua.iiot.core.browser.crawler.detailDebugLog || require('debug')('opcuaIIoT:browser:crawler:details') // eslint-disable-line no-use-before-define
 
 de.biancoroyal.opcua.iiot.core.browser.browse = function (session, nodeIdToBrowse) {
-  let coreBrowser = this
+  const coreBrowser = this
   return new Promise(
     function (resolve, reject) {
-      let browseOptions = [
+      const browseOptions = [
         {
           nodeId: nodeIdToBrowse,
           referenceTypeId: 'Organizes',
@@ -56,10 +56,10 @@ de.biancoroyal.opcua.iiot.core.browser.browse = function (session, nodeIdToBrows
 }
 
 de.biancoroyal.opcua.iiot.core.browser.browseAddressSpaceItems = function (session, addressSpaceItems) {
-  let coreBrowser = this
+  const coreBrowser = this
   return new Promise(
     function (resolve, reject) {
-      let browseOptions = []
+      const browseOptions = []
 
       addressSpaceItems.forEach(function (item) {
         browseOptions.push({
@@ -91,12 +91,13 @@ de.biancoroyal.opcua.iiot.core.browser.browseAddressSpaceItems = function (sessi
 }
 
 de.biancoroyal.opcua.iiot.core.browser.createCrawler = function (session) {
-  this.core.assert(session !== null)
-  return new this.core.nodeOPCUA.NodeCrawler(session)
+  const coreBasics = de.biancoroyal.opcua.iiot.core.basics
+  coreBasics.assert(session !== null)
+  return new coreBasics.nodeOPCUA.NodeCrawler(session)
 }
 
 de.biancoroyal.opcua.iiot.core.browser.crawl = function (session, nodeIdToCrawl, msg) {
-  let coreBrowser = this
+  const coreBrowser = this
   return new Promise(
     function (resolve, reject) {
       if (!nodeIdToCrawl) {
@@ -106,7 +107,7 @@ de.biancoroyal.opcua.iiot.core.browser.crawl = function (session, nodeIdToCrawl,
 
       const message = Object.assign({}, msg)
       const crawler = coreBrowser.createCrawler(session)
-      let crawlerResult = []
+      const crawlerResult = []
 
       const data = {
         onBrowse: function (crawler, cacheNode) {
@@ -126,7 +127,7 @@ de.biancoroyal.opcua.iiot.core.browser.crawl = function (session, nodeIdToCrawl,
 }
 
 de.biancoroyal.opcua.iiot.core.browser.crawlAddressSpaceItems = function (session, msg) {
-  let coreBrowser = this
+  const coreBrowser = this
   return new Promise(
     function (resolve, reject) {
       if (!msg.addressSpaceItems) {
@@ -136,7 +137,7 @@ de.biancoroyal.opcua.iiot.core.browser.crawlAddressSpaceItems = function (sessio
 
       const message = Object.assign({}, msg)
       const crawler = coreBrowser.createCrawler(session)
-      let crawlerResult = []
+      const crawlerResult = []
 
       const data = {
         onBrowse (crawler, cacheNode) {
@@ -166,8 +167,9 @@ de.biancoroyal.opcua.iiot.core.browser.crawlAddressSpaceItems = function (sessio
 }
 
 de.biancoroyal.opcua.iiot.core.browser.browseToRoot = function () {
-  this.detailDebugLog('Browse To Root ' + this.core.OBJECTS_ROOT)
-  return this.core.OBJECTS_ROOT
+  const coreBasics = de.biancoroyal.opcua.iiot.core.basics
+  this.detailDebugLog('Browse To Root ' + coreBasics.OBJECTS_ROOT)
+  return coreBasics.OBJECTS_ROOT
 }
 
 de.biancoroyal.opcua.iiot.core.browser.extractNodeIdFromTopic = function (msg, node) {
@@ -214,15 +216,17 @@ de.biancoroyal.opcua.iiot.core.browser.transformToEntry = function (reference) {
 }
 
 de.biancoroyal.opcua.iiot.core.browser.initBrowserNode = function (node) {
-  this.core.initClientNode(node)
-  node.browseTopic = this.core.OBJECTS_ROOT
+  const coreBasics = de.biancoroyal.opcua.iiot.core.basics
+  coreBasics.initClientNode(node)
+  node.browseTopic = coreBasics.OBJECTS_ROOT
   node.bianco.iiot.items = []
   node.bianco.iiot.messageList = []
   return node
 }
 
 de.biancoroyal.opcua.iiot.core.browser.browseErrorHandling = function (node, err, msg, lists) {
-  let results = lists.browserResults || []
+  const coreBasics = de.biancoroyal.opcua.iiot.core.basics
+  const results = lists.browserResults || []
 
   if (err) {
     this.internalDebugLog(typeof node + 'Error ' + err)
@@ -230,7 +234,7 @@ de.biancoroyal.opcua.iiot.core.browser.browseErrorHandling = function (node, err
       node.error(err, msg)
     }
 
-    if (this.core.isSessionBad(err)) {
+    if (coreBasics.isSessionBad(err)) {
       node.emit('opcua_client_not_ready')
     }
   } else {
@@ -241,7 +245,7 @@ de.biancoroyal.opcua.iiot.core.browser.browseErrorHandling = function (node, err
   }
 
   if (node.showStatusActivities) {
-    this.core.setNodeStatusTo(node, 'error')
+    coreBasics.setNodeStatusTo(node, 'error')
   }
 }
 

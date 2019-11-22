@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,7 +15,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreClient = require('./core/opcua-iiot-core-client')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreClient = require('./core/opcua-iiot-core-client')
 
   function OPCUAIIoTRead (config) {
     RED.nodes.createNode(this, config)
@@ -30,8 +31,8 @@ module.exports = function (RED) {
     this.historyDays = parseInt(config.historyDays) || 1
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = coreClient.core.initClientNode(this)
-    coreClient.core.assert(node.bianco.iiot)
+    const node = coreBasics.initClientNode(this)
+    coreBasics.assert(node.bianco.iiot)
 
     node.bianco.iiot.handleReadError = function (err, msg) {
       coreClient.readDebugLog(err)
@@ -39,7 +40,7 @@ module.exports = function (RED) {
         node.error(err, msg)
       }
 
-      if (coreClient.core.isSessionBad(err)) {
+      if (coreBasics.isSessionBad(err)) {
         node.emit('opcua_client_not_ready')
       }
     }
@@ -55,18 +56,18 @@ module.exports = function (RED) {
           }
         }).catch(function (err) {
           /* istanbul ignore next */
-          (coreClient.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
         })
     }
 
     node.bianco.iiot.readValueFromNodeId = function (session, itemsToRead, msg) {
       coreClient.readVariableValue(session, itemsToRead, msg)
         .then(function (readResult) {
-          let message = node.bianco.iiot.buildResultMessage('VariableValue', readResult)
+          const message = node.bianco.iiot.buildResultMessage('VariableValue', readResult)
           node.send(message)
         }).catch(function (err) {
           /* istanbul ignore next */
-          (coreClient.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
         })
     }
 
@@ -83,20 +84,20 @@ module.exports = function (RED) {
         msg.payload.historyEnd || node.bianco.iiot.historyEnd,
         msg)
         .then(function (readResult) {
-          let message = node.bianco.iiot.buildResultMessage('HistoryValue', readResult)
+          const message = node.bianco.iiot.buildResultMessage('HistoryValue', readResult)
           message.historyStart = readResult.startDate || node.bianco.iiot.historyStart
           message.historyEnd = readResult.endDate || node.bianco.iiot.historyEnd
           node.send(message)
         }).catch(function (err) {
           /* istanbul ignore next */
-          (coreClient.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
         })
     }
 
     node.bianco.iiot.readFromNodeId = function (session, itemsToRead, msg) {
       let item = null
       let transformedItem = null
-      let transformedItemsToRead = []
+      const transformedItemsToRead = []
 
       for (item of itemsToRead) {
         transformedItem = {
@@ -108,18 +109,18 @@ module.exports = function (RED) {
 
       coreClient.read(session, transformedItemsToRead, msg.payload.maxAge || node.maxAge, msg)
         .then(function (readResult) {
-          let message = node.bianco.iiot.buildResultMessage('Default', readResult)
+          const message = node.bianco.iiot.buildResultMessage('Default', readResult)
           message.maxAge = node.maxAge
           node.send(message)
         }).catch(function (err) {
           /* istanbul ignore next */
-          (coreClient.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleReadError(err, msg) : coreClient.internalDebugLog(err.message)
         })
     }
 
     node.bianco.iiot.readFromSession = function (session, itemsToRead, originMsg) {
-      let msg = Object.assign({}, originMsg)
-      if (coreClient.core.checkSessionNotValid(session, 'Reader')) {
+      const msg = Object.assign({}, originMsg)
+      if (coreBasics.checkSessionNotValid(session, 'Reader')) {
         return
       }
 
@@ -147,7 +148,7 @@ module.exports = function (RED) {
       message.attributeId = node.attributeId
       message.justValue = node.justValue
 
-      let dataValuesString = node.bianco.iiot.extractDataValueString(readResult)
+      const dataValuesString = node.bianco.iiot.extractDataValueString(readResult)
       message = node.bianco.iiot.setMessageProperties(message, readResult, dataValuesString)
 
       if (!node.justValue) {
@@ -185,7 +186,7 @@ module.exports = function (RED) {
     node.bianco.iiot.enhanceMessage = function (message, readResult) {
       try {
         message.resultsConverted = {}
-        let dataValuesString = JSON.stringify(readResult.results, null, 2)
+        const dataValuesString = JSON.stringify(readResult.results, null, 2)
         RED.util.setMessageProperty(message, 'resultsConverted', JSON.parse(dataValuesString))
       } /* istanbul ignore next */ catch (err) {
         if (node.showErrors) {
@@ -200,22 +201,22 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!coreClient.core.checkConnectorState(node, msg, 'Read')) {
+      if (!coreBasics.checkConnectorState(node, msg, 'Read')) {
         return
       }
 
       try {
-        node.bianco.iiot.readFromSession(node.bianco.iiot.opcuaSession, coreClient.core.buildNodesToRead(msg), msg)
+        node.bianco.iiot.readFromSession(node.bianco.iiot.opcuaSession, coreBasics.buildNodesToRead(msg), msg)
       } /* istanbul ignore next */ catch (err) {
         node.bianco.iiot.handleReadError(err, msg)
       }
     })
 
-    coreClient.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     node.on('close', (done) => {
-      coreClient.core.deregisterToConnector(node, () => {
-        coreClient.core.resetBiancoNode(node)
+      coreBasics.deregisterToConnector(node, () => {
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })

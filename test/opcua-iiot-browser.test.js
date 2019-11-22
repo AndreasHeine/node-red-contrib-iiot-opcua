@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -12,8 +12,8 @@
 
 jest.setTimeout(5000)
 
-var injectNode = require('node-red/nodes/core/core/20-inject')
-var functionNode = require('node-red/nodes/core/core/80-function')
+var injectNode = require('@node-red/nodes/core/common/20-inject')
+var functionNode = require('@node-red/nodes/core/function/10-function')
 var browserNode = require('../src/opcua-iiot-browser')
 
 var helper = require('node-red-node-test-helper')
@@ -23,23 +23,23 @@ var browseNodesToLoad = [injectNode, functionNode, browserNode]
 
 var testUnitBrowserFlow = [
   {
-    'id': '4ac0b7c8.bebe18',
-    'type': 'OPCUA-IIoT-Browser',
-    'connector': '',
-    'nodeId': 'ns=1;i=1234',
-    'name': 'TestNameBrowser',
-    'justValue': true,
-    'sendNodesToRead': false,
-    'sendNodesToListener': false,
-    'sendNodesToBrowser': false,
-    'singleBrowseResult': false,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: '4ac0b7c8.bebe18',
+    type: 'OPCUA-IIoT-Browser',
+    connector: '',
+    nodeId: 'ns=1;i=1234',
+    name: 'TestNameBrowser',
+    justValue: true,
+    sendNodesToRead: false,
+    sendNodesToListener: false,
+    sendNodesToBrowser: false,
+    singleBrowseResult: false,
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       []
     ]
   },
-  {id: 'n1helper', type: 'helper'}
+  { id: 'n1helper', type: 'helper' }
 ]
 
 describe('OPC UA Browser node Unit Testing', function () {
@@ -65,7 +65,7 @@ describe('OPC UA Browser node Unit Testing', function () {
     it('should be loaded', function (done) {
       helper.load(browseNodesToLoad, testUnitBrowserFlow,
         function () {
-          let nodeUnderTest = helper.getNode('4ac0b7c8.bebe18')
+          const nodeUnderTest = helper.getNode('4ac0b7c8.bebe18')
           expect(nodeUnderTest.name).toBe('TestNameBrowser')
           expect(nodeUnderTest.nodeId).toBe('ns=1;i=1234')
           expect(nodeUnderTest.justValue).toBe(true)

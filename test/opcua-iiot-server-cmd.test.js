@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -12,8 +12,8 @@
 
 jest.setTimeout(5000)
 
-var injectNode = require('node-red/nodes/core/core/20-inject')
-var functionNode = require('node-red/nodes/core/core/80-function')
+var injectNode = require('@node-red/nodes/core/common/20-inject')
+var functionNode = require('@node-red/nodes/core/function/10-function')
 var serverCmdNode = require('../src/opcua-iiot-server-cmd')
 
 var serverCmdNodes = [injectNode, functionNode, serverCmdNode]
@@ -46,16 +46,16 @@ describe('OPC UA Server Command node Unit Testing', function () {
     it('should be loaded', function (done) {
       helper.load(serverCmdNodes,
         [{
-          'id': 'n3cmdf1',
-          'type': 'OPCUA-IIoT-Server-Command',
-          'commandtype': 'restart',
-          'nodeId': '',
-          'name': 'TestName',
-          'wires': [[]]
+          id: 'n3cmdf1',
+          type: 'OPCUA-IIoT-Server-Command',
+          commandtype: 'restart',
+          nodeId: '',
+          name: 'TestName',
+          wires: [[]]
         }
         ],
         function () {
-          let nodeUnderTest = helper.getNode('n3cmdf1')
+          const nodeUnderTest = helper.getNode('n3cmdf1')
           expect(nodeUnderTest.name).toBe('TestName')
           expect(nodeUnderTest.commandtype).toBe('restart')
           expect(nodeUnderTest.nodeId).toBe('')

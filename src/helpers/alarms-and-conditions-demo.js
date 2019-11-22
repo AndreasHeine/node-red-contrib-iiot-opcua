@@ -30,7 +30,7 @@ function constructAlarmAddressSpaceDemo (test, addressSpace) {
   addressSpace.installAlarmsAndConditionsService()
   const LocalizedText = nodeOpcuaLib.LocalizedText
 
-  let tanks = addressSpace.getOwnNamespace().addObject({
+  const tanks = addressSpace.getOwnNamespace().addObject({
     browseName: 'Tanks',
     typeDefinition: 'FolderType',
     description: 'The Object representing some tanks',
@@ -38,7 +38,7 @@ function constructAlarmAddressSpaceDemo (test, addressSpace) {
     notifierOf: addressSpace.rootFolder.objects.server
   })
 
-  let oilTankLevel = addressSpace.getOwnNamespace().addVariable({
+  const oilTankLevel = addressSpace.getOwnNamespace().addVariable({
     browseName: 'OilTankLevel',
     displayName: [
       new LocalizedText({ text: 'Oil Tank Level', locale: 'en-US' }),
@@ -54,14 +54,14 @@ function constructAlarmAddressSpaceDemo (test, addressSpace) {
   // Let's create a exclusive Limit Alarm that automatically raise itself
   // when the tank level is out of limit
   // ---------------------------------------------------------------------------------
-  let exclusiveLimitAlarmType = addressSpace.findEventType('ExclusiveLimitAlarmType')
+  const exclusiveLimitAlarmType = addressSpace.findEventType('ExclusiveLimitAlarmType')
   assert(exclusiveLimitAlarmType != null)
 
-  let oilTankLevelCondition = addressSpace.getOwnNamespace().instantiateExclusiveLimitAlarm(exclusiveLimitAlarmType, {
+  const oilTankLevelCondition = addressSpace.getOwnNamespace().instantiateExclusiveLimitAlarm(exclusiveLimitAlarmType, {
     componentOf: tanks,
     conditionSource: oilTankLevel,
     browseName: 'OilTankLevelCondition',
-    displayName: [ new LocalizedText({ text: 'Oil Tank Level Condition', locale: 'en-US' }) ],
+    displayName: [new LocalizedText({ text: 'Oil Tank Level Condition', locale: 'en-US' })],
     description: 'ExclusiveLimitAlarmType Condition',
     conditionName: 'OilLevelCondition',
     optionals: [
@@ -76,23 +76,23 @@ function constructAlarmAddressSpaceDemo (test, addressSpace) {
   // --------------------------------------------------------------
   // Let's create a second letiable with no Exclusive alarm
   // --------------------------------------------------------------
-  let gasTankLevel = addressSpace.getOwnNamespace().addVariable({
+  const gasTankLevel = addressSpace.getOwnNamespace().addVariable({
     browseName: 'GasTankLevel',
-    displayName: [ new LocalizedText({ text: 'Gas Tank Level', locale: 'en-US' }) ],
+    displayName: [new LocalizedText({ text: 'Gas Tank Level', locale: 'en-US' })],
     description: 'Fill level in percentage (0% to 100%) of the gas tank',
     propertyOf: tanks,
     dataType: 'Double',
     eventSourceOf: tanks
   })
 
-  let nonExclusiveLimitAlarmType = addressSpace.findEventType('NonExclusiveLimitAlarmType')
+  const nonExclusiveLimitAlarmType = addressSpace.findEventType('NonExclusiveLimitAlarmType')
   assert(nonExclusiveLimitAlarmType != null)
 
-  let gasTankLevelCondition = addressSpace.getOwnNamespace().instantiateNonExclusiveLimitAlarm(nonExclusiveLimitAlarmType, {
+  const gasTankLevelCondition = addressSpace.getOwnNamespace().instantiateNonExclusiveLimitAlarm(nonExclusiveLimitAlarmType, {
     componentOf: tanks,
     conditionSource: gasTankLevel,
     browseName: 'GasTankLevelCondition',
-    displayName: [ new LocalizedText({ text: 'Gas Tank Level Condition', locale: 'en-US' }) ],
+    displayName: [new LocalizedText({ text: 'Gas Tank Level Condition', locale: 'en-US' })],
     description: 'NonExclusiveLimitAlarmType Condition',
     conditionName: 'GasLevelCondition',
     optionals: [

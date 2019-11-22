@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,7 +15,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreBrowser = require('./core/opcua-iiot-core-browser')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreBrowser = require('./core/opcua-iiot-core-browser')
 
   function OPCUAIIoTCrawler (config) {
     RED.nodes.createNode(this, config)
@@ -33,13 +34,13 @@ module.exports = function (RED) {
 
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = coreBrowser.initBrowserNode(this)
-    coreBrowser.core.assert(node.bianco.iiot)
+    const node = coreBrowser.initBrowserNode(this)
+    coreBasics.assert(node.bianco.iiot)
     node.bianco.iiot.delayMessageTimer = []
 
     node.bianco.iiot.filterCrawlerResults = function (crawlerResultToFilter) {
       let crawlerResult = crawlerResultToFilter || []
-      let filteredEntries = []
+      const filteredEntries = []
 
       if (node.activateFilters && node.filters && node.filters.length > 0) {
         crawlerResult.forEach(function (item) {
@@ -53,7 +54,7 @@ module.exports = function (RED) {
       if (node.justValue) {
         crawlerResult.forEach(function (item) {
           if (item.references) {
-            delete item['references']
+            delete item.references
           }
         })
       }
@@ -62,11 +63,11 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.itemIsNotToFilter = function (item) {
-      let result = coreBrowser.core.checkItemForUnsetState(node, item)
+      let result = coreBasics.checkItemForUnsetState(node, item)
 
       if (result) {
         node.filters.forEach(function (element) {
-          result = coreBrowser.core.checkCrawlerItemIsNotToFilter(node, item, element, result)
+          result = coreBasics.checkCrawlerItemIsNotToFilter(node, item, element, result)
         })
       }
 
@@ -74,14 +75,14 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.crawl = function (session, msg) {
-      if (coreBrowser.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'Crawler')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'Crawler')) {
         return
       }
 
       coreBrowser.internalDebugLog('Browse Topic To Call Crawler ' + node.browseTopic)
 
       if (node.showStatusActivities) {
-        coreBrowser.core.setNodeStatusTo(node, 'crawling')
+        coreBasics.setNodeStatusTo(node, 'crawling')
       }
 
       coreBrowser.crawl(session, node.browseTopic, msg)
@@ -117,7 +118,7 @@ module.exports = function (RED) {
 
     node.bianco.iiot.crawlNodeList = function (session, msg) {
       if (node.showStatusActivities) {
-        coreBrowser.core.setNodeStatusTo(node, 'crawling')
+        coreBasics.setNodeStatusTo(node, 'crawling')
       }
 
       if (node.singleResult) {
@@ -128,7 +129,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.sendMessage = function (originMessage, crawlerResult) {
-      let msg = Object.assign({}, originMessage)
+      const msg = Object.assign({}, originMessage)
       msg.nodetype = 'crawl'
 
       const results = {
@@ -161,14 +162,14 @@ module.exports = function (RED) {
       node.bianco.iiot.messageList.push(msg)
 
       if (node.showStatusActivities) {
-        coreBrowser.core.setNodeStatusTo(node, 'active')
+        coreBasics.setNodeStatusTo(node, 'active')
       }
 
       // TODO: maybe here RED.util.set ...
 
       node.bianco.iiot.delayMessageTimer.push(setTimeout(() => {
         node.send(node.bianco.iiot.messageList.shift())
-      }, node.delayPerMessage * coreBrowser.core.FAKTOR_SEC_TO_MSEC))
+      }, node.delayPerMessage * coreBasics.FAKTOR_SEC_TO_MSEC))
     }
 
     node.bianco.iiot.resetAllTimer = function () {
@@ -196,7 +197,7 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!coreBrowser.core.checkConnectorState(node, msg, 'Crawler')) {
+      if (!coreBasics.checkConnectorState(node, msg, 'Crawler')) {
         return
       }
 
@@ -204,11 +205,11 @@ module.exports = function (RED) {
       node.bianco.iiot.startCrawling(msg)
     })
 
-    coreBrowser.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     node.on('close', (done) => {
-      coreBrowser.core.deregisterToConnector(node, () => {
-        coreBrowser.core.resetBiancoNode(node)
+      coreBasics.deregisterToConnector(node, () => {
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })

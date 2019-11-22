@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,7 +15,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreClient = require('./core/opcua-iiot-core-client')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreClient = require('./core/opcua-iiot-core-client')
 
   function OPCUAIIoTWrite (config) {
     RED.nodes.createNode(this, config)
@@ -25,8 +26,8 @@ module.exports = function (RED) {
     this.showErrors = config.showErrors
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = coreClient.core.initClientNode(this)
-    coreClient.core.assert(node.bianco.iiot)
+    const node = coreBasics.initClientNode(this)
+    coreBasics.assert(node.bianco.iiot)
 
     node.bianco.iiot.handleWriteError = function (err, msg) {
       coreClient.writeDebugLog(err)
@@ -35,30 +36,30 @@ module.exports = function (RED) {
       }
 
       /* istanbul ignore next */
-      if (coreClient.core.isSessionBad(err)) {
+      if (coreBasics.isSessionBad(err)) {
         node.emit('opcua_client_not_ready')
       }
     }
 
     node.bianco.iiot.writeToSession = function (session, originMsg) {
-      if (coreClient.core.checkSessionNotValid(session, 'Writer')) {
+      if (coreBasics.checkSessionNotValid(session, 'Writer')) {
         /* istanbul ignore next */
         return
       }
 
-      let msg = Object.assign({}, originMsg)
-      let nodesToWrite = coreClient.core.buildNodesToWrite(msg)
+      const msg = Object.assign({}, originMsg)
+      const nodesToWrite = coreBasics.buildNodesToWrite(msg)
       coreClient.write(session, nodesToWrite, msg).then(function (writeResult) {
         try {
-          let message = node.bianco.iiot.buildResultMessage(writeResult)
+          const message = node.bianco.iiot.buildResultMessage(writeResult)
           node.send(message)
         } catch (err) {
           /* istanbul ignore next */
-          (coreClient.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleWriteError(err, msg) : coreClient.internalDebugLog(err.message)
+          (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleWriteError(err, msg) : coreClient.internalDebugLog(err.message)
         }
       }).catch(function (err) {
         /* istanbul ignore next */
-        (coreClient.core.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleWriteError(err, msg) : coreClient.internalDebugLog(err.message)
+        (coreBasics.isInitializedBiancoIIoTNode(node)) ? node.bianco.iiot.handleWriteError(err, msg) : coreClient.internalDebugLog(err.message)
       })
     }
 
@@ -67,7 +68,7 @@ module.exports = function (RED) {
       message.nodetype = 'write'
       message.justValue = node.justValue
 
-      let dataValuesString = node.bianco.iiot.extractDataValueString(message, result)
+      const dataValuesString = node.bianco.iiot.extractDataValueString(message, result)
       message = node.bianco.iiot.setMessageProperties(message, result, dataValuesString)
       return message
     }
@@ -80,7 +81,7 @@ module.exports = function (RED) {
         }, null, 2)
 
         if (message.valuesToWrite) {
-          delete message['valuesToWrite']
+          delete message.valuesToWrite
         }
       } else {
         dataValuesString = JSON.stringify(result, null, 2)
@@ -104,7 +105,7 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!coreClient.core.checkConnectorState(node, msg, 'Write')) {
+      if (!coreBasics.checkConnectorState(node, msg, 'Write')) {
         return
       }
 
@@ -119,11 +120,11 @@ module.exports = function (RED) {
       }
     })
 
-    coreClient.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     node.on('close', (done) => {
-      coreClient.core.deregisterToConnector(node, () => {
-        coreClient.core.resetBiancoNode(node)
+      coreBasics.deregisterToConnector(node, () => {
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })

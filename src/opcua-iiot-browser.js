@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,7 +15,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreBrowser = require('./core/opcua-iiot-core-browser')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreBrowser = require('./core/opcua-iiot-core-browser')
 
   function OPCUAIIoTBrowser (config) {
     RED.nodes.createNode(this, config)
@@ -35,8 +36,8 @@ module.exports = function (RED) {
 
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = coreBrowser.initBrowserNode(this)
-    coreBrowser.core.assert(node.bianco.iiot)
+    const node = coreBrowser.initBrowserNode(this)
+    coreBasics.assert(node.bianco.iiot)
     node.bianco.iiot.delayMessageTimer = []
 
     node.bianco.iiot.extractDataFromBrowserResults = (browserResultToFilter, lists) => {
@@ -55,7 +56,8 @@ module.exports = function (RED) {
               browseName: reference.browseName.toString(),
               displayName: reference.displayName.toString(),
               nodeClass: reference.nodeClass.toString(),
-              datatypeName: reference.typeDefinition.toString() })
+              datatypeName: reference.typeDefinition.toString()
+            })
           }
         })
       })
@@ -64,12 +66,12 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.browse = function (rootNodeId, msg, depth, lists, callback) {
-      if (coreBrowser.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'Browse')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'Browse')) {
         return
       }
 
       coreBrowser.internalDebugLog('Browse Topic To Call Browse ' + rootNodeId)
-      let rootNode = 'list'
+      const rootNode = 'list'
 
       coreBrowser.browse(node.bianco.iiot.opcuaSession, rootNodeId)
         .then(function (browserResults) {
@@ -78,7 +80,7 @@ module.exports = function (RED) {
             node.bianco.iiot.extractDataFromBrowserResults(browserResults, lists)
             if (node.recursiveBrowse) {
               if (depth > 0) {
-                let newDepth = depth - 1
+                const newDepth = depth - 1
 
                 let subLists = node.bianco.iiot.createListsObject()
                 if (!node.singleBrowseResult) {
@@ -114,12 +116,12 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.browseNodeList = function (addressSpaceItems, msg, depth, lists, callback) {
-      if (coreBrowser.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'BrowseList')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'BrowseList')) {
         return
       }
 
       coreBrowser.internalDebugLog('Browse For NodeId List')
-      let rootNode = 'list'
+      const rootNode = 'list'
 
       if (node.bianco.iiot.opcuaSession) {
         coreBrowser.browseAddressSpaceItems(node.bianco.iiot.opcuaSession, addressSpaceItems)
@@ -128,7 +130,7 @@ module.exports = function (RED) {
             node.bianco.iiot.extractDataFromBrowserResults(browserResults, lists)
             if (node.recursiveBrowse) {
               if (depth > 0) {
-                let newDepth = depth - 1
+                const newDepth = depth - 1
 
                 let subLists = node.bianco.iiot.createListsObject()
                 if (!node.singleBrowseResult) {
@@ -162,7 +164,7 @@ module.exports = function (RED) {
         }
       }
 
-      let listenerParameters = node.bianco.iiot.getListenParameters(msg)
+      const listenerParameters = node.bianco.iiot.getListenParameters(msg)
 
       msg.payload = {
         rootNodeId,
@@ -179,12 +181,12 @@ module.exports = function (RED) {
       node.bianco.iiot.messageList.push(msg)
 
       if (node.showStatusActivities && node.status.text !== 'active') {
-        coreBrowser.core.setNodeStatusTo(node, 'active')
+        coreBasics.setNodeStatusTo(node, 'active')
       }
 
       node.bianco.iiot.delayMessageTimer.push(setTimeout(() => {
         node.send(node.bianco.iiot.messageList.shift())
-      }, node.delayPerMessage * coreBrowser.core.FAKTOR_SEC_TO_MSEC))
+      }, node.delayPerMessage * coreBasics.FAKTOR_SEC_TO_MSEC))
     }
 
     node.bianco.iiot.resetAllTimer = function () {
@@ -272,12 +274,12 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.startBrowser = function (msg) {
-      if (coreBrowser.core.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'Browser')) {
+      if (coreBasics.checkSessionNotValid(node.bianco.iiot.opcuaSession, 'Browser')) {
         return
       }
 
-      let lists = node.bianco.iiot.createListsObject()
-      let depth = (node.recursiveBrowse) ? node.recursiveDepth : 0
+      const lists = node.bianco.iiot.createListsObject()
+      const depth = (node.recursiveBrowse) ? node.recursiveDepth : 0
       node.browseTopic = coreBrowser.extractNodeIdFromTopic(msg, node) // set topic to the node object for HTTP requests at node
 
       if (node.browseTopic && node.browseTopic !== '') {
@@ -290,21 +292,21 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      if (!coreBrowser.core.checkConnectorState(node, msg, 'Browser')) {
+      if (!coreBasics.checkConnectorState(node, msg, 'Browser')) {
         return
       }
 
       if (node.showStatusActivities) {
-        coreBrowser.core.setNodeStatusTo(node, 'browsing')
+        coreBasics.setNodeStatusTo(node, 'browsing')
       }
       node.bianco.iiot.startBrowser(msg)
     })
 
-    coreBrowser.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     node.on('close', (done) => {
-      coreBrowser.core.deregisterToConnector(node, () => {
-        coreBrowser.core.resetBiancoNode(node)
+      coreBasics.deregisterToConnector(node, () => {
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })
@@ -313,9 +315,9 @@ module.exports = function (RED) {
   RED.nodes.registerType('OPCUA-IIoT-Browser', OPCUAIIoTBrowser)
 
   RED.httpAdmin.get('/opcuaIIoT/browse/:id/:nodeId', RED.auth.needsPermission('opcuaIIoT.browse'), function (req, res) {
-    let node = RED.nodes.getNode(req.params.id)
-    let entries = []
-    let nodeRootId = decodeURIComponent(req.params.nodeId) || coreBrowser.core.OBJECTS_ROOT
+    const node = RED.nodes.getNode(req.params.id)
+    const entries = []
+    const nodeRootId = decodeURIComponent(req.params.nodeId) || coreBasics.OBJECTS_ROOT
     coreBrowser.detailDebugLog('request for ' + req.params.nodeId)
 
     if (node.bianco.iiot.opcuaSession) {
@@ -336,7 +338,7 @@ module.exports = function (RED) {
 
         entries.push({
           displayName: { text: 'Objects' },
-          nodeId: coreBrowser.core.OBJECTS_ROOT,
+          nodeId: coreBasics.OBJECTS_ROOT,
           browseName: 'Objects'
         })
         res.json(entries)

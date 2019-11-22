@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -14,7 +14,7 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let core = require('./core/opcua-iiot-core')
+  const core = require('./core/opcua-iiot-core')
 
   function OPCUAIIoTASO (config) {
     RED.nodes.createNode(this, config)
@@ -28,7 +28,7 @@ module.exports = function (RED) {
     this.value = config.value
     this.name = config.name
 
-    let node = this
+    const node = this
     node.bianco = core.createBiancoIIoT()
     core.assert(node.bianco.iiot)
     core.internalDebugLog('Open ASO Node')

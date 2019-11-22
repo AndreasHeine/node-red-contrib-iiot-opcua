@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -14,7 +14,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreResponse = require('./core/opcua-iiot-core-response')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreResponse = require('./core/opcua-iiot-core-response')
 
   function OPCUAIIoTResponse (config) {
     RED.nodes.createNode(this, config)
@@ -27,9 +28,9 @@ module.exports = function (RED) {
     this.negateFilter = config.negateFilter
     this.filters = config.filters
 
-    let node = this
-    node.bianco = coreResponse.core.createBiancoIIoT()
-    coreResponse.core.assert(node.bianco.iiot)
+    const node = this
+    node.bianco = coreBasics.createBiancoIIoT()
+    coreBasics.assert(node.bianco.iiot)
 
     node.status({ fill: 'green', shape: 'ring', text: 'active' })
 
@@ -121,8 +122,8 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.extractReadEntriesFromFilter = function (message) {
-      let filteredEntries = []
-      let filteredValues = []
+      const filteredEntries = []
+      const filteredValues = []
 
       if (message.payload && message.payload.length) {
         message.payload.forEach((item, index) => {
@@ -143,7 +144,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.extractBrowserEntriesFromFilter = function (message) {
-      let filteredEntries = []
+      const filteredEntries = []
       message.payload.browserResults.forEach((item) => {
         if (node.bianco.iiot.itemIsNotToFilter(item)) {
           filteredEntries.push(item)
@@ -153,7 +154,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.extractCrawlerEntriesFromFilter = function (message) {
-      let filteredEntries = []
+      const filteredEntries = []
       message.payload.crawlerResults.forEach((item) => {
         if (node.bianco.iiot.itemIsNotToFilter(item)) {
           filteredEntries.push(item)
@@ -163,7 +164,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.extractPayloadEntriesFromFilter = function (message) {
-      let filteredEntries = []
+      const filteredEntries = []
       message.payload.forEach((item) => {
         if (node.bianco.iiot.itemIsNotToFilter(item)) {
           filteredEntries.push(item)
@@ -173,8 +174,8 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.extractMethodEntriesFromFilter = function (message) {
-      let filteredEntries = []
-      let filteredValues = []
+      const filteredEntries = []
+      const filteredValues = []
       message.addressSpaceItems.forEach((item, index) => {
         if (node.bianco.iiot.itemIsNotToFilter(item)) {
           filteredEntries.push(item)
@@ -220,8 +221,8 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.filterMsg = function (msg) {
-      if (msg.payload.length || coreResponse.core.isNodeTypeToFilterResponse(msg)) {
-        let filteredEntries = node.bianco.iiot.extractEntries(msg)
+      if (msg.payload.length || coreBasics.isNodeTypeToFilterResponse(msg)) {
+        const filteredEntries = node.bianco.iiot.extractEntries(msg)
         if (filteredEntries.length) {
           msg.payload = filteredEntries
           return msg
@@ -237,7 +238,7 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       try {
         if (node.activateUnsetFilter) {
-          if (msg.payload === void 0 || msg.payload === null || msg.payload === {}) { return }
+          if (msg.payload === undefined /* false/0 is a valid value */ || msg.payload === null || msg.payload === {}) { return }
         }
 
         let message = node.bianco.iiot.handleNodeTypeOfMsg(msg)
@@ -260,10 +261,10 @@ module.exports = function (RED) {
     })
 
     node.bianco.iiot.itemIsNotToFilter = function (item) {
-      let result = coreResponse.core.checkItemForUnsetState(node, item)
+      let result = coreBasics.checkItemForUnsetState(node, item)
 
       node.filters.forEach((element) => {
-        result = coreResponse.core.checkResponseItemIsNotToFilter(node, item, element, result)
+        result = coreBasics.checkResponseItemIsNotToFilter(node, item, element, result)
       })
 
       return (node.negateFilter) ? !result : result

@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -9,15 +9,16 @@
 
 jest.setTimeout(5000)
 
+const coreBasics = require('../../src/core/opcua-iiot-core')
 let coreServer = require('../../src/core/opcua-iiot-core-server')
 let opcuaserver = null
 
 describe('OPC UA Core Server', function () {
   beforeEach(function (done) {
     opcuaserver = null
-    opcuaserver = new coreServer.core.nodeOPCUA.OPCUAServer({
+    opcuaserver = new coreBasics.nodeOPCUA.OPCUAServer({
       port: 53531,
-      resourcePath: 'UA/MyLittleTestServer',
+      resourcePath: '/UA/MyLittleTestServer',
       buildInfo: {
         productName: 'MyTestServer1',
         buildNumber: '7658',
@@ -84,7 +85,7 @@ describe('OPC UA Core Server', function () {
     it('should work on server start callback', function (done) {
       opcuaserver.initialize(function () {
         coreServer.constructAddressSpace(opcuaserver, true).then(function () {
-          let node = { bianco: { iiot: {initialized: false} } }
+          const node = { bianco: { iiot: { initialized: false } } }
           coreServer.start(opcuaserver, node).then(function () {
             expect(node.bianco.iiot.initialized).toBe(true)
             done()

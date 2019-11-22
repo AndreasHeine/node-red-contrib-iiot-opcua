@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -13,8 +13,8 @@
 jest.setTimeout(5000)
 
 // opcua iiot
-var injectNode = require('node-red/nodes/core/core/20-inject')
-var functionNode = require('node-red/nodes/core/core/80-function')
+var injectNode = require('@node-red/nodes/core/common/20-inject')
+var functionNode = require('@node-red/nodes/core/function/10-function')
 var inputNode = require('../src/opcua-iiot-method-caller')
 
 var helper = require('node-red-node-test-helper')
@@ -24,48 +24,48 @@ var methodCallerNodesToLoad = [injectNode, functionNode, inputNode]
 
 var methodUnitFlow = [
   {
-    'id': '706d43c1.90baac',
-    'type': 'OPCUA-IIoT-Method-Caller',
-    'connector': '',
-    'objectId': 'ns=1;i=1234',
-    'methodId': 'ns=1;i=12345',
-    'methodType': 'basic',
-    'value': '',
-    'justValue': false,
-    'name': 'TestName',
-    'showStatusActivities': false,
-    'showErrors': true,
-    'inputArguments': [
+    id: '706d43c1.90baac',
+    type: 'OPCUA-IIoT-Method-Caller',
+    connector: '',
+    objectId: 'ns=1;i=1234',
+    methodId: 'ns=1;i=12345',
+    methodType: 'basic',
+    value: '',
+    justValue: false,
+    name: 'TestName',
+    showStatusActivities: false,
+    showErrors: true,
+    inputArguments: [
       {
-        'name': 'barks',
-        'dataType': 'UInt32',
-        'value': '3'
+        name: 'barks',
+        dataType: 'UInt32',
+        value: '3'
       },
       {
-        'name': 'volume',
-        'dataType': 'UInt32',
-        'value': '6'
+        name: 'volume',
+        dataType: 'UInt32',
+        value: '6'
       }
     ],
-    'wires': [[]]
+    wires: [[]]
   }
 ]
 
 var methodNotConfiguredUnitFlow = [
   {
-    'id': '706d43c1.90babc',
-    'type': 'OPCUA-IIoT-Method-Caller',
-    'connector': '',
-    'objectId': '',
-    'methodId': '',
-    'methodType': 'basic',
-    'value': '',
-    'justValue': false,
-    'name': 'TestName',
-    'showStatusActivities': false,
-    'showErrors': true,
-    'inputArguments': [],
-    'wires': [[]]
+    id: '706d43c1.90babc',
+    type: 'OPCUA-IIoT-Method-Caller',
+    connector: '',
+    objectId: '',
+    methodId: '',
+    methodType: 'basic',
+    value: '',
+    justValue: false,
+    name: 'TestName',
+    showStatusActivities: false,
+    showErrors: true,
+    inputArguments: [],
+    wires: [[]]
   }
 ]
 
@@ -93,7 +93,7 @@ describe('OPC UA Method Caller node Unit Testing', function () {
   describe('Method Caller node', function () {
     it('should load with basic settings', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let nodeUnderTest = helper.getNode('706d43c1.90baac')
+        const nodeUnderTest = helper.getNode('706d43c1.90baac')
         expect(nodeUnderTest.name).toBe('TestName')
         expect(nodeUnderTest.methodType).toBe('basic')
         expect(nodeUnderTest.objectId).toBe('ns=1;i=1234')
@@ -101,14 +101,14 @@ describe('OPC UA Method Caller node Unit Testing', function () {
         expect(nodeUnderTest.justValue).toBe(false)
         expect(nodeUnderTest.inputArguments).toMatchObject([
           {
-            'name': 'barks',
-            'dataType': 'UInt32',
-            'value': '3'
+            name: 'barks',
+            dataType: 'UInt32',
+            value: '3'
           },
           {
-            'name': 'volume',
-            'dataType': 'UInt32',
-            'value': '6'
+            name: 'volume',
+            dataType: 'UInt32',
+            value: '6'
           }
         ])
         done()
@@ -117,97 +117,97 @@ describe('OPC UA Method Caller node Unit Testing', function () {
 
     it('should be loaded and handle error', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90baac')
+        const n1 = helper.getNode('706d43c1.90baac')
         expect(n1).toBeDefined()
-        n1.bianco.iiot.handleMethodError(new Error('Testing Error To Handle'), {payload: {}})
+        n1.bianco.iiot.handleMethodError(new Error('Testing Error To Handle'), { payload: {} })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90baac')
+        const n1 = helper.getNode('706d43c1.90baac')
         expect(n1).toBeDefined()
-        n1.receive({payload: { objectId: 1 }})
+        n1.receive({ payload: { objectId: 1 } })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90baac')
+        const n1 = helper.getNode('706d43c1.90baac')
         expect(n1).toBeDefined()
-        n1.receive({payload: { objectId: 1, methodId: 1 }})
+        n1.receive({ payload: { objectId: 1, methodId: 1 } })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90baac')
+        const n1 = helper.getNode('706d43c1.90baac')
         expect(n1).toBeDefined()
-        n1.receive({payload: { objectId: 1, methodId: 1, inputArguments: [] }})
+        n1.receive({ payload: { objectId: 1, methodId: 1, inputArguments: [] } })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90baac')
+        const n1 = helper.getNode('706d43c1.90baac')
         expect(n1).toBeDefined()
-        n1.receive({payload: {}})
+        n1.receive({ payload: {} })
         done()
       })
     })
 
     it('should be loaded and handle error', function (done) {
       helper.load(methodCallerNodesToLoad, methodNotConfiguredUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90babc')
+        const n1 = helper.getNode('706d43c1.90babc')
         expect(n1).toBeDefined()
-        n1.bianco.iiot.handleMethodError(new Error('Testing Error To Handle'), {payload: {}})
+        n1.bianco.iiot.handleMethodError(new Error('Testing Error To Handle'), { payload: {} })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodNotConfiguredUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90babc')
+        const n1 = helper.getNode('706d43c1.90babc')
         expect(n1).toBeDefined()
-        n1.receive({payload: { objectId: 1 }})
+        n1.receive({ payload: { objectId: 1 } })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodNotConfiguredUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90babc')
+        const n1 = helper.getNode('706d43c1.90babc')
         expect(n1).toBeDefined()
-        n1.receive({payload: {}, objectId: 1, methodId: 1})
+        n1.receive({ payload: {}, objectId: 1, methodId: 1 })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodNotConfiguredUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90babc')
+        const n1 = helper.getNode('706d43c1.90babc')
         expect(n1).toBeDefined()
-        n1.receive({payload: { objectId: 1, methodId: 1, inputArguments: [] }})
+        n1.receive({ payload: { objectId: 1, methodId: 1, inputArguments: [] } })
         done()
       })
     })
 
     it('should be loaded and handle missing input', function (done) {
       helper.load(methodCallerNodesToLoad, methodNotConfiguredUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90babc')
+        const n1 = helper.getNode('706d43c1.90babc')
         expect(n1).toBeDefined()
-        n1.receive({payload: {}})
+        n1.receive({ payload: {} })
         done()
       })
     })
 
     it('should be loaded and handle method warn message', function (done) {
       helper.load(methodCallerNodesToLoad, methodNotConfiguredUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90babc')
+        const n1 = helper.getNode('706d43c1.90babc')
         expect(n1).toBeDefined()
         n1.bianco.iiot.handleMethodWarn('Test')
         done()
@@ -216,7 +216,7 @@ describe('OPC UA Method Caller node Unit Testing', function () {
 
     it('should be loaded and handle missing session', function (done) {
       helper.load(methodCallerNodesToLoad, methodUnitFlow, () => {
-        let n1 = helper.getNode('706d43c1.90baac')
+        const n1 = helper.getNode('706d43c1.90baac')
         expect(n1).toBeDefined()
         n1.bianco.iiot.callMethodOnSession(null)
         done()

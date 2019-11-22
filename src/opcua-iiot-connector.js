@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,10 +15,10 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreConnector = require('./core/opcua-iiot-core-connector')
-  let path = require('path')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreConnector = require('./core/opcua-iiot-core-connector')
+  const path = require('path')
   const _ = require('underscore')
-  const assert = require('better-assert')
 
   function OPCUAIIoTConnectorConfiguration (config) {
     const CONNECTION_START_DELAY = 2000 // msec.
@@ -52,21 +52,25 @@ module.exports = function (RED) {
     this.connectionStopDelay = config.connectionStopDelay || CONNECTION_STOP_DELAY
     this.maxBadSessionRequests = config.maxBadSessionRequests || 10
 
-    let node = coreConnector.initConnectorNode(this)
-    coreConnector.core.assert(node.bianco.iiot)
+    const node = coreConnector.initConnectorNode(this)
+    coreBasics.assert(node.bianco.iiot)
 
     node.setMaxListeners(UNLIMITED_LISTENERS)
 
     coreConnector.internalDebugLog('Open Connector Node')
 
-    node.bianco.iiot.stateMachine = coreConnector.createStatelyMachine()
+    node.bianco.iiot.stateMachine = coreConnector.createStateMachineService()
+    node.bianco.iiot.actualServiceState = node.bianco.iiot.stateMachine.initialState
+    coreConnector.current = node.bianco.iiot.actualServiceState
+    node.bianco.iiot.stateService = coreConnector.startStateService(node.bianco.iiot.stateMachine)
 
     let sessionStartTimeout = null
     let clientStartTimeout = null
     let disconnectTimeout = null
-    let nodeOPCUAClientPath = coreConnector.core.getNodeOPCUAClientPath()
+    const nodeOPCUAClientPath = coreBasics.getNodeOPCUAClientPath()
 
-    node.securedCommunication = (node.securityPolicy && node.securityPolicy !== 'None' && node.messageSecurityMode && node.messageSecurityMode !== 'NONE')
+    node.securedCommunication = (node.securityPolicy && node.securityPolicy !== 'None' &&
+      node.messageSecurityMode && node.messageSecurityMode !== 'NONE')
 
     coreConnector.detailDebugLog('config: ' + node.publicCertificateFile)
     coreConnector.detailDebugLog('config: ' + node.privateKeyFile)
@@ -132,7 +136,7 @@ module.exports = function (RED) {
 
       node.bianco.iiot.updateServerOptions()
       coreConnector.detailDebugLog('Options ' + JSON.stringify(node.bianco.iiot.opcuaClientOptions))
-      node.bianco.iiot.opcuaClient = new coreConnector.core.nodeOPCUA.OPCUAClient(node.bianco.iiot.opcuaClientOptions)
+      node.bianco.iiot.opcuaClient = new coreBasics.nodeOPCUA.OPCUAClient(node.bianco.iiot.opcuaClientOptions)
 
       if (node.autoSelectRightEndpoint) {
         node.bianco.iiot.autoSelectEndpointFromConnection()
@@ -147,16 +151,16 @@ module.exports = function (RED) {
         return
       }
 
-      node.bianco.iiot.stateMachine.send('unlock')
+      node.bianco.iiot.stateService.send('UNLOCKED')
       node.bianco.iiot.opcuaClient.connect(node.endpoint, function (err) {
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           if (err) {
-            node.bianco.iiot.stateMachine.send('lock')
-            node.bianco.iiot.stateMachine.send('stopopcua')
+            node.bianco.iiot.stateService.send('LOCKED')
+            node.bianco.iiot.stateService.send('STOPPED')
             node.bianco.iiot.handleError(err)
           } else {
             coreConnector.internalDebugLog('Client Is Connected To ' + node.endpoint)
-            node.bianco.iiot.stateMachine.send('open')
+            node.bianco.iiot.stateService.send('OPEN')
           }
         } else {
           coreConnector.internalDebugLog('bianco.iiot not valid on connect resolve')
@@ -165,11 +169,11 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.renewConnection = function (done) {
-      if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+      if (coreBasics.isInitializedBiancoIIoTNode(node)) {
         node.bianco.iiot.opcuaDirectDisconnect(() => {
           node.bianco.iiot.renewFiniteStateMachine()
-          node.bianco.iiot.stateMachine.send('idle')
-          node.bianco.iiot.stateMachine.send('initopcua')
+          node.bianco.iiot.stateService.send('IDLE')
+          node.bianco.iiot.stateService.send('INITOPCUA')
           done()
         })
       } else {
@@ -179,8 +183,8 @@ module.exports = function (RED) {
 
     node.bianco.iiot.endpointMatchForConnecting = function (endpoint) {
       coreConnector.internalDebugLog('Auto Endpoint ' + endpoint.endpointUrl.toString() + ' ' + endpoint.securityPolicyUri.toString())
-      let securityMode = endpoint.securityMode.key || endpoint.securityMode
-      let securityPolicy = (endpoint.securityPolicyUri.includes('SecurityPolicy#')) ? endpoint.securityPolicyUri.split('#')[1] : endpoint.securityPolicyUri
+      const securityMode = endpoint.securityMode.key || endpoint.securityMode
+      const securityPolicy = (endpoint.securityPolicyUri.includes('SecurityPolicy#')) ? endpoint.securityPolicyUri.split('#')[1] : endpoint.securityPolicyUri
 
       coreConnector.internalDebugLog('node-mode:' + node.messageSecurityMode + ' securityMode: ' + securityMode)
       coreConnector.internalDebugLog('node-policy:' + node.securityPolicy + ' securityPolicy: ' + securityPolicy)
@@ -220,10 +224,10 @@ module.exports = function (RED) {
     node.bianco.iiot.autoSelectEndpointFromConnection = function () {
       coreConnector.internalDebugLog('Auto Searching For Endpoint On ' + node.endpoint)
 
-      let endpointMustExist = node.bianco.iiot.opcuaClientOptions.endpoint_must_exist
+      const endpointMustExist = node.bianco.iiot.opcuaClientOptions.endpoint_must_exist
       node.bianco.iiot.opcuaClientOptions.endpoint_must_exist = false
 
-      let discoverClient = new coreConnector.core.nodeOPCUA.OPCUAClient(node.bianco.iiot.opcuaClientOptions)
+      const discoverClient = new coreBasics.nodeOPCUA.OPCUAClient(node.bianco.iiot.opcuaClientOptions)
 
       discoverClient.connect(node.endpoint).then(function () {
         coreConnector.internalDebugLog('Auto Searching Endpoint Connected To ' + node.endpoint)
@@ -231,7 +235,7 @@ module.exports = function (RED) {
         node.bianco.iiot.opcuaClientOptions.endpoint_must_exist = endpointMustExist
       }).catch(function (err) {
         coreConnector.internalDebugLog('Get Auto Endpoint Request Error ' + err.message)
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.bianco.iiot.opcuaClientOptions.endpoint_must_exist = endpointMustExist
         }
       })
@@ -266,13 +270,13 @@ module.exports = function (RED) {
         return
       }
 
-      node.bianco.iiot.stateMachine.send('sessionrequest')
+      node.bianco.iiot.stateService.send('SESSIONREQUESTED')
 
       node.bianco.iiot.opcuaClient.createSession(node.bianco.iiot.userIdentity || {})
         .then(function (session) {
           session.requestedMaxReferencesPerNode = 100000
           node.bianco.iiot.opcuaSession = session
-          node.bianco.iiot.stateMachine.send('sessionactive')
+          node.bianco.iiot.stateService.send('SESSIONACTIVE')
 
           coreConnector.detailDebugLog('Session Created On ' + node.endpoint + ' For ' + callerInfo)
           coreConnector.logSessionInformation(node)
@@ -281,9 +285,9 @@ module.exports = function (RED) {
             node.bianco.iiot.handleSessionClose(statusCode)
           })
         }).catch(function (err) {
-          if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
-            node.bianco.iiot.stateMachine.send('lock')
-            node.bianco.iiot.stateMachine.send('stopopcua')
+          if (coreBasics.isInitializedBiancoIIoTNode(node)) {
+            node.bianco.iiot.stateService.send('LOCKED')
+            node.bianco.iiot.stateService.send('STOPPED')
             node.bianco.iiot.handleError(err)
           } else {
             coreConnector.internalDebugLog(err.message)
@@ -300,7 +304,7 @@ module.exports = function (RED) {
       node.bianco.iiot.sessionNodeRequests += 1
       coreConnector.detailDebugLog('Session Node Requests At Connector No.: ' + node.bianco.iiot.sessionNodeRequests)
       if (node.showErrors) {
-        coreConnector.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!   BAD SESSION ON CONNECTOR   !!!!!!!!!!!!!!!!!!'.bgWhite.red)
+        coreConnector.internalDebugLog('!!!!!!!!!!!!!!!!!!!!!   BAD SESSION ON CONNECTOR   !!!!!!!!!!!!!!!!!!')
       }
 
       if (node.bianco.iiot.sessionNodeRequests > node.maxBadSessionRequests) {
@@ -310,7 +314,7 @@ module.exports = function (RED) {
     }
 
     node.bianco.iiot.isInactiveOnOPCUA = function () {
-      let state = coreConnector.current.value
+      const state = coreConnector.current.value
       return (state === 'stopopcua' || state === 'end' || state === 'renew' || state === 'reconfigure')
     }
 
@@ -320,8 +324,8 @@ module.exports = function (RED) {
         return
       }
 
-      node.bianco.iiot.stateMachine.send('lock')
-      node.bianco.iiot.stateMachine.send('renew')
+      node.bianco.iiot.stateService.send('LOCKED')
+      node.bianco.iiot.stateService.send('RENEW')
       node.emit('reset_opcua_connection')
       node.bianco.iiot.closeSession(() => {
         node.bianco.iiot.renewConnection(() => {
@@ -401,23 +405,27 @@ module.exports = function (RED) {
     }
 
     node.on('close', function (done) {
-      if (!coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+      if (node.bianco.iiot.stateService) {
+        node.bianco.iiot.stateService.stop()
+      }
+
+      if (!coreBasics.isInitializedBiancoIIoTNode(node)) {
         done() // if we have a very fast deploy clicking uer
       } else {
         if (node.bianco.iiot.isInactiveOnOPCUA()) {
           coreConnector.detailDebugLog('OPC UA Client Is Not Active On Close Node')
-          coreConnector.core.resetBiancoNode(node)
+          coreBasics.resetBiancoNode(node)
           done()
         } else {
           coreConnector.detailDebugLog('OPC UA Client Is Active On Close Node With State ' + coreConnector.current)
           if (coreConnector.current.value === 'sessionactive') {
             node.bianco.iiot.closeConnector(() => {
-              coreConnector.core.resetBiancoNode(node)
+              coreBasics.resetBiancoNode(node)
               done()
             })
           } else {
-            coreConnector.internalDebugLog(coreConnector.current + ' -> !!!  CHECK CONNECTOR STATE ON CLOSE  !!!'.bgWhite.red)
-            coreConnector.core.resetBiancoNode(node)
+            coreConnector.internalDebugLog(coreConnector.current + ' -> !!!  CHECK CONNECTOR STATE ON CLOSE  !!!')
+            coreBasics.resetBiancoNode(node)
             done()
           }
         }
@@ -426,13 +434,14 @@ module.exports = function (RED) {
 
     node.bianco.iiot.opcuaDisconnect = function (done) {
       if (node.bianco.iiot.registeredNodeList.length > 0) {
-        coreConnector.internalDebugLog('Connector Has Registered Nodes And Can Not Close The Node -> Count: ' + node.bianco.iiot.registeredNodeList.length)
+        coreConnector.internalDebugLog('Connector Has Registered Nodes And Can Not Close The Node -> Count: ' +
+          node.bianco.iiot.registeredNodeList.length)
         if (disconnectTimeout) {
           clearTimeout(disconnectTimeout)
           disconnectTimeout = null
         }
         disconnectTimeout = setTimeout(() => {
-          if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+          if (coreBasics.isInitializedBiancoIIoTNode(node)) {
             node.bianco.iiot.closeConnector(done)
           }
         }, node.connectionStopDelay)
@@ -444,13 +453,12 @@ module.exports = function (RED) {
     node.bianco.iiot.opcuaDirectDisconnect = function (done) {
       coreConnector.detailDebugLog('OPC UA Disconnect From Connector ' + coreConnector.current)
       node.bianco.iiot.disconnectNodeOPCUA(() => {
-        node.bianco.iiot.stateMachine.lock().close()
-        let fsmState = coreConnector.current.value
+        node.bianco.iiot.stateService.send('LOCKED')
+        node.bianco.iiot.stateService.send('CLOSED')
+        const fsmState = coreConnector.current.value
         coreConnector.detailDebugLog('Disconnected On State ' + fsmState)
-        if (!node.bianco.iiot.isInactiveOnOPCUA() && fsmState !== 'CLOSED') {
+        if (!node.bianco.iiot.isInactiveOnOPCUA() && fsmState !== 'close') {
           console.log(fsmState)
-          done()
-          assert(false)
         }
         done()
       })
@@ -475,8 +483,8 @@ module.exports = function (RED) {
 
     node.bianco.iiot.restartWithNewSettings = function (parameters, done) {
       coreConnector.internalDebugLog('Renew With Flex Connector Request On State ' + coreConnector.current)
-      node.bianco.iiot.stateMachine.send('lock')
-      node.bianco.iiot.stateMachine.send('reconfigure')
+      node.bianco.iiot.stateService.send('LOCKED')
+      node.bianco.iiot.stateService.send('RECONFIGURED')
       node.bianco.iiot.setNewParameters(parameters)
       node.bianco.iiot.initCertificatesAndKeys()
       node.bianco.iiot.renewConnection(done)
@@ -518,15 +526,17 @@ module.exports = function (RED) {
       node.bianco.iiot.opcuaSession = null
     }
 
-    node.bianco.iiot.subscribeFSMEvents = function (fsm) {
+    node.bianco.iiot.stateService.subscribe(state => {
+      node.bianco.iiot.actualServiceState = state
+      coreConnector.current = state // TODO: refactor this, is the same as actualServiceState
       /* #########   FSM EVENTS  #########     */
 
-      fsm.onIDLE = function (event, oldState, newState) {
+      if (state.matches('idle')) {
         coreConnector.detailDebugLog('Connector IDLE Event FSM')
         node.bianco.iiot.resetOPCUAObjects()
       }
 
-      fsm.onINITOPCUA = function (event, oldState, newState) {
+      if (state.matches('initopcua')) {
         coreConnector.detailDebugLog('Connector Init OPC UA Event FSM')
 
         if (!node.bianco) {
@@ -545,22 +555,22 @@ module.exports = function (RED) {
 
         coreConnector.detailDebugLog('connecting OPC UA with delay of msec: ' + node.connectionStartDelay)
         clientStartTimeout = setTimeout(() => {
-          if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+          if (coreBasics.isInitializedBiancoIIoTNode(node)) {
             try {
               node.bianco.iiot.connectOPCUAEndpoint()
             } catch (err) {
               node.bianco.iiot.handleError(err)
               node.bianco.iiot.resetOPCUAObjects()
-              node.bianco.iiot.stateMachine.send('lock')
-              node.bianco.iiot.stateMachine.send('stopopcua')
+              node.bianco.iiot.stateService.send('lock')
+              node.bianco.iiot.stateService.send('stopopcua')
             }
           }
         }, node.connectionStartDelay)
       }
 
-      fsm.onOPEN = function (event, oldState, newState) {
+      if (state.matches('open')) {
         coreConnector.detailDebugLog('Connector Open Event FSM')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.emit('connection_started', node.bianco.iiot.opcuaClient)
           coreConnector.internalDebugLog('Client Connected To ' + node.endpoint)
           coreConnector.detailDebugLog('Client Options ' + JSON.stringify(node.bianco.iiot.opcuaClientOptions))
@@ -568,33 +578,33 @@ module.exports = function (RED) {
         }
       }
 
-      fsm.onSESSIONREQUESTED = function (event, oldState, newState) {
+      if (state.matches('sessionrequest')) {
         coreConnector.detailDebugLog('Connector Session Request Event FSM')
       }
 
-      fsm.onSESSIONACTIVE = function (event, oldState, newState) {
+      if (state.matches('sessionactive')) {
         coreConnector.detailDebugLog('Connector Session Active Event FSM')
         node.bianco.iiot.sessionNodeRequests = 0
         node.emit('session_started', node.bianco.iiot.opcuaSession)
       }
 
-      fsm.onSESSIONCLOSED = function (event, oldState, newState) {
+      if (state.matches('sessionclose')) {
         coreConnector.detailDebugLog('Connector Session Close Event FSM')
         node.emit('session_closed')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.bianco.iiot.opcuaSession = null
         }
       }
 
-      fsm.onSESSIONRESTART = function (event, oldState, newState) {
+      if (state.matches('sessionstart')) {
         coreConnector.detailDebugLog('Connector Session Restart Event FSM')
         node.emit('session_restart')
       }
 
-      fsm.onCLOSED = function (event, oldState, newState) {
+      if (state.matches('close')) {
         coreConnector.detailDebugLog('Connector Client Close Event FSM')
         node.emit('connection_closed')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           if (node.bianco.iiot.opcuaClient) {
             node.bianco.iiot.opcuaClient.removeAllListeners()
           }
@@ -602,46 +612,46 @@ module.exports = function (RED) {
         }
       }
 
-      fsm.onLOCKED = function (event, oldState, newState) {
+      if (state.matches('lock')) {
         coreConnector.detailDebugLog('Connector Lock Event FSM')
       }
 
-      fsm.onUNLOCKED = function (event, oldState, newState) {
+      if (state.matches('unlock')) {
         coreConnector.detailDebugLog('Connector Unlock Event FSM')
       }
 
-      fsm.onSTOPPED = function (event, oldState, newState) {
+      if (state.matches('stopopcua')) {
         coreConnector.detailDebugLog('Connector Stopped Event FSM')
         node.emit('connection_stopped')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.bianco.iiot.resetAllTimer()
         }
       }
 
-      fsm.onEND = function (event, oldState, newState) {
+      if (state.matches('end')) {
         coreConnector.detailDebugLog('Connector End Event FSM')
         node.emit('connection_end')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.bianco.iiot.resetAllTimer()
         }
       }
 
-      fsm.onRECONFIGURED = function (event, oldState, newState) {
+      if (state.matches('reconfigure')) {
         coreConnector.detailDebugLog('Connector Reconfigure Event FSM')
         node.emit('connection_reconfigure')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.bianco.iiot.resetAllTimer()
         }
       }
 
-      fsm.onRENEW = function (event, oldState, newState) {
+      if (state.matches('renew')) {
         coreConnector.detailDebugLog('Connector Renew Event FSM')
         node.emit('connection_renew')
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+        if (coreBasics.isInitializedBiancoIIoTNode(node)) {
           node.bianco.iiot.resetAllTimer()
         }
       }
-    }
+    })
 
     node.bianco.iiot.resetAllTimer = function () {
       coreConnector.detailDebugLog('Reset All Timer')
@@ -665,10 +675,12 @@ module.exports = function (RED) {
     node.bianco.iiot.registeredNodeList = {}
 
     node.bianco.iiot.renewFiniteStateMachine = function () {
-      node.bianco.iiot.stateMachine = null
-      node.bianco.iiot.stateMachine = coreConnector.createStatelyMachine()
-      assert(coreConnector.current.value === 'idle')
-      node.bianco.iiot.subscribeFSMEvents(node.bianco.iiot.stateMachine)
+      if (node.bianco.iiot.stateService) {
+        node.bianco.iiot.stateService.stop()
+      }
+      node.bianco.iiot.stateMachine = coreConnector.createStateMachineService()
+      node.bianco.iiot.actualServiceState = node.bianco.iiot.stateMachine.initialState
+      node.bianco.iiot.stateService = coreConnector.startStateService(node.bianco.iiot.stateMachine)
     }
 
     node.bianco.iiot.registerForOPCUA = function (opcuaNode) {
@@ -687,7 +699,7 @@ module.exports = function (RED) {
       node.bianco.iiot.registeredNodeList[opcuaNode.id] = opcuaNode
 
       opcuaNode.on('opcua_client_not_ready', () => {
-        if (coreConnector.core.isInitializedBiancoIIoTNode(node) && coreConnector.current.value !== 'end') {
+        if (coreBasics.isInitializedBiancoIIoTNode(node) && coreConnector.current.value !== 'end') {
           node.bianco.iiot.resetBadSession()
         }
       })
@@ -695,8 +707,8 @@ module.exports = function (RED) {
       if (Object.keys(node.bianco.iiot.registeredNodeList).length === 1) {
         coreConnector.internalDebugLog('Start Connector OPC UA Connection')
         node.bianco.iiot.renewFiniteStateMachine()
-        node.bianco.iiot.stateMachine.send('idle')
-        node.bianco.iiot.stateMachine.send('initopcua')
+        node.bianco.iiot.stateService.send('IDLE')
+        node.bianco.iiot.stateService.send('INITOPCUA')
       }
     }
 
@@ -723,8 +735,8 @@ module.exports = function (RED) {
       }
 
       if (Object.keys(node.bianco.iiot.registeredNodeList).length === 0) {
-        node.bianco.iiot.stateMachine.send('lock')
-        node.bianco.iiot.stateMachine.send('stopopcua')
+        node.bianco.iiot.stateService.send('LOCKED')
+        node.bianco.iiot.stateService.send('STOPPED')
         if (node.bianco.iiot.opcuaClient) {
           coreConnector.detailDebugLog('OPC UA Direct Disconnect On Unregister Of All Nodes')
           try {
@@ -763,17 +775,17 @@ module.exports = function (RED) {
   /*  ---------------------  HTTP Requests --------------------- */
 
   RED.httpAdmin.get('/opcuaIIoT/client/discover/:id/:discoveryUrl', RED.auth.needsPermission('opcua.discovery'), function (req, res) {
-    let node = RED.nodes.getNode(req.params.id)
-    let discoverUrlRequest = decodeURIComponent(req.params.discoveryUrl)
+    const node = RED.nodes.getNode(req.params.id)
+    const discoverUrlRequest = decodeURIComponent(req.params.discoveryUrl)
     coreConnector.internalDebugLog('Get Discovery Request ' + JSON.stringify(req.params) + ' for ' + discoverUrlRequest)
     if (node) {
       if (discoverUrlRequest && !discoverUrlRequest.includes('opc.tcp://')) {
         res.json([])
       } else {
-        let performFindServersRequest = coreConnector.core.nodeOPCUA.perform_findServersRequest
+        const performFindServersRequest = coreBasics.nodeOPCUA.perform_findServersRequest
         performFindServersRequest(discoverUrlRequest, function (err, servers) {
           if (!err) {
-            let endpoints = []
+            const endpoints = []
             servers.forEach(function (server) {
               server.discoveryUrls.forEach(function (discoveryUrl) {
                 if (discoveryUrl.toString() !== discoverUrlRequest) {
@@ -798,8 +810,8 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/client/endpoints/:id/:endpointUrl', RED.auth.needsPermission('opcua.endpoints'), function (req, res) {
-    let node = RED.nodes.getNode(req.params.id)
-    let endpointUrlRequest = decodeURIComponent(req.params.endpointUrl)
+    const node = RED.nodes.getNode(req.params.id)
+    const endpointUrlRequest = decodeURIComponent(req.params.endpointUrl)
     coreConnector.internalDebugLog('Get Endpoints Request ' + JSON.stringify(req.params) + ' for ' + endpointUrlRequest)
     if (node) {
       if (endpointUrlRequest && !endpointUrlRequest.includes('opc.tcp://')) {
@@ -807,7 +819,7 @@ module.exports = function (RED) {
       } else {
         const endpointMustExist = node.bianco.iiot.opcuaClientOptions.endpoint_must_exist // to reset later
         node.bianco.iiot.opcuaClientOptions.endpoint_must_exist = false
-        let discoveryClient = new coreConnector.core.nodeOPCUA.OPCUAClient(node.bianco.iiot.opcuaClientOptions)
+        const discoveryClient = new coreBasics.nodeOPCUA.OPCUAClient(node.bianco.iiot.opcuaClientOptions)
         discoveryClient.connect(endpointUrlRequest).then(function () {
           coreConnector.internalDebugLog('Get Endpoints Connected For Request')
           discoveryClient.getEndpoints(function (err, endpoints) {
@@ -827,7 +839,7 @@ module.exports = function (RED) {
             node.bianco.iiot.opcuaClientOptions.endpoint_must_exist = endpointMustExist
           })
         }).catch(function (err) {
-          if (coreConnector.core.isInitializedBiancoIIoTNode(node)) {
+          if (coreBasics.isInitializedBiancoIIoTNode(node)) {
             node.bianco.iiot.opcuaClientOptions.endpoint_must_exist = endpointMustExist
           }
           coreConnector.internalDebugLog('Get Endpoints Request Error ' + err.message)
@@ -841,33 +853,33 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/plain/DataTypeIds', RED.auth.needsPermission('opcuaIIoT.plain.datatypes'), function (req, res) {
-    res.json(_.toArray(_.invert(coreConnector.core.nodeOPCUA.DataTypeIds)))
+    res.json(_.toArray(_.invert(coreBasics.nodeOPCUA.DataTypeIds)))
   })
 
   RED.httpAdmin.get('/opcuaIIoT/plain/AttributeIds', RED.auth.needsPermission('opcuaIIoT.plain.attributeids'), function (req, res) {
-    res.json(_.toArray(_.invert(coreConnector.core.nodeOPCUA.AttributeIds)))
+    res.json(_.toArray(_.invert(coreBasics.nodeOPCUA.AttributeIds)))
   })
 
   RED.httpAdmin.get('/opcuaIIoT/plain/StatusCodes', RED.auth.needsPermission('opcuaIIoT.plain.statuscodes'), function (req, res) {
-    res.json(_.toArray(_.invert(coreConnector.core.nodeOPCUA.StatusCodes)))
+    res.json(_.toArray(_.invert(coreBasics.nodeOPCUA.StatusCodes)))
   })
 
   RED.httpAdmin.get('/opcuaIIoT/plain/ObjectTypeIds', RED.auth.needsPermission('opcuaIIoT.plain.objecttypeids'), function (req, res) {
-    res.json(coreConnector.core.nodeOPCUA.ObjectTypeIds)
+    res.json(coreBasics.nodeOPCUA.ObjectTypeIds)
   })
 
   RED.httpAdmin.get('/opcuaIIoT/plain/VariableTypeIds', RED.auth.needsPermission('opcuaIIoT.plain.variabletypeids'), function (req, res) {
-    res.json(coreConnector.core.nodeOPCUA.VariableTypeIds)
+    res.json(coreBasics.nodeOPCUA.VariableTypeIds)
   })
 
   RED.httpAdmin.get('/opcuaIIoT/plain/ReferenceTypeIds', RED.auth.needsPermission('opcuaIIoT.plain.referencetypeids'), function (req, res) {
-    res.json(coreConnector.core.nodeOPCUA.ReferenceTypeIds)
+    res.json(coreBasics.nodeOPCUA.ReferenceTypeIds)
   })
 
   RED.httpAdmin.get('/opcuaIIoT/xmlsets/public', RED.auth.needsPermission('opcuaIIoT.xmlsets'), function (req, res) {
-    let xmlset = []
-    xmlset.push(coreConnector.core.nodeOPCUA.di_nodeset_filename)
-    xmlset.push(coreConnector.core.nodeOPCUA.adi_nodeset_filename)
+    const xmlset = []
+    xmlset.push(coreBasics.nodeOPCUA.di_nodeset_filename)
+    xmlset.push(coreBasics.nodeOPCUA.adi_nodeset_filename)
     xmlset.push('public/vendor/opc-foundation/xml/Opc.ISA95.NodeSet2.xml')
     xmlset.push('public/vendor/opc-foundation/xml/Opc.Ua.Adi.NodeSet2.xml')
     xmlset.push('public/vendor/opc-foundation/xml/Opc.Ua.Di.NodeSet2.xml')
@@ -879,9 +891,9 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/list/DataTypeIds', RED.auth.needsPermission('opcuaIIoT.list.datatypeids'), function (req, res) {
-    let typeList = coreConnector.core.nodeOPCUA.DataTypeIds
-    let invertedTypeList = _.toArray(_.invert(typeList))
-    let resultTypeList = []
+    const typeList = coreBasics.nodeOPCUA.DataTypeIds
+    const invertedTypeList = _.toArray(_.invert(typeList))
+    const resultTypeList = []
 
     let typelistEntry
     for (typelistEntry of invertedTypeList) {
@@ -892,14 +904,14 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/list/EventTypeIds', RED.auth.needsPermission('opcuaIIoT.list.eventtypeids'), function (req, res) {
-    let objectTypeIds = coreConnector.core.nodeOPCUA.ObjectTypeIds
-    let invertedObjectTypeIds = _.invert(objectTypeIds)
-    let eventTypes = _.filter(invertedObjectTypeIds, function (objectTypeId) {
+    const objectTypeIds = coreBasics.nodeOPCUA.ObjectTypeIds
+    const invertedObjectTypeIds = _.invert(objectTypeIds)
+    const eventTypes = _.filter(invertedObjectTypeIds, function (objectTypeId) {
       return objectTypeId.indexOf('Event') > -1
     })
 
     let typelistEntry
-    let eventTypesResults = []
+    const eventTypesResults = []
     for (typelistEntry of eventTypes) {
       eventTypesResults.push({ nodeId: 'i=' + objectTypeIds[typelistEntry], label: typelistEntry })
     }
@@ -907,11 +919,11 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/list/InstanceTypeIds', RED.auth.needsPermission('opcuaIIoT.list.instancetypeids'), function (req, res) {
-    let typeList = coreConnector.core.nodeOPCUA.ObjectTypeIds
-    let variabletypeList = coreConnector.core.nodeOPCUA.VariableTypeIds
-    let invertedTypeList = _.toArray(_.invert(typeList))
-    let invertedVariableTypeList = _.toArray(_.invert(variabletypeList))
-    let resultTypeList = []
+    const typeList = coreBasics.nodeOPCUA.ObjectTypeIds
+    const variabletypeList = coreBasics.nodeOPCUA.VariableTypeIds
+    const invertedTypeList = _.toArray(_.invert(typeList))
+    const invertedVariableTypeList = _.toArray(_.invert(variabletypeList))
+    const resultTypeList = []
 
     let typelistEntry
     for (typelistEntry of invertedTypeList) {
@@ -926,9 +938,9 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/list/VariableTypeIds', RED.auth.needsPermission('opcuaIIoT.list.variabletypeids'), function (req, res) {
-    let typeList = coreConnector.core.nodeOPCUA.VariableTypeIds
-    let invertedTypeList = _.toArray(_.invert(typeList))
-    let resultTypeList = []
+    const typeList = coreBasics.nodeOPCUA.VariableTypeIds
+    const invertedTypeList = _.toArray(_.invert(typeList))
+    const resultTypeList = []
 
     let typelistEntry
     for (typelistEntry of invertedTypeList) {
@@ -939,9 +951,9 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/list/ReferenceTypeIds', RED.auth.needsPermission('opcuaIIoT.list.referencetypeids'), function (req, res) {
-    let typeList = coreConnector.core.nodeOPCUA.ReferenceTypeIds
-    let invertedTypeList = _.toArray(_.invert(typeList))
-    let resultTypeList = []
+    const typeList = coreBasics.nodeOPCUA.ReferenceTypeIds
+    const invertedTypeList = _.toArray(_.invert(typeList))
+    const resultTypeList = []
 
     let typelistEntry
     for (typelistEntry of invertedTypeList) {
@@ -952,7 +964,7 @@ module.exports = function (RED) {
   })
 
   RED.httpAdmin.get('/opcuaIIoT/list/FilterTypes', RED.auth.needsPermission('opcuaIIoT.list.filterids'), function (req, res) {
-    let resultTypeList = []
+    const resultTypeList = []
     resultTypeList.push({ name: 'dataType', label: 'Data Type' })
     resultTypeList.push({ name: 'dataValue', label: 'Data Value' })
     resultTypeList.push({ name: 'nodeClass', label: 'Node Class' })

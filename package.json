@@ -1,23 +1,26 @@
 {
   "name": "node-red-contrib-iiot-opcua",
-  "version": "3.10.3",
-  "description": "The next evolution IoT/IIoT OPC UA toolbox package for Node-RED based on node-opcua.",
+  "version": "4.0.0-alpha.0",
+  "private": true,
+  "description": "The IoT/IIoT OPC UA toolbox package for Node-RED based on node-opcua.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BiancoRoyal/node-red-contrib-iiot-opcua.git"
   },
   "dependencies": {
+    "@node-red/nodes": "^1.0.3",
+    "@xstate/fsm": "1.1.0",
+    "async": "3.1.0",
     "better-assert": "1.0.2",
-    "cron": "1.7.1",
+    "cron": "1.7.2",
     "debug": "4.1.1",
     "easy-table": "1.1.1",
     "es6-map": "0.1.5",
-    "node-opcua": "0.7.2",
-    "source-map-support": "0.5.12",
-    "xstate": "4.5.0",
+    "node-opcua": "2.3.0",
+    "source-map-support": "0.5.16",
     "treeify": "1.1.0",
     "underscore": "1.9.1",
-    "vm2": "3.8.1"
+    "vm2": "3.8.4"
   },
   "keywords": [
     "node-red",
@@ -82,12 +85,12 @@
     "create_certificates.js"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
     "ci-publish": "^1.3.1",
     "codacy-coverage": "^3.4.0",
-    "conventional-changelog-cli": "^2.0.21",
+    "conventional-changelog-cli": "^2.0.28",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-clean": "^0.4.0",
@@ -97,16 +100,17 @@
     "gulp-sequence": "^1.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
-    "jest": "^24.8.0",
-    "jsdoc": "^3.6.2",
-    "nock": "^10.0.6",
-    "node-red": "^0.20.5",
-    "node-red-node-test-helper": "^0.2.2",
+    "jest": "^24.9.0",
+    "jsdoc": "^3.6.3",
+    "nock": "^11.7.0",
+    "node-red": "^1.0.3",
+    "node-red-node-test-helper": "^0.2.3",
+    "path-type": "^3.0.0",
     "pump": "^3.0.0",
-    "sinon": "^7.3.2",
-    "standard": "^12.0.1",
-    "standard-version": "^6.0.1",
-    "uglify-js": "^3.5.13",
+    "sinon": "^7.5.0",
+    "standard": "^14.3.1",
+    "standard-version": "^7.0.1",
+    "uglify-js": "^3.6.9",
     "uglify-js-harmony": "^2.7.7",
     "weak": "^1.0.1",
     "when": "^3.7.8"
@@ -127,7 +131,8 @@
       "opcuaIIoT/",
       "docs",
       "src/public/",
-      "test"
+      "test",
+      "gulpfile.js"
     ]
   },
   "main": "index.js",

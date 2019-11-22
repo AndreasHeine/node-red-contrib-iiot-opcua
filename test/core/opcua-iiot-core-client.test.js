@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -10,9 +10,9 @@
 jest.setTimeout(5000)
 
 describe('OPC UA Core Client', function () {
-  let assert = require('chai').assert
-  let expect = require('chai').expect
-  let coreClient = require('../../src/core/opcua-iiot-core-client')
+  const assert = require('chai').assert
+  const expect = require('chai').expect
+  const coreClient = require('../../src/core/opcua-iiot-core-client')
 
   describe('write', function () {
     it('should return Error object, if none value is present', function (done) {
@@ -96,8 +96,8 @@ describe('OPC UA Core Client', function () {
 
   describe('basic functions', function () {
     it('should stringify formattedt', function (done) {
-      let objectData = {test: 'test', testFolder: {name: ''}}
-      let sut = coreClient.stringifyFormatted(objectData)
+      const objectData = { test: 'test', testFolder: { name: '' } }
+      const sut = coreClient.stringifyFormatted(objectData)
       assert.equal(sut, JSON.stringify(objectData, null, 2))
       done()
     })

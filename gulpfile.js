@@ -19,63 +19,63 @@ const pump = require('pump')
 const replace = require('gulp-replace')
 
 function releaseIcons () {
-    return src('src/icons/**/*').pipe(dest('opcuaIIoT/icons'))
+  return src('src/icons/**/*').pipe(dest('opcuaIIoT/icons'))
 }
 
 function docIcons () {
-    return src('src/icons/**/*').pipe(dest('docs/gen/icons'))
+  return src('src/icons/**/*').pipe(dest('docs/gen/icons'))
 }
 
 function docImages () {
-    return src('images/**/*').pipe(dest('docs/gen/images'))
+  return src('images/**/*').pipe(dest('docs/gen/images'))
 }
 
 function releaseLocal () {
-    return src('src/locales/**/*').pipe(dest('opcuaIIoT/locales'))
+  return src('src/locales/**/*').pipe(dest('opcuaIIoT/locales'))
 }
 
 function releasePublicData () {
-    return src('src/public/**/*').pipe(dest('opcuaIIoT/public'))
+  return src('src/public/**/*').pipe(dest('opcuaIIoT/public'))
 }
 
 function cleanProject () {
-    return src(['opcuaIIoT', 'docs/gen', 'jcoverage'], { allowEmpty: true })
-        .pipe(clean({ force: true }))
+  return src(['opcuaIIoT', 'docs/gen', 'jcoverage'], { allowEmpty: true })
+    .pipe(clean({ force: true }))
 }
 
 function releaseWebContent () {
-    return src('src/*.htm*')
-        .pipe(htmlmin({
-            minifyJS: true,
-            minifyCSS: true,
-            minifyURLs: true,
-            maxLineLength: 120,
-            preserveLineBreaks: false,
-            collapseWhitespace: true,
-            collapseInlineTagWhitespace: true,
-            conservativeCollapse: true,
-            processScripts: ['text/x-red'],
-            quoteCharacter: "'"
-        }))
-        .pipe(dest('opcuaIIoT'))
+  return src('src/*.htm*')
+    .pipe(htmlmin({
+      minifyJS: true,
+      minifyCSS: true,
+      minifyURLs: true,
+      maxLineLength: 120,
+      preserveLineBreaks: false,
+      collapseWhitespace: true,
+      collapseInlineTagWhitespace: true,
+      conservativeCollapse: true,
+      processScripts: ['text/x-red'],
+      quoteCharacter: "'"
+    }))
+    .pipe(dest('opcuaIIoT'))
 }
 
 function releaseJSContent (cb) {
-    let anchor = '// SOURCE-MAP-REQUIRED'
+  const anchor = '// SOURCE-MAP-REQUIRED'
 
-    pump([
-            src('src/**/*.js')
-                .pipe(sourcemaps.init({ loadMaps: true }))
-                .pipe(replace(anchor, 'require(\'source-map-support\').install()'))
-                .pipe(babel({ presets: ['@babel/env'] }))
-                .pipe(uglify())
-                .pipe(sourcemaps.write('maps')), dest('opcuaIIoT')],
-        cb)
+  pump([
+    src('src/**/*.js')
+      .pipe(sourcemaps.init({ loadMaps: true }))
+      .pipe(replace(anchor, 'require(\'source-map-support\').install()'))
+      .pipe(babel({ presets: ['@babel/env'] }))
+      // .pipe(uglify())
+      .pipe(sourcemaps.write('maps')), dest('opcuaIIoT')],
+  cb)
 }
 
 function doc (cb) {
-    src(['README.md', 'src/**/*.js'], { read: false })
-        .pipe(jsdoc(cb))
+  src(['README.md', 'src/**/*.js'], { read: false })
+    .pipe(jsdoc(cb))
 }
 
 exports.clean = cleanProject

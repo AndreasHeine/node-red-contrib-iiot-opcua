@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -15,7 +15,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreServer = require('./core/opcua-iiot-core-server')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreServer = require('./core/opcua-iiot-core-server')
 
   function OPCUAIIoTServer (config) {
     RED.nodes.createNode(this, config)
@@ -26,10 +27,10 @@ module.exports = function (RED) {
     node = coreServer.initServerNode(node)
     node = coreServer.loadNodeSets(node, __dirname)
     node = coreServer.loadCertificates(node)
-    coreServer.core.assert(node.bianco.iiot)
+    coreBasics.assert(node.bianco.iiot)
 
     node.bianco.iiot.buildServerOptions = function () {
-      let serverOptions = coreServer.buildServerOptions(node, 'Fix')
+      const serverOptions = coreServer.buildServerOptions(node, 'Fix')
       serverOptions.userManager = {
         isValidUser: function (userName, password) {
           return coreServer.checkUser(node, userName, password)
@@ -43,7 +44,7 @@ module.exports = function (RED) {
         coreServer.detailDebugLog('serverOptions:' + JSON.stringify(serverOptions))
       }
       node.bianco.iiot.opcuaServer = coreServer.createServerObject(node, serverOptions)
-      coreServer.core.setNodeStatusTo(node, 'waiting')
+      coreBasics.setNodeStatusTo(node, 'waiting')
       node.bianco.iiot.opcuaServer.initialize(node.bianco.iiot.postInitialize)
       coreServer.setOPCUAServerListener(node)
     }
@@ -69,14 +70,14 @@ module.exports = function (RED) {
           } else {
             coreServer.start(node.bianco.iiot.opcuaServer, node)
               .then(function () {
-                coreServer.core.setNodeStatusTo(node, 'active')
+                coreBasics.setNodeStatusTo(node, 'active')
                 node.emit('server_running')
               }).catch(function (err) {
-                if (coreServer.core.isInitializedBiancoIIoTNode(node)) {
+                if (coreBasics.isInitializedBiancoIIoTNode(node)) {
                   node.bianco.iiot.opcuaServer = null
                 }
                 node.emit('server_start_error')
-                coreServer.core.setNodeStatusTo(node, 'errors')
+                coreBasics.setNodeStatusTo(node, 'errors')
                 coreServer.handleServerError(node, err, { payload: 'Server Start Failure' })
               })
           }
@@ -145,7 +146,7 @@ module.exports = function (RED) {
     node.on('close', (done) => {
       node.bianco.iiot.closeServer(() => {
         coreServer.internalDebugLog('Close Server Node')
-        coreServer.core.resetBiancoNode(node)
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })

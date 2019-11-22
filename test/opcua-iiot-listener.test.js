@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -13,8 +13,8 @@
 jest.setTimeout(5000)
 
 // iiot opc ua nodes
-var injectNode = require('node-red/nodes/core/core/20-inject')
-var functionNode = require('node-red/nodes/core/core/80-function')
+var injectNode = require('@node-red/nodes/core/common/20-inject')
+var functionNode = require('@node-red/nodes/core/function/10-function')
 var inputNode = require('../src/opcua-iiot-listener')
 
 var helper = require('node-red-node-test-helper')
@@ -24,16 +24,16 @@ var listenerNodesToLoad = [injectNode, functionNode, inputNode]
 
 var listenerUnitFlow = [
   {
-    'id': 'bee3e3b0.ca1a08',
-    'type': 'OPCUA-IIoT-Listener',
-    'connector': '',
-    'action': 'subscribe',
-    'queueSize': 10,
-    'name': 'TestListener',
-    'justValue': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [[]]
+    id: 'bee3e3b0.ca1a08',
+    type: 'OPCUA-IIoT-Listener',
+    connector: '',
+    action: 'subscribe',
+    queueSize: 10,
+    name: 'TestListener',
+    justValue: true,
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [[]]
   }
 ]
 
@@ -60,7 +60,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest.name).toBe('TestListener')
           expect(nodeUnderTest.action).toBe('subscribe')
           done()
@@ -70,7 +70,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded and call createSubscription with wrong state', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.bianco.iiot.stateMachine.endsub()
           nodeUnderTest.bianco.iiot.createSubscription({ payload: {} })
@@ -81,7 +81,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded and call subscribeActionInput with wrong state', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.bianco.iiot.stateMachine.endsub()
           nodeUnderTest.bianco.iiot.subscribeActionInput({ payload: {} })
@@ -92,7 +92,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded and call subscribeMonitoredItem with wrong state', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.bianco.iiot.stateMachine.endsub()
           nodeUnderTest.bianco.iiot.opcuaSession = null
@@ -104,7 +104,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded and call monitoredItemTerminated with null item to monitor', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.bianco.iiot.stateMachine.endsub()
           nodeUnderTest.bianco.iiot.monitoredItemTerminated({ payload: {} }, null, {}, new Error('Test Error Monitored Item'))
@@ -115,7 +115,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded and call monitoredItemTerminated with null item to monitor', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.bianco.iiot.errorHandling(new Error('Test Error'))
           done()
@@ -125,7 +125,7 @@ describe('OPC UA Listener monitoring node Unit Testing', function () {
     it('should be loaded and call setMonitoring with undefined item id to monitor', function (done) {
       helper.load(listenerNodesToLoad, listenerUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
+          const nodeUnderTest = helper.getNode('bee3e3b0.ca1a08')
           expect(nodeUnderTest).toBeDefined()
           nodeUnderTest.bianco.iiot.stateMachine.endsub()
           let testItem

@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -27,349 +27,349 @@ var listenerNodesToLoad = [injectNode, browserNode, connectorNode, inputNode, re
 
 var testListenerMonitoringFlow = [
   {
-    'id': 'c9ca1bbe.d1cb2',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
-    'payloadType': 'json',
-    'topic': 'TestTopicSubscribe',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '3',
-    'name': 'Start Abo',
-    'addressSpaceItems': [
+    id: 'c9ca1bbe.d1cb2',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
+    payloadType: 'json',
+    topic: 'TestTopicSubscribe',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '3',
+    name: 'Start Abo',
+    addressSpaceItems: [
       {
-        'name': 'FullCounter',
-        'nodeId': 'ns=1;s=FullCounter',
-        'datatypeName': ''
+        name: 'FullCounter',
+        nodeId: 'ns=1;s=FullCounter',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         'd9754392.9eb1d', 'n2li'
       ]
     ]
   },
   {
-    'id': '273f8497.2f8b44',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
-    'payloadType': 'json',
-    'topic': 'TestTopicUnsubscribe',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '5',
-    'name': 'End Abo',
-    'addressSpaceItems': [
+    id: '273f8497.2f8b44',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
+    payloadType: 'json',
+    topic: 'TestTopicUnsubscribe',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '5',
+    name: 'End Abo',
+    addressSpaceItems: [
       {
-        'name': 'FullCounter',
-        'nodeId': 'ns=1;s=FullCounter',
-        'datatypeName': ''
+        name: 'FullCounter',
+        nodeId: 'ns=1;s=FullCounter',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         'd9754392.9eb1d', 'n2li'
       ]
     ]
   },
-  {id: 'n2li', type: 'helper'},
+  { id: 'n2li', type: 'helper' },
   {
-    'id': 'd9754392.9eb1d',
-    'type': 'OPCUA-IIoT-Listener',
-    'connector': 'c95fc9fc.64ccc',
-    'action': 'subscribe',
-    'queueSize': '1',
-    'name': '',
-    'justValue': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: 'd9754392.9eb1d',
+    type: 'OPCUA-IIoT-Listener',
+    connector: 'c95fc9fc.64ccc',
+    action: 'subscribe',
+    queueSize: '1',
+    name: '',
+    justValue: true,
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       [
         'b0856b45.da4a18', 'n3li'
       ]
     ]
   },
-  {id: 'n3li', type: 'helper'},
+  { id: 'n3li', type: 'helper' },
   {
-    'id': 'b0856b45.da4a18',
-    'type': 'OPCUA-IIoT-Response',
-    'name': '',
-    'compressStructure': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'activateFilters': false,
-    'filters': [],
-    'wires': [
+    id: 'b0856b45.da4a18',
+    type: 'OPCUA-IIoT-Response',
+    name: '',
+    compressStructure: true,
+    showStatusActivities: false,
+    showErrors: false,
+    activateFilters: false,
+    filters: [],
+    wires: [
       [
         'n4li'
       ]
     ]
   },
-  {id: 'n4li', type: 'helper'},
+  { id: 'n4li', type: 'helper' },
   {
-    'id': '4ab7dc9.b7c5624',
-    'type': 'OPCUA-IIoT-Server',
-    'port': '51985',
-    'endpoint': '',
-    'acceptExternalCommands': true,
-    'maxAllowedSessionNumber': '',
-    'maxConnectionsPerEndpoint': '',
-    'maxAllowedSubscriptionNumber': '',
-    'alternateHostname': '',
-    'name': '',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'asoDemo': true,
-    'allowAnonymous': true,
-    'isAuditing': false,
-    'serverDiscovery': false,
-    'users': [],
-    'xmlsets': [],
-    'publicCertificateFile': '',
-    'privateCertificateFile': '',
-    'registerServerMethod': 1,
-    'discoveryServerEndpointUrl': '',
-    'capabilitiesForMDNS': '',
-    'maxNodesPerRead': 1000,
-    'maxNodesPerBrowse': 2000,
-    'wires': [
+    id: '4ab7dc9.b7c5624',
+    type: 'OPCUA-IIoT-Server',
+    port: '51985',
+    endpoint: '',
+    acceptExternalCommands: true,
+    maxAllowedSessionNumber: '',
+    maxConnectionsPerEndpoint: '',
+    maxAllowedSubscriptionNumber: '',
+    alternateHostname: '',
+    name: '',
+    showStatusActivities: false,
+    showErrors: false,
+    asoDemo: true,
+    allowAnonymous: true,
+    isAuditing: false,
+    serverDiscovery: false,
+    users: [],
+    xmlsets: [],
+    publicCertificateFile: '',
+    privateCertificateFile: '',
+    registerServerMethod: 1,
+    discoveryServerEndpointUrl: '',
+    capabilitiesForMDNS: '',
+    maxNodesPerRead: 1000,
+    maxNodesPerBrowse: 2000,
+    wires: [
       []
     ]
   },
   {
-    'id': 'c95fc9fc.64ccc',
-    'type': 'OPCUA-IIoT-Connector',
-    'discoveryUrl': '',
-    'endpoint': 'opc.tcp://localhost:51985/',
-    'keepSessionAlive': false,
-    'loginEnabled': false,
-    'securityPolicy': 'None',
-    'securityMode': 'NONE',
-    'name': 'LOCAL DEMO SERVER',
-    'showErrors': false,
-    'publicCertificateFile': '',
-    'privateKeyFile': '',
-    'defaultSecureTokenLifetime': '60000',
-    'endpointMustExist': false,
-    'autoSelectRightEndpoint': false
+    id: 'c95fc9fc.64ccc',
+    type: 'OPCUA-IIoT-Connector',
+    discoveryUrl: '',
+    endpoint: 'opc.tcp://localhost:51985/',
+    keepSessionAlive: false,
+    loginEnabled: false,
+    securityPolicy: 'None',
+    securityMode: 'NONE',
+    name: 'LOCAL DEMO SERVER',
+    showErrors: false,
+    publicCertificateFile: '',
+    privateKeyFile: '',
+    defaultSecureTokenLifetime: '60000',
+    endpointMustExist: false,
+    autoSelectRightEndpoint: false
   }
 ]
 
 var testListenerMonitoringAboFlow = [
   {
-    'id': 'c9ca1bbe.d1cb3',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{"interval":500,"queueSize":4,"options":{"requestedPublishingInterval":1000,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
-    'payloadType': 'json',
-    'topic': 'TestTopicSubscribe1',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '3',
-    'name': 'Start Abo',
-    'addressSpaceItems': [
+    id: 'c9ca1bbe.d1cb3',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{"interval":500,"queueSize":4,"options":{"requestedPublishingInterval":1000,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
+    payloadType: 'json',
+    topic: 'TestTopicSubscribe1',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '3',
+    name: 'Start Abo',
+    addressSpaceItems: [
       {
-        'name': 'FullCounter',
-        'nodeId': 'ns=1;s=FullCounter',
-        'datatypeName': ''
+        name: 'FullCounter',
+        nodeId: 'ns=1;s=FullCounter',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         'd9754392.9eb1e', 'n1lia'
       ]
     ]
   },
   {
-    'id': 'c9ca1bbe.d1cb4',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '',
-    'payloadType': 'string',
-    'topic': 'TestTopicUnsubscribe1',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '5',
-    'name': 'End Abo',
-    'addressSpaceItems': [
+    id: 'c9ca1bbe.d1cb4',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '',
+    payloadType: 'string',
+    topic: 'TestTopicUnsubscribe1',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '5',
+    name: 'End Abo',
+    addressSpaceItems: [
       {
-        'name': 'FullCounter',
-        'nodeId': 'ns=1;s=FullCounter',
-        'datatypeName': ''
+        name: 'FullCounter',
+        nodeId: 'ns=1;s=FullCounter',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         'd9754392.9eb1e', 'n1lia'
       ]
     ]
   },
-  {id: 'n1lia', type: 'helper'},
+  { id: 'n1lia', type: 'helper' },
   {
-    'id': 'c9ca1bbe.d1cb5',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
-    'payloadType': 'json',
-    'topic': 'TestTopicSubscribe2',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '7',
-    'name': 'Start Abo',
-    'addressSpaceItems': [
+    id: 'c9ca1bbe.d1cb5',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
+    payloadType: 'json',
+    topic: 'TestTopicSubscribe2',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '7',
+    name: 'Start Abo',
+    addressSpaceItems: [
       {
-        'name': 'FullCounter',
-        'nodeId': 'ns=1;s=FullCounter',
-        'datatypeName': ''
+        name: 'FullCounter',
+        nodeId: 'ns=1;s=FullCounter',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         'd9754392.9eb1e', 'n2lia'
       ]
     ]
   },
   {
-    'id': 'c9ca1bbe.d1cb6',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '',
-    'payloadType': 'string',
-    'topic': 'TestTopicUnsubscribe2',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '9',
-    'name': 'End Abo',
-    'addressSpaceItems': [
+    id: 'c9ca1bbe.d1cb6',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '',
+    payloadType: 'string',
+    topic: 'TestTopicUnsubscribe2',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '9',
+    name: 'End Abo',
+    addressSpaceItems: [
       {
-        'name': 'FullCounter',
-        'nodeId': 'ns=1;s=FullCounter',
-        'datatypeName': ''
+        name: 'FullCounter',
+        nodeId: 'ns=1;s=FullCounter',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         'd9754392.9eb1e', 'n2lia'
       ]
     ]
   },
-  {id: 'n2lia', type: 'helper'},
+  { id: 'n2lia', type: 'helper' },
   {
-    'id': 'd9754392.9eb1e',
-    'type': 'OPCUA-IIoT-Listener',
-    'connector': 'c95fc9fc.64ccb',
-    'action': 'subscribe',
-    'queueSize': '1',
-    'name': '',
-    'justValue': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: 'd9754392.9eb1e',
+    type: 'OPCUA-IIoT-Listener',
+    connector: 'c95fc9fc.64ccb',
+    action: 'subscribe',
+    queueSize: '1',
+    name: '',
+    justValue: true,
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       [
         'b0856b45.da4a19', 'n3lia'
       ]
     ]
   },
-  {id: 'n3lia', type: 'helper'},
+  { id: 'n3lia', type: 'helper' },
   {
-    'id': 'b0856b45.da4a19',
-    'type': 'OPCUA-IIoT-Response',
-    'name': '',
-    'compressStructure': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'activateFilters': false,
-    'filters': [],
-    'wires': [
+    id: 'b0856b45.da4a19',
+    type: 'OPCUA-IIoT-Response',
+    name: '',
+    compressStructure: true,
+    showStatusActivities: false,
+    showErrors: false,
+    activateFilters: false,
+    filters: [],
+    wires: [
       [
         'n4lia'
       ]
     ]
   },
-  {id: 'n4lia', type: 'helper'},
+  { id: 'n4lia', type: 'helper' },
   {
-    'id': '4ab7dc9.b7c5625',
-    'type': 'OPCUA-IIoT-Server',
-    'port': '55585',
-    'endpoint': '',
-    'acceptExternalCommands': true,
-    'maxAllowedSessionNumber': '',
-    'maxConnectionsPerEndpoint': '',
-    'maxAllowedSubscriptionNumber': '',
-    'alternateHostname': '',
-    'name': '',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'asoDemo': true,
-    'allowAnonymous': true,
-    'isAuditing': false,
-    'serverDiscovery': false,
-    'users': [],
-    'xmlsets': [],
-    'publicCertificateFile': '',
-    'privateCertificateFile': '',
-    'registerServerMethod': 1,
-    'discoveryServerEndpointUrl': '',
-    'capabilitiesForMDNS': '',
-    'maxNodesPerRead': 1000,
-    'maxNodesPerBrowse': 2000,
-    'wires': [
+    id: '4ab7dc9.b7c5625',
+    type: 'OPCUA-IIoT-Server',
+    port: '55585',
+    endpoint: '',
+    acceptExternalCommands: true,
+    maxAllowedSessionNumber: '',
+    maxConnectionsPerEndpoint: '',
+    maxAllowedSubscriptionNumber: '',
+    alternateHostname: '',
+    name: '',
+    showStatusActivities: false,
+    showErrors: false,
+    asoDemo: true,
+    allowAnonymous: true,
+    isAuditing: false,
+    serverDiscovery: false,
+    users: [],
+    xmlsets: [],
+    publicCertificateFile: '',
+    privateCertificateFile: '',
+    registerServerMethod: 1,
+    discoveryServerEndpointUrl: '',
+    capabilitiesForMDNS: '',
+    maxNodesPerRead: 1000,
+    maxNodesPerBrowse: 2000,
+    wires: [
       []
     ]
   },
   {
-    'id': 'c95fc9fc.64ccb',
-    'type': 'OPCUA-IIoT-Connector',
-    'discoveryUrl': '',
-    'endpoint': 'opc.tcp://localhost:55585/',
-    'keepSessionAlive': false,
-    'loginEnabled': false,
-    'securityPolicy': 'None',
-    'securityMode': 'NONE',
-    'name': 'LOCAL DEMO SERVER',
-    'showErrors': false,
-    'publicCertificateFile': '',
-    'privateKeyFile': '',
-    'defaultSecureTokenLifetime': '60000',
-    'endpointMustExist': false,
-    'autoSelectRightEndpoint': false
+    id: 'c95fc9fc.64ccb',
+    type: 'OPCUA-IIoT-Connector',
+    discoveryUrl: '',
+    endpoint: 'opc.tcp://localhost:55585/',
+    keepSessionAlive: false,
+    loginEnabled: false,
+    securityPolicy: 'None',
+    securityMode: 'NONE',
+    name: 'LOCAL DEMO SERVER',
+    showErrors: false,
+    publicCertificateFile: '',
+    privateKeyFile: '',
+    defaultSecureTokenLifetime: '60000',
+    endpointMustExist: false,
+    autoSelectRightEndpoint: false
   }
 ]
 
 var recursiveBrowserAboFlow = [
   {
-    'id': '8a761f37.f69808',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
-    'payloadType': 'json',
-    'topic': '',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '3',
-    'name': 'Root',
-    'addressSpaceItems': [
+    id: '8a761f37.f69808',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
+    payloadType: 'json',
+    topic: '',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '3',
+    name: 'Root',
+    addressSpaceItems: [
       {
-        'name': 'BiancoRoyal',
-        'nodeId': 'ns=1;i=1234',
-        'datatypeName': ''
+        name: 'BiancoRoyal',
+        nodeId: 'ns=1;i=1234',
+        datatypeName: ''
       },
       {
-        'name': 'Tanks',
-        'nodeId': 'ns=1;i=1001',
-        'datatypeName': ''
+        name: 'Tanks',
+        nodeId: 'ns=1;i=1001',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         '18b3e5b9.f9ba4a',
         'n1abo'
@@ -377,54 +377,54 @@ var recursiveBrowserAboFlow = [
     ]
   },
   {
-    'id': '8a761f37.f69818',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{}',
-    'payloadType': 'json',
-    'topic': 'unsub',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '6',
-    'name': 'Root',
-    'addressSpaceItems': [
+    id: '8a761f37.f69818',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{}',
+    payloadType: 'json',
+    topic: 'unsub',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '6',
+    name: 'Root',
+    addressSpaceItems: [
       {
-        'name': 'BiancoRoyal',
-        'nodeId': 'ns=1;i=1234',
-        'datatypeName': ''
+        name: 'BiancoRoyal',
+        nodeId: 'ns=1;i=1234',
+        datatypeName: ''
       },
       {
-        'name': 'Tanks',
-        'nodeId': 'ns=1;i=1001',
-        'datatypeName': ''
+        name: 'Tanks',
+        nodeId: 'ns=1;i=1001',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         '18b3e5b9.f9ba4a',
         'n1abo'
       ]
     ]
   },
-  {id: 'n1abo', type: 'helper'},
+  { id: 'n1abo', type: 'helper' },
   {
-    'id': '18b3e5b9.f9ba4a',
-    'type': 'OPCUA-IIoT-Browser',
-    'connector': '296a2f29.56e248',
-    'nodeId': '',
-    'name': 'RootBrowser',
-    'justValue': true,
-    'sendNodesToRead': false,
-    'sendNodesToListener': true,
-    'sendNodesToBrowser': false,
-    'singleBrowseResult': false,
-    'recursiveBrowse': true,
-    'recursiveDepth': '1',
-    'delayPerMessage': '0.5',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: '18b3e5b9.f9ba4a',
+    type: 'OPCUA-IIoT-Browser',
+    connector: '296a2f29.56e248',
+    nodeId: '',
+    name: 'RootBrowser',
+    justValue: true,
+    sendNodesToRead: false,
+    sendNodesToListener: true,
+    sendNodesToBrowser: false,
+    singleBrowseResult: false,
+    recursiveBrowse: true,
+    recursiveDepth: '1',
+    delayPerMessage: '0.5',
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       [
         '44548ff9.287e48',
         'f142e56c.d7906',
@@ -432,35 +432,35 @@ var recursiveBrowserAboFlow = [
       ]
     ]
   },
-  {id: 'n2abo', type: 'helper'},
+  { id: 'n2abo', type: 'helper' },
   {
-    'id': '44548ff9.287e48',
-    'type': 'OPCUA-IIoT-Response',
-    'name': '',
-    'compressStructure': false,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'activateFilters': false,
-    'filters': [],
-    'wires': [
+    id: '44548ff9.287e48',
+    type: 'OPCUA-IIoT-Response',
+    name: '',
+    compressStructure: false,
+    showStatusActivities: false,
+    showErrors: false,
+    activateFilters: false,
+    filters: [],
+    wires: [
       [
         'n3abo'
       ]
     ]
   },
-  {id: 'n3abo', type: 'helper'},
+  { id: 'n3abo', type: 'helper' },
   {
-    'id': 'f142e56c.d7906',
-    'type': 'OPCUA-IIoT-Listener',
-    'connector': '296a2f29.56e248',
-    'action': 'subscribe',
-    'queueSize': '1',
-    'name': '',
-    'justValue': true,
-    'useGroupItems': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: 'f142e56c.d7906',
+    type: 'OPCUA-IIoT-Listener',
+    connector: '296a2f29.56e248',
+    action: 'subscribe',
+    queueSize: '1',
+    name: '',
+    justValue: true,
+    useGroupItems: true,
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       [
         'c2a66a6.1940198',
         'c2a66a6.1940123',
@@ -468,83 +468,83 @@ var recursiveBrowserAboFlow = [
       ]
     ]
   },
-  {id: 'n4abo', type: 'helper'},
+  { id: 'n4abo', type: 'helper' },
   {
-    'id': 'c2a66a6.1940198',
-    'type': 'OPCUA-IIoT-Response',
-    'name': '',
-    'compressStructure': false,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'activateFilters': false,
-    'filters': [],
-    'wires': [
+    id: 'c2a66a6.1940198',
+    type: 'OPCUA-IIoT-Response',
+    name: '',
+    compressStructure: false,
+    showStatusActivities: false,
+    showErrors: false,
+    activateFilters: false,
+    filters: [],
+    wires: [
       [
         'n5abo'
       ]
     ]
   },
-  {id: 'n5abo', type: 'helper'},
+  { id: 'n5abo', type: 'helper' },
   {
-    'id': 'c2a66a6.1940123',
-    'type': 'OPCUA-IIoT-Response',
-    'name': '',
-    'compressStructure': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'activateFilters': false,
-    'filters': [],
-    'wires': [
+    id: 'c2a66a6.1940123',
+    type: 'OPCUA-IIoT-Response',
+    name: '',
+    compressStructure: true,
+    showStatusActivities: false,
+    showErrors: false,
+    activateFilters: false,
+    filters: [],
+    wires: [
       [
         'n6abo'
       ]
     ]
   },
-  {id: 'n6abo', type: 'helper'},
+  { id: 'n6abo', type: 'helper' },
   {
-    'id': '296a2f29.56e248',
-    'type': 'OPCUA-IIoT-Connector',
-    'discoveryUrl': '',
-    'endpoint': 'opc.tcp://localhost:55587/',
-    'keepSessionAlive': false,
-    'loginEnabled': false,
-    'securityPolicy': 'None',
-    'securityMode': 'NONE',
-    'name': 'LOCAL DEMO SERVER',
-    'showErrors': false,
-    'publicCertificateFile': '',
-    'privateKeyFile': '',
-    'defaultSecureTokenLifetime': '60000',
-    'endpointMustExist': false,
-    'autoSelectRightEndpoint': false
+    id: '296a2f29.56e248',
+    type: 'OPCUA-IIoT-Connector',
+    discoveryUrl: '',
+    endpoint: 'opc.tcp://localhost:55587/',
+    keepSessionAlive: false,
+    loginEnabled: false,
+    securityPolicy: 'None',
+    securityMode: 'NONE',
+    name: 'LOCAL DEMO SERVER',
+    showErrors: false,
+    publicCertificateFile: '',
+    privateKeyFile: '',
+    defaultSecureTokenLifetime: '60000',
+    endpointMustExist: false,
+    autoSelectRightEndpoint: false
   },
   {
-    'id': '37396e13.734bd2',
-    'type': 'OPCUA-IIoT-Server',
-    'port': '55587',
-    'endpoint': '',
-    'acceptExternalCommands': true,
-    'maxAllowedSessionNumber': '',
-    'maxConnectionsPerEndpoint': '',
-    'maxAllowedSubscriptionNumber': '',
-    'alternateHostname': '',
-    'name': '',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'asoDemo': true,
-    'allowAnonymous': true,
-    'isAuditing': false,
-    'serverDiscovery': false,
-    'users': [],
-    'xmlsets': [],
-    'publicCertificateFile': '',
-    'privateCertificateFile': '',
-    'registerServerMethod': 1,
-    'discoveryServerEndpointUrl': '',
-    'capabilitiesForMDNS': '',
-    'maxNodesPerRead': 1000,
-    'maxNodesPerBrowse': 2000,
-    'wires': [
+    id: '37396e13.734bd2',
+    type: 'OPCUA-IIoT-Server',
+    port: '55587',
+    endpoint: '',
+    acceptExternalCommands: true,
+    maxAllowedSessionNumber: '',
+    maxConnectionsPerEndpoint: '',
+    maxAllowedSubscriptionNumber: '',
+    alternateHostname: '',
+    name: '',
+    showStatusActivities: false,
+    showErrors: false,
+    asoDemo: true,
+    allowAnonymous: true,
+    isAuditing: false,
+    serverDiscovery: false,
+    users: [],
+    xmlsets: [],
+    publicCertificateFile: '',
+    privateCertificateFile: '',
+    registerServerMethod: 1,
+    discoveryServerEndpointUrl: '',
+    capabilitiesForMDNS: '',
+    maxNodesPerRead: 1000,
+    maxNodesPerBrowse: 2000,
+    wires: [
       []
     ]
   }
@@ -552,138 +552,138 @@ var recursiveBrowserAboFlow = [
 
 var feedListenerWithRecursiveBrowse = [
   {
-    'id': '3b4d83c1.6b490c',
-    'type': 'OPCUA-IIoT-Inject',
-    'injectType': 'listen',
-    'payload': '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
-    'payloadType': 'json',
-    'topic': '',
-    'repeat': '',
-    'crontab': '',
-    'once': true,
-    'startDelay': '3',
-    'name': '',
-    'addressSpaceItems': [
+    id: '3b4d83c1.6b490c',
+    type: 'OPCUA-IIoT-Inject',
+    injectType: 'listen',
+    payload: '{"interval":250,"queueSize":4,"options":{"requestedPublishingInterval":500,"requestedLifetimeCount":60,"requestedMaxKeepAliveCount":10,"maxNotificationsPerPublish":4,"publishingEnabled":true,"priority":1}}',
+    payloadType: 'json',
+    topic: '',
+    repeat: '',
+    crontab: '',
+    once: true,
+    startDelay: '3',
+    name: '',
+    addressSpaceItems: [
       {
-        'name': 'BiancoRoyal',
-        'nodeId': 'ns=1;i=1234',
-        'datatypeName': ''
+        name: 'BiancoRoyal',
+        nodeId: 'ns=1;i=1234',
+        datatypeName: ''
       }
     ],
-    'wires': [
+    wires: [
       [
         '70a1a122.850e4'
       ]
     ]
   },
   {
-    'id': '70a1a122.850e4',
-    'type': 'OPCUA-IIoT-Browser',
-    'connector': 'c95fc9fc.64ccc',
-    'nodeId': '',
-    'name': '',
-    'justValue': true,
-    'sendNodesToRead': false,
-    'sendNodesToListener': true,
-    'sendNodesToBrowser': false,
-    'singleBrowseResult': false,
-    'recursiveBrowse': true,
-    'recursiveDepth': 1,
-    'delayPerMessage': '2',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: '70a1a122.850e4',
+    type: 'OPCUA-IIoT-Browser',
+    connector: 'c95fc9fc.64ccc',
+    nodeId: '',
+    name: '',
+    justValue: true,
+    sendNodesToRead: false,
+    sendNodesToListener: true,
+    sendNodesToBrowser: false,
+    singleBrowseResult: false,
+    recursiveBrowse: true,
+    recursiveDepth: 1,
+    delayPerMessage: '2',
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       [
         'n1brli',
         '66692416.1b2bb4'
       ]
     ]
   },
-  {id: 'n1brli', type: 'helper'},
+  { id: 'n1brli', type: 'helper' },
   {
-    'id': '66692416.1b2bb4',
-    'type': 'OPCUA-IIoT-Listener',
-    'connector': 'c95fc9fc.64ccc',
-    'action': 'subscribe',
-    'queueSize': '1',
-    'name': '',
-    'justValue': true,
-    'useGroupItems': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'wires': [
+    id: '66692416.1b2bb4',
+    type: 'OPCUA-IIoT-Listener',
+    connector: 'c95fc9fc.64ccc',
+    action: 'subscribe',
+    queueSize: '1',
+    name: '',
+    justValue: true,
+    useGroupItems: true,
+    showStatusActivities: false,
+    showErrors: false,
+    wires: [
       [
         'e604f20a.c8bd4',
         'n2brli'
       ]
     ]
   },
-  {id: 'n2brli', type: 'helper'},
+  { id: 'n2brli', type: 'helper' },
   {
-    'id': 'e604f20a.c8bd4',
-    'type': 'OPCUA-IIoT-Response',
-    'name': '',
-    'compressStructure': true,
-    'showStatusActivities': false,
-    'showErrors': false,
-    'activateFilters': true,
-    'filters': [
+    id: 'e604f20a.c8bd4',
+    type: 'OPCUA-IIoT-Response',
+    name: '',
+    compressStructure: true,
+    showStatusActivities: false,
+    showErrors: false,
+    activateFilters: true,
+    filters: [
       {
-        'name': 'dataType',
-        'value': 'Int32'
+        name: 'dataType',
+        value: 'Int32'
       }
     ],
-    'wires': [
+    wires: [
       [
         'n3brli'
       ]
     ]
   },
-  {id: 'n3brli', type: 'helper'},
+  { id: 'n3brli', type: 'helper' },
   {
-    'id': 'c95fc9fc.64ccc',
-    'type': 'OPCUA-IIoT-Connector',
-    'discoveryUrl': '',
-    'endpoint': 'opc.tcp://localhost:53336/',
-    'keepSessionAlive': false,
-    'loginEnabled': false,
-    'securityPolicy': 'None',
-    'securityMode': 'NONE',
-    'name': 'LOCAL DEMO SERVER',
-    'showErrors': false,
-    'publicCertificateFile': '',
-    'privateKeyFile': '',
-    'defaultSecureTokenLifetime': '60000',
-    'endpointMustExist': false,
-    'autoSelectRightEndpoint': false
+    id: 'c95fc9fc.64ccc',
+    type: 'OPCUA-IIoT-Connector',
+    discoveryUrl: '',
+    endpoint: 'opc.tcp://localhost:53336/',
+    keepSessionAlive: false,
+    loginEnabled: false,
+    securityPolicy: 'None',
+    securityMode: 'NONE',
+    name: 'LOCAL DEMO SERVER',
+    showErrors: false,
+    publicCertificateFile: '',
+    privateKeyFile: '',
+    defaultSecureTokenLifetime: '60000',
+    endpointMustExist: false,
+    autoSelectRightEndpoint: false
   },
   {
-    'id': '37396e13.734bd2',
-    'type': 'OPCUA-IIoT-Server',
-    'port': '53336',
-    'endpoint': '',
-    'acceptExternalCommands': true,
-    'maxAllowedSessionNumber': '',
-    'maxConnectionsPerEndpoint': '',
-    'maxAllowedSubscriptionNumber': '',
-    'alternateHostname': '',
-    'name': '',
-    'showStatusActivities': false,
-    'showErrors': false,
-    'asoDemo': true,
-    'allowAnonymous': true,
-    'isAuditing': false,
-    'serverDiscovery': false,
-    'users': [],
-    'xmlsets': [],
-    'publicCertificateFile': '',
-    'privateCertificateFile': '',
-    'registerServerMethod': 1,
-    'discoveryServerEndpointUrl': '',
-    'capabilitiesForMDNS': '',
-    'maxNodesPerRead': 1000,
-    'maxNodesPerBrowse': 2000,
-    'wires': [
+    id: '37396e13.734bd2',
+    type: 'OPCUA-IIoT-Server',
+    port: '53336',
+    endpoint: '',
+    acceptExternalCommands: true,
+    maxAllowedSessionNumber: '',
+    maxConnectionsPerEndpoint: '',
+    maxAllowedSubscriptionNumber: '',
+    alternateHostname: '',
+    name: '',
+    showStatusActivities: false,
+    showErrors: false,
+    asoDemo: true,
+    allowAnonymous: true,
+    isAuditing: false,
+    serverDiscovery: false,
+    users: [],
+    xmlsets: [],
+    publicCertificateFile: '',
+    privateCertificateFile: '',
+    registerServerMethod: 1,
+    discoveryServerEndpointUrl: '',
+    capabilitiesForMDNS: '',
+    maxNodesPerRead: 1000,
+    maxNodesPerBrowse: 2000,
+    wires: [
       []
     ]
   }
@@ -714,7 +714,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should get a message with payload after inject on unsubscribe', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringFlow, function () {
         msgCounter = 0
-        let n2 = helper.getNode('n2li')
+        const n2 = helper.getNode('n2li')
         n2.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 2) {
@@ -730,7 +730,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a message on changed monitored item with statusCode on subscribe', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringFlow, function () {
         msgCounter = 0
-        let n3 = helper.getNode('n3li')
+        const n3 = helper.getNode('n3li')
         n3.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -747,7 +747,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a compressed message from response node on subscribe', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringFlow, function () {
         msgCounter = 0
-        let n4 = helper.getNode('n4li')
+        const n4 = helper.getNode('n4li')
         n4.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -765,7 +765,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should get a message with payload after injecting twice', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringAboFlow, function () {
         msgCounter = 0
-        let n1 = helper.getNode('n1lia')
+        const n1 = helper.getNode('n1lia')
         n1.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -787,7 +787,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a message on changed monitored item with statusCode on subscribing twice', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringAboFlow, function () {
         msgCounter = 0
-        let n2 = helper.getNode('n2lia')
+        const n2 = helper.getNode('n2lia')
         n2.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -810,7 +810,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify message from listener node on subscribing twice', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringAboFlow, function () {
         msgCounter = 0
-        let n3 = helper.getNode('n3lia')
+        const n3 = helper.getNode('n3lia')
         n3.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -824,7 +824,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a compressed message from response node on subscribing twice', function (done) {
       helper.load(listenerNodesToLoad, testListenerMonitoringAboFlow, function () {
         msgCounter = 0
-        let n4 = helper.getNode('n4lia')
+        const n4 = helper.getNode('n4lia')
         n4.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -838,7 +838,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a message from browse node on subscribe recursive', function (done) {
       helper.load(listenerNodesToLoad, recursiveBrowserAboFlow, function () {
         msgCounter = 0
-        let n2 = helper.getNode('n2abo')
+        const n2 = helper.getNode('n2abo')
         n2.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -862,7 +862,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a compressed message from response after browser node on subscribe recursive', function (done) {
       helper.load(listenerNodesToLoad, recursiveBrowserAboFlow, function () {
         msgCounter = 0
-        let n3 = helper.getNode('n3abo')
+        const n3 = helper.getNode('n3abo')
         n3.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -884,7 +884,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a message from listener node on subscribe recursive', function (done) {
       helper.load(listenerNodesToLoad, recursiveBrowserAboFlow, function () {
         msgCounter = 0
-        let n4 = helper.getNode('n4abo')
+        const n4 = helper.getNode('n4abo')
         n4.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -902,7 +902,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
     it('should verify a compressed message from response after listener node on subscribe recursive as single result', function (done) {
       helper.load(listenerNodesToLoad, recursiveBrowserAboFlow, function () {
         msgCounter = 0
-        let n5 = helper.getNode('n5abo')
+        const n5 = helper.getNode('n5abo')
         n5.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -917,7 +917,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
       feedListenerWithRecursiveBrowse[1].singleBrowseResult = false
       helper.load(listenerNodesToLoad, feedListenerWithRecursiveBrowse, function () {
         msgCounter = 0
-        let n2 = helper.getNode('n2brli')
+        const n2 = helper.getNode('n2brli')
         n2.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {
@@ -932,7 +932,7 @@ describe('OPC UA Listener monitoring node e2e Testing', function () {
       feedListenerWithRecursiveBrowse[1].singleBrowseResult = true
       helper.load(listenerNodesToLoad, feedListenerWithRecursiveBrowse, function () {
         msgCounter = 0
-        let n2 = helper.getNode('n2brli')
+        const n2 = helper.getNode('n2brli')
         n2.on('input', function (msg) {
           msgCounter++
           if (msgCounter === 1) {

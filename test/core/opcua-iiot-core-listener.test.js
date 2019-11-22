@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -10,14 +10,14 @@
 jest.setTimeout(5000)
 
 describe('OPC UA Core Listener', function () {
-  let assert = require('chai').assert
-  let expect = require('chai').expect
-  let coreListener = require('../../src/core/opcua-iiot-core-listener')
+  const assert = require('chai').assert
+  const expect = require('chai').expect
+  const coreListener = require('../../src/core/opcua-iiot-core-listener')
   const TIME_IN_MILLISECONDS = 10000
 
   describe('Parameter', function () {
     it('should return Event Subscribtion Parameters', function (done) {
-      let sut = coreListener.getEventSubscribtionParameters(TIME_IN_MILLISECONDS)
+      const sut = coreListener.getEventSubscribtionParameters(TIME_IN_MILLISECONDS)
       expect(sut).to.be.an('object').that.has.property('requestedPublishingInterval', TIME_IN_MILLISECONDS)
       expect(sut).to.be.an('object').that.has.property('requestedLifetimeCount', 1000 * 60 * 20)
       expect(sut).to.be.an('object').that.has.property('requestedMaxKeepAliveCount', 120)
@@ -28,7 +28,7 @@ describe('OPC UA Core Listener', function () {
     })
 
     it('should return Subscribtion Parameters', function (done) {
-      let sut = coreListener.getSubscriptionParameters(TIME_IN_MILLISECONDS)
+      const sut = coreListener.getSubscriptionParameters(TIME_IN_MILLISECONDS)
       expect(sut).to.be.an('object').that.has.property('requestedPublishingInterval', TIME_IN_MILLISECONDS)
       expect(sut).to.be.an('object').that.has.property('requestedLifetimeCount', 1000 * 60 * 10)
       expect(sut).to.be.an('object').that.has.property('requestedMaxKeepAliveCount', 60)
@@ -39,7 +39,7 @@ describe('OPC UA Core Listener', function () {
     })
 
     it('should return all event fields in combination of basic and all', function (done) {
-      let allFields = coreListener.getBasicEventFields().concat(coreListener.getAllEventFields())
+      const allFields = coreListener.getBasicEventFields().concat(coreListener.getAllEventFields())
       expect(allFields).to.be.an('array').that.does.include(
         'EventId',
         'SourceName',
@@ -79,7 +79,7 @@ describe('OPC UA Core Listener', function () {
     })
 
     it('should return collected alarm fields with value', function (done) {
-      let allFields = coreListener.getBasicEventFields().concat(coreListener.getAllEventFields())
+      const allFields = coreListener.getBasicEventFields().concat(coreListener.getAllEventFields())
       let field = null
       let sut = null
 
@@ -93,12 +93,12 @@ describe('OPC UA Core Listener', function () {
     })
 
     it('should return collected alarm fields with value.text', function (done) {
-      let allFields = coreListener.getBasicEventFields().concat(coreListener.getAllEventFields())
+      const allFields = coreListener.getBasicEventFields().concat(coreListener.getAllEventFields())
       let field = null
       let sut = null
 
       for (field of allFields) {
-        sut = coreListener.collectAlarmFields(field, 'key', {text: 'Hello World!'})
+        sut = coreListener.collectAlarmFields(field, 'key', { text: 'Hello World!' })
         expect(sut).to.be.an('object').that.has.property('field', field)
         expect(sut).to.be.an('object').that.has.property('dataType', 'key')
         expect(sut.value).to.be.an('object').that.has.property('text', 'Hello World!')

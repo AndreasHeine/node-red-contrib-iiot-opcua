@@ -1,7 +1,7 @@
 /**
  The BSD 3-Clause License
 
- Copyright 2016,2017,2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2016,2017,2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  Copyright 2015,2016 - Mika Karaila, Valmet Automation Inc. (node-red-contrib-opcua)
  All rights reserved.
  node-red-contrib-iiot-opcua
@@ -17,7 +17,7 @@
  * @Namesapce de.biancoroyal.opcua.iiot.core.client.listener
  */
 var de = de || { biancoroyal: { opcua: { iiot: { core: { listener: {} } } } } } // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.listener.core = de.biancoroyal.opcua.iiot.core.listener.core || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.basics = de.biancoroyal.opcua.iiot.core.basics || require('./opcua-iiot-core') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.listener.client = de.biancoroyal.opcua.iiot.core.listener.client || require('./opcua-iiot-core-client') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.listener.internalDebugLog = de.biancoroyal.opcua.iiot.core.listener.internalDebugLog || require('debug')('opcuaIIoT:listener') // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.listener.detailDebugLog = de.biancoroyal.opcua.iiot.core.listener.detailDebugLog || require('debug')('opcuaIIoT:listener:details') // eslint-disable-line no-use-before-define
@@ -34,38 +34,62 @@ de.biancoroyal.opcua.iiot.core.listener.EVENT_DEFAULT_QUEUE_SIZE = 10000 // esli
 de.biancoroyal.opcua.iiot.core.listener.METHOD_TYPE = 'ns=0;i=0' // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.listener.RUNNING_STATE = 'STARTED' // eslint-disable-line no-use-before-define
 de.biancoroyal.opcua.iiot.core.listener.MAX_INT32 = 2147483647 // eslint-disable-line no-use-before-define
-de.biancoroyal.opcua.iiot.core.listener.Stately = de.biancoroyal.opcua.iiot.core.listener.Stately || require('stately.js') // eslint-disable-line no-use-before-define
+de.biancoroyal.opcua.iiot.core.listener.XStateFSM = de.biancoroyal.opcua.iiot.core.listener.XStateFSM || require('@xstate/fsm') // eslint-disable-line no-use-before-define
 
-de.biancoroyal.opcua.iiot.core.listener.createStatelyMachine = function () {
-  return de.biancoroyal.opcua.iiot.core.listener.Stately.machine({
-    'IDLE': {
-      'requestinitsub': 'REQUESTED',
-      'endsub': 'END'
-    },
-    'REQUESTED': {
-      'initsub': 'INIT'
-    },
-    'INIT': {
-      'startsub': 'STARTED',
-      'terminatesub': 'TERMINATED',
-      'errorsub': 'ERROR'
-    },
-    'STARTED': {
-      'terminatesub': 'TERMINATED',
-      'errorsub': 'ERROR'
-    },
-    'TERMINATED': {
-      'idlesub': 'IDLE',
-      'errorsub': 'ERROR',
-      'endsub': 'END'
-    },
-    'ERROR': {
-      'idlesub': 'IDLE',
-      'initsub': 'INIT',
-      'endsub': 'END'
-    },
-    'END': {}
-  }, 'IDLE')
+de.biancoroyal.opcua.iiot.core.listener.createStateMachineService = function () {
+  return de.biancoroyal.opcua.iiot.core.listener.XStateFSM.createMachine({
+    id: 'opcuaListener',
+    initial: 'idle',
+    states: {
+      idle: {
+        on: {
+          requestinitsub: 'REQUESTED',
+          endsub: 'END'
+        }
+      },
+      requested: {
+        on: {
+          initsub: 'INIT'
+        }
+      },
+      init: {
+        on: {
+          startsub: 'STARTED',
+          terminatesub: 'TERMINATED',
+          errorsub: 'ERROR'
+        }
+      },
+      started: {
+        on: {
+          terminatesub: 'TERMINATED',
+          errorsub: 'ERROR'
+        }
+      },
+      terminated: {
+        on: {
+          idlesub: 'IDLE',
+          errorsub: 'ERROR',
+          endsub: 'END'
+        }
+      },
+      error: {
+        on: {
+          idlesub: 'IDLE',
+          initsub: 'INIT',
+          endsub: 'END'
+        }
+      },
+      end: {
+        on: {
+          type: 'final'
+        }
+      }
+    }
+  })
+}
+
+de.biancoroyal.opcua.iiot.core.listener.startStateService = function (toggleMachine) {
+  return this.XStateFSM.interpret(toggleMachine).start()
 }
 
 de.biancoroyal.opcua.iiot.core.listener.getEventSubscribtionParameters = function (timeMilliseconds) {
@@ -175,9 +199,9 @@ de.biancoroyal.opcua.iiot.core.listener.getConditionFields = function () {
 }
 
 de.biancoroyal.opcua.iiot.core.listener.monitorItems = function (node, msg, uaSubscription) {
-  let coreListener = de.biancoroyal.opcua.iiot.core.listener
+  const coreListener = this
 
-  for (let addressSpaceItem of msg.addressSpaceItems) {
+  for (const addressSpaceItem of msg.addressSpaceItems) {
     if (!addressSpaceItem.nodeId) {
       coreListener.subscribeDebugLog('Address Space Item Not Valid to Monitor ' + addressSpaceItem)
       return
@@ -209,7 +233,7 @@ de.biancoroyal.opcua.iiot.core.listener.monitorItems = function (node, msg, uaSu
 }
 
 de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItem = function (nodeId, msg, subscription) {
-  let coreListener = de.biancoroyal.opcua.iiot.core.listener
+  const coreListener = this
 
   return new Promise(
     function (resolve, reject) {
@@ -220,7 +244,7 @@ de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItem = function (nodeId
 
       let interval
       let queueSize
-      let options = (msg.payload.listenerParameters) ? msg.payload.listenerParameters : msg.payload
+      const options = (msg.payload.listenerParameters) ? msg.payload.listenerParameters : msg.payload
       if (typeof options.interval === 'number' &&
         options.interval <= coreListener.MAX_LISTENER_INTERVAL &&
         options.interval >= coreListener.MIN_LISTENER_INTERVAL) {
@@ -259,7 +283,7 @@ de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItem = function (nodeId
 }
 
 de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItemGroup = function (node, msg, addressSpaceItems, subscription) {
-  let coreListener = de.biancoroyal.opcua.iiot.core.listener
+  const coreListener = this
 
   return new Promise(
     function (resolve, reject) {
@@ -271,7 +295,7 @@ de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItemGroup = function (n
       let interval
       let queueSize
 
-      let options = (msg.payload.listenerParameters) ? msg.payload.listenerParameters : msg.payload
+      const options = (msg.payload.listenerParameters) ? msg.payload.listenerParameters : msg.payload
       if (typeof options.interval === 'number' &&
         options.interval <= coreListener.MAX_LISTENER_INTERVAL &&
         options.interval >= coreListener.MIN_LISTENER_INTERVAL) {
@@ -286,15 +310,16 @@ de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItemGroup = function (n
         queueSize = coreListener.SUBSCRIBE_DEFAULT_QUEUE_SIZE
       }
 
-      let filteredAddressSpaceItems = addressSpaceItems.filter((addressSpaceItem) => {
+      const filteredAddressSpaceItems = addressSpaceItems.filter((addressSpaceItem) => {
         return addressSpaceItem.datatypeName !== de.biancoroyal.opcua.iiot.core.listener.METHOD_TYPE
       })
 
-      let subcriptionItems = []
+      const subcriptionItems = []
       filteredAddressSpaceItems.forEach((item) => {
         subcriptionItems.push({
           nodeId: coreListener.core.nodeOPCUA.resolveNodeId(item.nodeId),
-          attributeId: coreListener.core.nodeOPCUA.AttributeIds.Value })
+          attributeId: coreListener.core.nodeOPCUA.AttributeIds.Value
+        })
       })
 
       subscription.monitorItems(
@@ -318,7 +343,7 @@ de.biancoroyal.opcua.iiot.core.listener.buildNewMonitoredItemGroup = function (n
 }
 
 de.biancoroyal.opcua.iiot.core.listener.buildNewEventItem = function (nodeId, msg, subscription) {
-  let coreListener = de.biancoroyal.opcua.iiot.core.listener
+  const coreListener = this
 
   return new Promise(
     function (resolve, reject) {
@@ -367,8 +392,8 @@ de.biancoroyal.opcua.iiot.core.listener.buildNewEventItem = function (nodeId, ms
 }
 
 de.biancoroyal.opcua.iiot.core.listener.analyzeEvent = function (session, browseForBrowseName, dataValue) {
-  let core = de.biancoroyal.opcua.iiot.core.listener.core
-  let coreListener = de.biancoroyal.opcua.iiot.core.listener
+  const core = de.biancoroyal.opcua.iiot.core.basics
+  const coreListener = this
 
   return new Promise(
     function (resolve, reject) {
@@ -387,7 +412,7 @@ de.biancoroyal.opcua.iiot.core.listener.analyzeEvent = function (session, browse
       } else {
         let index = 0
         let eventInformation = {}
-        let eventResults = []
+        const eventResults = []
 
         dataValue.forEach(function (variant) {
           coreListener.eventDebugLog('variant entry: ' + variant.toString())
@@ -437,7 +462,7 @@ de.biancoroyal.opcua.iiot.core.listener.checkState = function (node, msg, caller
 }
 
 de.biancoroyal.opcua.iiot.core.listener.initListenerNode = function (node) {
-  let listenerNode = this.core.initClientNode(node)
+  const listenerNode = this.core.initClientNode(node)
   listenerNode.bianco.iiot.opcuaSubscription = null
   listenerNode.bianco.iiot.monitoredItems = new Map()
   listenerNode.bianco.iiot.monitoredASO = new Map()

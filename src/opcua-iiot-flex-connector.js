@@ -1,7 +1,7 @@
 /*
  The BSD 3-Clause License
 
- Copyright 2018 - Klaus Landsdorf (http://bianco-royal.de/)
+ Copyright 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  All rights reserved.
  node-red-contrib-iiot-opcua
  */
@@ -14,7 +14,8 @@
  */
 module.exports = function (RED) {
   // SOURCE-MAP-REQUIRED
-  let coreConnector = require('./core/opcua-iiot-core-connector')
+  const coreBasics = require('./core/opcua-iiot-core')
+  const coreConnector = require('./core/opcua-iiot-core-connector')
 
   function OPCUAIIoTFlexConnector (config) {
     RED.nodes.createNode(this, config)
@@ -23,9 +24,9 @@ module.exports = function (RED) {
     this.showErrors = config.showErrors
     this.connector = RED.nodes.getNode(config.connector)
 
-    let node = this
-    node.bianco = coreConnector.core.createBiancoIIoT()
-    coreConnector.core.assert(node.bianco.iiot)
+    const node = this
+    node.bianco = coreBasics.createBiancoIIoT()
+    coreBasics.assert(node.bianco.iiot)
 
     node.status({ fill: 'blue', shape: 'ring', text: 'new' })
 
@@ -50,11 +51,11 @@ module.exports = function (RED) {
       }
     })
 
-    coreConnector.core.registerToConnector(node)
+    coreBasics.registerToConnector(node)
 
     node.on('close', (done) => {
-      coreConnector.core.deregisterToConnector(node, () => {
-        coreConnector.core.resetBiancoNode(node)
+      coreBasics.deregisterToConnector(node, () => {
+        coreBasics.resetBiancoNode(node)
         done()
       })
     })

@@ -2,7 +2,7 @@
  * Original Work Copyright 2014 IBM Corp.
  * node-red
  *
- * Copyright (c) 2018 Klaus Landsdorf (http://bianco-royal.de/)
+ * Copyright (c) 2018,2019 - Klaus Landsdorf (https://bianco-royal.com/)
  * All rights reserved.
  * node-red-contrib-iiot-opcua
  *
@@ -12,8 +12,8 @@
 
 jest.setTimeout(5000)
 
-var injectNodeRedNode = require('node-red/nodes/core/core/20-inject')
-var functionNodeRedNode = require('node-red/nodes/core/core/80-function')
+var injectNodeRedNode = require('@node-red/nodes/core/common/20-inject')
+var functionNodeRedNode = require('@node-red/nodes/core/function/10-function')
 
 // iiot opcua
 var inputNode = require('../src/opcua-iiot-write')
@@ -25,14 +25,14 @@ var writeNodesToLoad = [injectNodeRedNode, functionNodeRedNode, inputNode]
 
 var writeUnitFlow = [
   {
-    'id': '34d2c6bc.43275b',
-    'type': 'OPCUA-IIoT-Write',
-    'connector': '',
-    'name': 'TestWrite',
-    'justValue': false,
-    'showStatusActivities': false,
-    'showErrors': true,
-    'wires': [[]]
+    id: '34d2c6bc.43275b',
+    type: 'OPCUA-IIoT-Write',
+    connector: '',
+    name: 'TestWrite',
+    justValue: false,
+    showStatusActivities: false,
+    showErrors: true,
+    wires: [[]]
   }
 ]
 
@@ -59,7 +59,7 @@ describe('OPC UA Write node Unit Testing', function () {
     it('should be loaded', function (done) {
       helper.load(writeNodesToLoad, writeUnitFlow,
         function () {
-          let nodeUnderTest = helper.getNode('34d2c6bc.43275b')
+          const nodeUnderTest = helper.getNode('34d2c6bc.43275b')
           expect(nodeUnderTest.name).toBe('TestWrite')
           expect(nodeUnderTest.showErrors).toBe(true)
           expect(nodeUnderTest.justValue).toBe(false)
@@ -69,9 +69,9 @@ describe('OPC UA Write node Unit Testing', function () {
 
     it('should be loaded and handle error', function (done) {
       helper.load(writeNodesToLoad, writeUnitFlow, () => {
-        let n1 = helper.getNode('34d2c6bc.43275b')
+        const n1 = helper.getNode('34d2c6bc.43275b')
         if (n1) {
-          n1.bianco.iiot.handleWriteError(new Error('Testing Error To Handle'), {payload: {}})
+          n1.bianco.iiot.handleWriteError(new Error('Testing Error To Handle'), { payload: {} })
           done()
         }
       })
