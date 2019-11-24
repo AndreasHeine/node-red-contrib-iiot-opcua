@@ -870,9 +870,9 @@ de.biancoroyal.opcua.iiot.core.server.buildServerOptions = function (node, prefi
     },
     serverInfo: {
       // applicationType: ApplicationType.CLIENTANDSERVER,
-      applicationUri: makeApplicationUrn(
-        getFullyQualifiedDomainName(),
-        coreServer.createServerNameWithPrefix(node.port, prefix)),
+      // applicationUri: makeApplicationUrn(
+      // getFullyQualifiedDomainName(),
+      // coreServer.createServerNameWithPrefix(node.port, prefix)),
       productUri: coreServer.createServerNameWithPrefix(node.port, prefix),
       applicationName: { text: 'Node-RED', locale: 'en' },
       gatewayServerUri: null,
